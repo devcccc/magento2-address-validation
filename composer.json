@@ -37,11 +37,5 @@
     "psr-4": {
       "CCCC\\Addressvalidation\\": ""
     }
-  },
-  "extra": {
-    "branch-alias": {
-      "dev-master": "0.1.x-current",
-      "dev-develop": "unstable"
-    }
   }
 }
