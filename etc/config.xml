@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Store:etc/config.xsd">
+    <default>
+        <cccc_addressvalidation_endereco_section>
+            <connection>
+                <enabled>0</enabled>
+                <baseurl>https://sandbox.endereco-service.de/rpc/v1</baseurl>
+                <transactionid_mode>random</transactionid_mode>
+                <referer_mode>currentpage</referer_mode>
+            </connection>
+            <integration>
+                <frontend_checkout_shipping>1</frontend_checkout_shipping>
+                <frontend_checkout_billing>1</frontend_checkout_billing>
+                <customer_addressbook>0</customer_addressbook>
+            </integration>
+            <features>
+                <address_check>1</address_check>
+                <force_valid_address>1</force_valid_address>
+            </features>
+
+            <field_mapping>
+                <country>country_id</country>
+                <postCode>postcode</postCode>
+                <cityName>city</cityName>
+                <street>street[0]</street>
+                <houseNumber>street[1]</houseNumber>
+            </field_mapping>
+
+        </cccc_addressvalidation_endereco_section>
+    </default>
+</config>
