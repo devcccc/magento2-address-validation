@@ -40,8 +40,8 @@
   },
   "extra": {
     "branch-alias": {
-      "dev-master": "0.1.x-current",
-      "dev-develop": "unstable"
+      "dev-master": "0.1.x-dev",
+      "dev-develop": "unstable-dev"
     }
   }
 }
