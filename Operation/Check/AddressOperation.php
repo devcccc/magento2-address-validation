@@ -63,9 +63,9 @@ class AddressOperation extends BaseOperation
                 );
 
                 if (count($result['predictions']) > 1) {
-                    $result['message'] = __('The address validation identified several possible addresses. The first one listed will be used. If you want to use another address, you have to correct it manually.');
+                    $result['message'] = __('The address validation identified several possible addresses. Please choose of the listed addresses.');
                 } else {
-                    $result['message'] = __('The address validation was able to correct the address. Would you like to change the address?');
+                    $result['message'] = __('The address validation was able to correct the address.');
                 }
             }
         } else if (!$response->isSuccess()) {

@@ -6,8 +6,9 @@ define([
     'mage/storage',
     'Magento_Checkout/js/model/full-screen-loader',
     'Magento_Checkout/js/model/quote',
-    'Magento_Customer/js/model/customer'
-], function ($, urlBuilder, storage, fullScreenLoader, quote, customer) {
+    'Magento_Customer/js/model/customer',
+    'Magento_Ui/js/modal/confirm'
+], function ($, urlBuilder, storage, fullScreenLoader, quote, customer, confirmation) {
     'use strict';
 
     function ccccGetAddressDataByFieldSelector(addressData, field, fallback) {
@@ -45,37 +46,123 @@ define([
             function (response) {
                 if (response.success == true) {
                     if (response.valid && response.changed && response.predictions && response.predictions.length == 1) {
-                        var message = response.message + '\n\n';
+
+                        var message = response.message + '<br/><br/>';
 
                         for (var i = 0; i < response.predictions.length; i++) {
                             message = message + '- ' + response.predictions[i].street+' '+response.predictions[i].houseNumber+', '+response.predictions[i].postCode+' '+response.predictions[i].city+'\n';
                         }
 
-                        message = message +'\n\n';
+                        message = message +'<br/><br/>';
 
-                        if ((window.checkoutConfig.cccc.addressvalidation.endereco.force_valid_address && alert(message)) || confirm(message)) {
+                        if ((window.checkoutConfig.cccc.addressvalidation.endereco.force_valid_address && alert(message))) {
                             baseView.ccccUpdateAddress(response.predictions[0]);
+                        } else if (!window.checkoutConfig.cccc.addressvalidation.endereco.force_valid_address) {
+                            confirmation({
+                                title: $.mage.__('Adressvalidation'),
+                                content: message,
+                                buttons: [{
+                                    text: $.mage.__('Do not change address'),
+                                    class: 'action-secondary action-dismiss',
+
+                                    /**
+                                     * Click handler.
+                                     */
+                                    click: function (event) {
+                                        this.closeModal(event);
+                                    }
+                                }, {
+                                    text: $.mage.__('Use selected address'),
+                                    class: 'action-primary action-accept',
+
+                                    /**
+                                     * Click handler.
+                                     */
+                                    click: function (event) {
+                                        this.closeModal(event, true);
+                                    }
+                                }],
+                                actions: {
+                                    confirm: function(){
+                                        baseView.ccccUpdateAddress(response.predictions[0]);
+                                        baseView.ccccContinue(type);
+                                    }, //callback on 'Ok' button click
+                                    cancel: function(){
+                                        if (window.checkoutConfig.cccc.addressvalidation.endereco.force_valid_address) {
+                                            return;
+                                        }
+                                        baseView.ccccContinue(type);
+                                    }, //callback on 'Cancel' button click
+                                    always: function(){
+                                        fullScreenLoader.stopLoader();
+                                    }
+                                }
+                            });
                         } else if (window.checkoutConfig.cccc.addressvalidation.endereco.force_valid_address) {
                             fullScreenLoader.stopLoader();
                             return;
                         }
                     } else if (response.valid && response.changed && response.predictions && response.predictions.length > 1) {
                         var message = response.message + '\n\n';
+                        message += '<select id="adress-valid-select">';
 
                         for (var i = 0; i < response.predictions.length; i++) {
-                            message = message + '- ' + response.predictions[i].street+' '+response.predictions[i].houseNumber+', '+response.predictions[i].postCode+' '+response.predictions[i].city+'\n';
+                            message = message + '<option value="' + i +'">' + response.predictions[i].street+' '+response.predictions[i].houseNumber+', '+response.predictions[i].postCode+' '+response.predictions[i].city+'</option>';
                         }
 
-                        message = message +'\n\n';
+                        message = message +'</select>';
 
-                        if (confirm(message)) {
+                        confirmation({
+                            title: $.mage.__('Adressvalidation'),
+                            content: message,
+                            buttons: [{
+                                text: $.mage.__('Do not change address'),
+                                class: 'action-secondary action-dismiss',
+
+                                /**
+                                 * Click handler.
+                                 */
+                                click: function (event) {
+                                    this.closeModal(event);
+                                }
+                            }, {
+                                text: $.mage.__('Use selected address'),
+                                class: 'action-primary action-accept',
+
+                                /**
+                                 * Click handler.
+                                 */
+                                click: function (event) {
+                                    this.closeModal(event, true);
+                                }
+                            }],
+                            actions: {
+                                confirm: function(){
+                                    var adressVal = $('#adress-valid-select').val();
+                                    baseView.ccccUpdateAddress(response.predictions[adressVal]);
+                                    baseView.ccccContinue(type);
+                                }, //callback on 'Ok' button click
+                                cancel: function(){
+                                    if (window.checkoutConfig.cccc.addressvalidation.endereco.force_valid_address) {
+                                        return;
+                                    }
+                                    baseView.ccccContinue(type);
+                                }, //callback on 'Cancel' button click
+                                always: function(){
+                                    fullScreenLoader.stopLoader();
+                                }
+                            }
+                        });
+
+                        /*if (confirm(message)) {
                             baseView.ccccUpdateAddress(response.predictions[0]);
                         } else if (window.checkoutConfig.cccc.addressvalidation.endereco.force_valid_address) {
                             fullScreenLoader.stopLoader();
                             return;
-                        }
+                        }*/
+                    } else if (response.valid && !response.changed) {
+                        baseView.ccccContinue(type);
                     }
-                    baseView.ccccContinue(type);
                 } else {
                     alert(response.errormessage);
                 }

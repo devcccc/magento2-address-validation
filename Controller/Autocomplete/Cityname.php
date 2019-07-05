@@ -31,6 +31,6 @@ class Cityname extends BaseController
     }
 
     protected function canExecute() : bool {
-        return parent::canExecute() && $this->scopeConfig->getValue($this->configPrefix . '/features/city_autocomplete') == 1;
+        return parent::canExecute() && $this->scopeConfig->getValue($this->configPrefix . '/features/city_autocomplete', 'store') == 1;
     }
 }
