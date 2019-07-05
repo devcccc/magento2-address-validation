@@ -1,3 +1,6 @@
 "We're sorry, an error has occurred while validating the address. The address entered will be used.","Leider ist während der Adressprüfung ein Fehler aufgetreten, es wird die eingegebene Adresse unverändert übernommen."
-"The address validation identified several possible addresses. The first one listed will be used. If you want to use another address, you have to correct it manually.","Die Adressprüfung hat mehrere mögliche Adressen identifiziert. Es wird die erste aufgeführte Adresse übernommen, sofern eine andere Adresse verwendet werden soll, müssen Sie diese manuell korrigieren."
-"The address validation was able to correct the address. Would you like to change the address?","Die Adressprüfung hat eine korrigierte Adresse identifiziert. Möchten Sie die Änderung übernehmen?"
+"The address validation identified several possible addresses. Please choose of the listed addresses.","Die Adressprüfung hat mehrere mögliche Adressen identifiziert. Bitte wählen Sie eine der angezeigten Adressen."
+"The address validation was able to correct the address.","Die Adressprüfung hat eine korrigierte Adresse identifiziert."
+"Use selected address","Ausgewählte Adresse übernehmen"
+"Do not change address","Adresse nicht ändern"
+"Adressvalidation","Adressprüfung"

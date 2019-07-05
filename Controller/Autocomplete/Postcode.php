@@ -33,6 +33,6 @@ class Postcode extends BaseController
     }
 
     protected function canExecute() : bool {
-        return parent::canExecute() && $this->scopeConfig->getValue($this->configPrefix . '/features/postcode_autocomplete') == 1;
+        return parent::canExecute() && $this->scopeConfig->getValue($this->configPrefix . '/features/postcode_autocomplete', 'store') == 1;
     }
 }

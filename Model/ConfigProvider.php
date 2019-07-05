@@ -50,28 +50,28 @@ class ConfigProvider implements ConfigProviderInterface
     {
         return [
             'endereco' => [
-                'enabled' => $this->scopeConfig->getValue($this->configPrefix . '/connection/enabled') == 1,
-                'force_valid_address' => $this->scopeConfig->getValue($this->configPrefix . '/features/force_valid_address') == 1,
+                'enabled' => $this->scopeConfig->getValue($this->configPrefix . '/connection/enabled', 'store') == 1,
+                'force_valid_address' => $this->scopeConfig->getValue($this->configPrefix . '/features/force_valid_address', 'store') == 1,
                 'check' => [
-                    'shipping_enabled' => $this->scopeConfig->getValue($this->configPrefix . '/integration/frontend_checkout_shipping') == 1,
-                    'billing_enabled' => $this->scopeConfig->getValue($this->configPrefix . '/integration/frontend_checkout_billing') == 1,
-                    'customer_addressbook_enabled' => $this->scopeConfig->getValue($this->configPrefix . '/integration/customer_addressbook') == 1
+                    'shipping_enabled' => $this->scopeConfig->getValue($this->configPrefix . '/integration/frontend_checkout_shipping', 'store') == 1,
+                    'billing_enabled' => $this->scopeConfig->getValue($this->configPrefix . '/integration/frontend_checkout_billing', 'store') == 1,
+                    'customer_addressbook_enabled' => $this->scopeConfig->getValue($this->configPrefix . '/integration/customer_addressbook', 'store') == 1
                 ],
                 'autocomplete' => [
-                    'postcode' => $this->scopeConfig->getValue($this->configPrefix . '/features/postcode_autocomplete') == 1,
-                    'city' => $this->scopeConfig->getValue($this->configPrefix . '/features/city_autocomplete') == 1,
+                    'postcode' => $this->scopeConfig->getValue($this->configPrefix . '/features/postcode_autocomplete', 'store') == 1,
+                    'city' => $this->scopeConfig->getValue($this->configPrefix . '/features/city_autocomplete', 'store') == 1,
                 ],
                 'mapping' => [
-                    'country' => $this->scopeConfig->getValue($this->configPrefix . '/field_mapping/country'),
-                    'postCode' => $this->scopeConfig->getValue($this->configPrefix . '/field_mapping/postCode'),
-                    'cityName' => $this->scopeConfig->getValue($this->configPrefix . '/field_mapping/cityName'),
-                    'street' => $this->scopeConfig->getValue($this->configPrefix . '/field_mapping/street'),
-                    'houseNumber' => $this->scopeConfig->getValue($this->configPrefix . '/field_mapping/houseNumber')
+                    'country' => $this->scopeConfig->getValue($this->configPrefix . '/field_mapping/country', 'store'),
+                    'postCode' => $this->scopeConfig->getValue($this->configPrefix . '/field_mapping/postCode', 'store'),
+                    'cityName' => $this->scopeConfig->getValue($this->configPrefix . '/field_mapping/cityName', 'store'),
+                    'street' => $this->scopeConfig->getValue($this->configPrefix . '/field_mapping/street', 'store'),
+                    'houseNumber' => $this->scopeConfig->getValue($this->configPrefix . '/field_mapping/houseNumber', 'store')
                 ],
                 'urls' => [
-                    'checkaddress' => $this->scopeConfig->getValue($this->configPrefix . '/connection/enabled') == 1 ? $this->urlInterface->getUrl('4cAddress/check/address') : null,
-                    'postcodeautocomplete' => $this->scopeConfig->getValue($this->configPrefix . '/features/postcode_autocomplete') == 1 ? $this->urlInterface->getUrl('4cAddress/autocomplete/postcode') : null,
-                    'cityautocomplete' => $this->scopeConfig->getValue($this->configPrefix . '/features/city_autocomplete') == 1 ? $this->urlInterface->getUrl('4cAddress/autocomplete/street') : null,
+                    'checkaddress' => $this->scopeConfig->getValue($this->configPrefix . '/connection/enabled', 'store') == 1 ? $this->urlInterface->getUrl('4cAddress/check/address') : null,
+                    'postcodeautocomplete' => $this->scopeConfig->getValue($this->configPrefix . '/features/postcode_autocomplete', 'store') == 1 ? $this->urlInterface->getUrl('4cAddress/autocomplete/postcode') : null,
+                    'cityautocomplete' => $this->scopeConfig->getValue($this->configPrefix . '/features/city_autocomplete', 'store') == 1 ? $this->urlInterface->getUrl('4cAddress/autocomplete/street') : null,
                 ]
             ],
         ];
