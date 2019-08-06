@@ -32,7 +32,7 @@ class RefererGenerator
     public function getReferer() : string {
         switch ($this->scopeConfig->getValue($this->configPrefix . '/connection/referer_mode',ScopeConfigInterface::SCOPE_TYPE_DEFAULT, RefererMode::MODE_BASEURL)) {
             case RefererMode::MODE_CURRENT_PAGE:
-                return $_SERVER['REQUEST_URI'];
+                return $_SERVER['SCRIPT_NAME'];
             default:
                 return $this->baseUrl;
         }
