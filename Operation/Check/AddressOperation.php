@@ -52,9 +52,9 @@ class AddressOperation extends BaseOperation
         if ($response->isSuccess() && $response->hasData()) {
             $data = $response->getResultData();
             $result['changed'] = in_array('A1100', $data['result']['status']) || in_array('A2000', $data['result']['status']);
-            $result['valid'] = $result['changed'] || in_array('A1000', $data['result']['status']);
+            $result['valid'] = $result['changed'] || in_array('A1000', $data['result']['status']) || in_array('A3000', $data['result']['status']);
 
-            if ($result['valid'] && array_key_exists('predictions', $data['result'])) {
+            if ($result['valid'] && array_key_exists('predictions', $data['result']) && count($data['result']['predictions'])) {
                 array_walk(
                     $data['result']['predictions'],
                     function ($item) use (&$result) {
