@@ -9,15 +9,18 @@
 
 namespace CCCC\Addressvalidation\Operation;
 
-
 use CCCC\Addressvalidation\Generator\RefererGenerator;
-use CCCC\Addressvalidation\Generator\TransactionIdGenerator;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\Locale\Resolver;
+use Magento\Framework\App\ProductMetadataInterface;
+use Magento\Framework\View\DesignInterface;
+use Magento\Framework\Module\ModuleListInterface;
 
 class BaseOperation
 {
     protected $configPrefix = 'cccc_addressvalidation_endereco_section';
+
+    const MODULE_NAME = 'CCCC_Addressvalidation';
 
     /** @var ScopeConfigInterface */
     protected $config;
@@ -25,18 +28,24 @@ class BaseOperation
     /** @var string */
     protected $locale;
 
-    protected $transactionId;
-
     protected $referer;
 
+    protected $magentoVersion;
 
-    public function __construct(ScopeConfigInterface $config, Resolver $localeResolver, TransactionIdGenerator $transactionIdGenerator, RefererGenerator $refererGenerator)
+    protected $themeCode;
+
+    public function __construct(ScopeConfigInterface $config, Resolver $localeResolver, RefererGenerator $refererGenerator,
+                                ProductMetadataInterface $metaInterface, DesignInterface $design, ModuleListInterface $moduleList)
     {
-        $this->transactionId = $transactionIdGenerator->getNewTransactionId();
         $this->referer = $refererGenerator->getReferer();
 
         $this->config = $config;
         $this->locale = $localeResolver->getLocale() ?? $localeResolver->getDefaultLocale();
+
+        $this->magentoVersion = $metaInterface->gerVersion();
+        $this->themeCode = $design->getDesignTheme()->getCode();
+
+        $this->moduleVersion = $this->_moduleList->getOne(self::MODULE_NAME)['setup_version'];
     }
 
     protected function getBaseRequestData(string $methodName, bool $paramsRequired = false) : array {
@@ -56,8 +65,9 @@ class BaseOperation
         return [
             'Content-Type: application/json',
             'X-Auth-Key: ' . $this->config->getValue($this->configPrefix . '/connection/authkey'),
-            'X-Transaction-Id: ' . $this->transactionId,
-            'X-Transaction-Referer: ' . $this->referer
+            'X-Transaction-Referer: ' . $this->referer,
+            'X-Transaction-Id: ' . 'not_required',
+            'X-Agent: '. 'Magento:'.$this->magentoVersion.', Theme: '.$this->themeCode.', '.self::MODULE_NAME.': '.$this->moduleVersion
         ];
     }
 

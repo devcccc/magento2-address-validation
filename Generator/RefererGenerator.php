@@ -23,16 +23,20 @@ class RefererGenerator
     /** @var string */
     protected $baseUrl;
 
+    /** @var UrlInterface */
+    protected $urlInterface;
+
     public function __construct(ScopeConfigInterface $scopeConfig, UrlInterface $url)
     {
         $this->baseUrl = $url->getBaseUrl();
         $this->scopeConfig = $scopeConfig;
+        $this->urlInterface = $url;
     }
 
     public function getReferer() : string {
         switch ($this->scopeConfig->getValue($this->configPrefix . '/connection/referer_mode',ScopeConfigInterface::SCOPE_TYPE_DEFAULT, RefererMode::MODE_BASEURL)) {
             case RefererMode::MODE_CURRENT_PAGE:
-                return $_SERVER['REQUEST_URI'];
+                return $this->urlInterface->getUrl('*/*/*', ['_current' => true, '_use_rewrite' => true]);
             default:
                 return $this->baseUrl;
         }

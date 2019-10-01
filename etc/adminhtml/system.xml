@@ -5,7 +5,7 @@
         <tab id="cccc_config" translate="label" sortOrder="10">
             <label>CCCC Config</label>
         </tab>
-        <section id="cccc_addressvalidation_endereco_section" translate="label" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+        <section id="cccc_addressvalidation_endereco_section" translate="label" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="0">
             <class>separator-top</class>
             <label>Address Validation: Endereco</label>
             <tab>cccc_config</tab>
@@ -16,7 +16,7 @@
                    showInStore="0">
                 <label>Connection and Authentication</label>
 
-                <field id="enabled" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                <field id="enabled" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="0">
                     <label>Enable integration</label>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                 </field>
@@ -32,14 +32,6 @@
                        showInStore="0">
                     <label>Auth-Key</label>
                     <comment>Authorization key retrieved from endereco</comment>
-                    <validate>validate-no-empty</validate>
-                </field>
-
-                <field id="transactionid_mode" translate="label" type="select" sortOrder="40" showInDefault="1" showInWebsite="1"
-                       showInStore="0">
-                    <label>Transaction-ID: Generation</label>
-                    <comment>Full random mode is recommended, using session id or a simple increment might be a user tracking/privacy issue</comment>
-                    <source_model>CCCC\Addressvalidation\Model\Config\Source\TransactionIdMode</source_model>
                     <validate>validate-no-empty</validate>
                 </field>
 
@@ -93,36 +85,36 @@
             </group>
 
             <group id="field_mapping" translate="label" type="text" sortOrder="40" showInDefault="1" showInWebsite="1"
-                   showInStore="1">
+                   showInStore="0">
                 <label>Field mapping</label>
                 <comment>Use HTML field names here to identify the fields </comment>
 
                 <field id="country" translate="label" type="text" sortOrder="1" showInDefault="1" showInWebsite="0"
-                       showInStore="1">
+                       showInStore="0">
                     <label>Country</label>
                     <validate>validate-no-empty</validate>
                 </field>
 
                 <field id="postCode" translate="label" type="text" sortOrder="1" showInDefault="1" showInWebsite="0"
-                       showInStore="1">
+                       showInStore="0">
                     <label>Post code</label>
                     <validate>validate-no-empty</validate>
                 </field>
 
                 <field id="cityName" translate="label" type="text" sortOrder="1" showInDefault="1" showInWebsite="0"
-                       showInStore="1">
+                       showInStore="0">
                     <label>City name</label>
                     <validate>validate-no-empty</validate>
                 </field>
 
                 <field id="street" translate="label" type="text" sortOrder="1" showInDefault="1" showInWebsite="0"
-                       showInStore="1">
+                       showInStore="0">
                     <label>Street</label>
                     <validate>validate-no-empty</validate>
                 </field>
 
                 <field id="houseNumber" translate="label" type="text" sortOrder="1" showInDefault="1" showInWebsite="0"
-                       showInStore="1">
+                       showInStore="0">
                     <label>House number</label>
                 </field>
             </group>
