@@ -1,7 +1,7 @@
 {
   "name": "devcccc/magento2-address-validation",
   "description": "Magento 2 address validation supporting Endereco as service!",
-  "version": "0.2.1",
+  "version": "1.0.0",
   "type": "magento2-module",
   "keywords": [
     "Magento 2",
@@ -9,7 +9,7 @@
     "Endereco"
   ],
   "homepage": "https://wwww.cccc.de",
-  "time": "2019-07-02",
+  "time": "2019-10-01",
   "license": "GPL-3.0+",
   "authors": [
     {
@@ -28,7 +28,7 @@
   "require": {
     "magento/framework": "100.1.*|100.2.*|101.0.*|102.0.*",
     "ext-curl": "*",
-    "php": "~5.5.0|~5.6.0|7.0.2|7.0.4|~7.0.6|~7.1.0"
+    "php": "7.0.2|7.0.4|~7.0.6|~7.1.0|~7.2.0"
   },
   "autoload": {
     "files": [

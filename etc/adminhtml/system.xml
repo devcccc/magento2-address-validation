@@ -35,14 +35,6 @@
                     <validate>validate-no-empty</validate>
                 </field>
 
-                <field id="transactionid_mode" translate="label" type="select" sortOrder="40" showInDefault="1" showInWebsite="1"
-                       showInStore="0">
-                    <label>Transaction-ID: Generation</label>
-                    <comment>Full random mode is recommended, using session id or a simple increment might be a user tracking/privacy issue</comment>
-                    <source_model>CCCC\Addressvalidation\Model\Config\Source\TransactionIdMode</source_model>
-                    <validate>validate-no-empty</validate>
-                </field>
-
                 <field id="referer_mode" translate="label" type="select" sortOrder="50" showInDefault="1" showInWebsite="1"
                        showInStore="0">
                     <label>Referer-Mode</label>

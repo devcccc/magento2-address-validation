@@ -6,7 +6,6 @@
             <connection>
                 <enabled>0</enabled>
                 <baseurl>https://sandbox.endereco-service.de/rpc/v1</baseurl>
-                <transactionid_mode>random</transactionid_mode>
                 <referer_mode>currentpage</referer_mode>
             </connection>
             <integration>
