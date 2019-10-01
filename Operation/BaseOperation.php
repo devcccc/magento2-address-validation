@@ -45,7 +45,7 @@ class BaseOperation
         $this->magentoVersion = $metaInterface->getVersion();
         $this->themeCode = $design->getDesignTheme()->getCode();
 
-        $this->moduleVersion = $this->_moduleList->getOne(self::MODULE_NAME)['setup_version'];
+        $this->moduleVersion = $moduleList->getOne(self::MODULE_NAME)['setup_version'];
     }
 
     protected function getBaseRequestData(string $methodName, bool $paramsRequired = false) : array {
