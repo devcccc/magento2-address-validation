@@ -42,7 +42,7 @@ class BaseOperation
         $this->config = $config;
         $this->locale = $localeResolver->getLocale() ?? $localeResolver->getDefaultLocale();
 
-        $this->magentoVersion = $metaInterface->gerVersion();
+        $this->magentoVersion = $metaInterface->getVersion();
         $this->themeCode = $design->getDesignTheme()->getCode();
 
         $this->moduleVersion = $this->_moduleList->getOne(self::MODULE_NAME)['setup_version'];
