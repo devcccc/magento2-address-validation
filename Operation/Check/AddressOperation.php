@@ -25,7 +25,7 @@ class AddressOperation extends BaseOperation
         $resolver = ObjectManager::getInstance()->get(Resolver::class);
         $locale = $resolver->getLocale();
         unset($resolver);
-        if (strpos($locale, '_')>0) {
+        if (strpos($locale, '_') !== FALSE) {
             $locale = substr($locale, 0, strpos($locale, '_'));
         }
 

@@ -9,7 +9,6 @@
 
 namespace CCCC\Addressvalidation\Controller;
 
-use bar\foo\baz\Object;
 use CCCC\Addressvalidation\Request\Validation\AbstractValidator;
 use Magento\Framework\App\Action\Action;
 use Magento\Framework\App\Action\Context;
@@ -47,9 +46,7 @@ abstract class BaseController  extends Action
     }
 
     protected function canExecute() : bool {
-        $sessionIdentified = array_key_exists('default', $_SESSION) && !empty($_SESSION['default']);
-
-        return $this->scopeConfig->getValue($this->configPrefix . '/connection/enabled', 'store') == 1 && $sessionIdentified;
+        return $this->scopeConfig->getValue($this->configPrefix . '/connection/enabled', 'store') == 1;
     }
 
     /**
