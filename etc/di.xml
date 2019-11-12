@@ -2,4 +2,5 @@
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
     <preference for="CCCC\Addressvalidation\Api\UpdateAddressInterface" type="CCCC\Addressvalidation\Service\V1\UpdateAddress" />
     <preference for="CCCC\Addressvalidation\Api\Data\UpdateAddressResponseInterface" type="CCCC\Addressvalidation\Service\V1\Data\UpdateAddressResponse" />
+    <preference for="CCCC\Addressvalidation\Api\Data\EditAddressResponseInterface" type="CCCC\Addressvalidation\Service\V1\Data\EditAddressResponse" />
 </config>

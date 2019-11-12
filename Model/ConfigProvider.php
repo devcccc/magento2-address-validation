@@ -42,7 +42,7 @@ class ConfigProvider implements ConfigProviderInterface
     }
 
     /**
-     * Add payone parameters to the config array
+     * Add endereco parameters to the config array
      *
      * @return array
      */

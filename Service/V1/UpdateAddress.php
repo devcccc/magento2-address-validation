@@ -9,7 +9,9 @@
 
 namespace CCCC\Addressvalidation\Service\V1;
 
-
+use Magento\Quote\Api\Data\AddressInterface;
+use Magento\Customer\Api\AddressRepositoryInterface;
+use CCCC\Addressvalidation\Service\V1\Data\EditAddressResponseFactory;
 use CCCC\Addressvalidation\Api\UpdateAddressInterface;
 
 class UpdateAddress implements UpdateAddressInterface
@@ -17,7 +19,7 @@ class UpdateAddress implements UpdateAddressInterface
     /**
      * Factory for the response object
      *
-     * @var \Payone\Core\Service\V1\Data\EditAddressResponseFactory
+     * @var \CCCC\Addressvalidation\Service\V1\Data\EditAddressResponseFactory
      */
     protected $responseFactory;
 
@@ -29,8 +31,8 @@ class UpdateAddress implements UpdateAddressInterface
     protected $addressRepository;
 
     public function __construct(
-        \Payone\Core\Service\V1\Data\EditAddressResponseFactory $responseFactory,
-        \Magento\Customer\Api\AddressRepositoryInterface $addressRepository
+        EditAddressResponseFactory $responseFactory,
+        AddressRepositoryInterface $addressRepository
     ) {
         $this->responseFactory = $responseFactory;
         $this->addressRepository = $addressRepository;
@@ -38,10 +40,10 @@ class UpdateAddress implements UpdateAddressInterface
 
     /**
      *
-     * @param  \Magento\Quote\Api\Data\AddressInterface $addressData
+     * @param  AddressInterface $addressData
      * @return \CCCC\Addressvalidation\Service\V1\Data\UpdateAddressResponse
      */
-    public function updateAddress(\Magento\Quote\Api\Data\AddressInterface $addressData)
+    public function updateAddress(AddressInterface $addressData)
     {
         $address = $this->addressRepository->getById($addressData->getCustomerAddressId());
         $address->setPostcode($addressData->getPostcode());
