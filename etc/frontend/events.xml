@@ -7,6 +7,6 @@
 -->
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:Event/etc/events.xsd">
     <event name="checkout_onepage_controller_success_action">
-        <observer name="cccc_addressvalidation_doaccounting" instance="CCCC\AddressValidation\Observer\Frontend\DoAccountingAfterSales" />
+        <observer name="cccc_addressvalidation_doaccounting" instance="CCCC\Addressvalidation\Observer\Frontend\DoAccountingAfterSales" />
     </event>
 </config>
