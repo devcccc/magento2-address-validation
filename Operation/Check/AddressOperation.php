@@ -57,7 +57,7 @@ class AddressOperation extends BaseOperation
 
             ObjectManager::getInstance()->get(LoggerInterface::class)->error("Address validation call for [[".serialize($requestDataCompiled)."]] => [[".serialize($data)."]]");
 
-            if ($result['valid'] && array_key_exists('predictions', $data['result']) && count($data['result']['predictions'])) {
+            if ($result['valid'] && array_key_exists('predictions', $data['result']) && count($data['result']['predictions'])<10) {
                 array_walk(
                     $data['result']['predictions'],
                     function ($item) use (&$result) {
@@ -70,6 +70,8 @@ class AddressOperation extends BaseOperation
                 } else {
                     $result['message'] = __('The address validation was able to correct the address.');
                 }
+            } else {
+                $result['valid'] = false;
             }
         } else if (!$response->isSuccess()) {
             ObjectManager::getInstance()->get(LoggerInterface::class)->error("Error while doing address check with data ".json_encode($requestDataCompiled)." => ".json_encode($response->getResultData()["error"]));

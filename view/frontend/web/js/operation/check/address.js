@@ -115,20 +115,26 @@ define([
 
                         message = message +'</select>';
 
-                        confirmation({
-                            title: $.mage.__('Addressvalidation'),
-                            content: message,
-                            buttons: [{
-                                text: $.mage.__('Do not change address'),
-                                class: 'action-secondary action-dismiss',
+                        var buttons = [];
 
-                                /**
-                                 * Click handler.
-                                 */
-                                click: function (event) {
-                                    this.closeModal(event);
+                        if (!window.checkoutConfig.cccc.addressvalidation.endereco.force_valid_address) {
+                            buttons.push(
+                                {
+                                    text: $.mage.__('Do not change address'),
+                                    class: 'action-secondary action-dismiss',
+
+                                    /**
+                                     * Click handler.
+                                     */
+                                    click: function (event) {
+                                        this.closeModal(event);
+                                    }
                                 }
-                            }, {
+                            );
+                        }
+
+                        buttons.push(
+                            {
                                 text: $.mage.__('Use selected address'),
                                 class: 'action-primary action-accept',
 
@@ -138,7 +144,13 @@ define([
                                 click: function (event) {
                                     this.closeModal(event, true);
                                 }
-                            }],
+                            }
+                        );
+
+                        confirmation({
+                            title: $.mage.__('Addressvalidation'),
+                            content: message,
+                            buttons: buttons,
                             actions: {
                                 confirm: function(){
                                     var adressVal = $('#adress-valid-select').val();
