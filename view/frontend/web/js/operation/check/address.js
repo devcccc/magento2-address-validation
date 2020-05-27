@@ -55,7 +55,7 @@ define([
 
                         message = message +'<br/><br/>';
 
-                        if ((window.checkoutConfig.cccc.addressvalidation.endereco.force_valid_address && alert(message))) {
+                        if ((window.checkoutConfig.cccc.addressvalidation.endereco.force_valid_address && alert(message.split("<br/>").join('\n')))) {
                             baseView.ccccUpdateAddress(response.predictions[0]);
                         } else if (!window.checkoutConfig.cccc.addressvalidation.endereco.force_valid_address) {
                             confirmation({
