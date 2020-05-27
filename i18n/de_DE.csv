@@ -3,4 +3,5 @@
 "The address validation was able to correct the address.","Die Adressprüfung hat eine korrigierte Adresse identifiziert."
 "Use selected address","Ausgewählte Adresse übernehmen"
 "Do not change address","Adresse nicht ändern"
-"Adressvalidation","Adressprüfung"
+"Addressvalidation","Adressprüfung"
+"We are not able to verify your address. Please check your provide address again.","Wir konnten die Adresse nicht verifizieren. Bitte prüfen Sie Ihre Adress-Eingabe."

@@ -59,7 +59,7 @@ define([
                             baseView.ccccUpdateAddress(response.predictions[0]);
                         } else if (!window.checkoutConfig.cccc.addressvalidation.endereco.force_valid_address) {
                             confirmation({
-                                title: $.mage.__('Adressvalidation'),
+                                title: $.mage.__('Addressvalidation'),
                                 content: message,
                                 buttons: [{
                                     text: $.mage.__('Do not change address'),
@@ -113,7 +113,7 @@ define([
                         message = message +'</select>';
 
                         confirmation({
-                            title: $.mage.__('Adressvalidation'),
+                            title: $.mage.__('Addressvalidation'),
                             content: message,
                             buttons: [{
                                 text: $.mage.__('Do not change address'),
@@ -153,18 +153,51 @@ define([
                                 }
                             }
                         });
-
-                        /*if (confirm(message)) {
-                            baseView.ccccUpdateAddress(response.predictions[0]);
-                        } else if (window.checkoutConfig.cccc.addressvalidation.endereco.force_valid_address) {
-                            fullScreenLoader.stopLoader();
-                            return;
-                        }*/
-                    } else if (response.valid && !response.changed) {
+                    } else if ((response.valid && !response.changed) || (!response.valid && !window.checkoutConfig.cccc.addressvalidation.endereco.force_valid_address)) {
                         baseView.ccccContinue(type);
+                    } else if (!response.valid && window.checkoutConfig.cccc.addressvalidation.endereco.force_valid_address) {
+                        confirmation({
+                            title: $.mage.__('Addressvalidation'),
+                            content: $.mage.__('We are not able to verify your address. Please check your provide address again.'),
+                            buttons: [{
+                                text: $.mage.__('Cancel'),
+                                class: 'action-primary action-dismiss',
+
+                                /**
+                                 * Click handler.
+                                 */
+                                click: function (event) {
+                                    this.closeModal(event);
+                                }
+                            }],
+                            actions: {
+                                always: function(){
+                                    fullScreenLoader.stopLoader();
+                                }
+                            }
+                        });
                     }
                 } else {
-                    alert(response.errormessage);
+                    confirmation({
+                        title: $.mage.__('Addressvalidation'),
+                        content: response.errormessage,
+                        buttons: [{
+                            text: $.mage.__('Cancel'),
+                            class: 'action-primary action-dismiss',
+
+                            /**
+                             * Click handler.
+                             */
+                            click: function (event) {
+                                this.closeModal(event);
+                            }
+                        }],
+                        actions: {
+                            always: function () {
+                                fullScreenLoader.stopLoader();
+                            }
+                        }
+                    });
                 }
                 fullScreenLoader.stopLoader();
             }
