@@ -55,7 +55,8 @@ define([
 
                         message = message +'<br/><br/>';
 
-                        if ((window.checkoutConfig.cccc.addressvalidation.endereco.force_valid_address && alert(message.split("<br/>").join('\n')))) {
+                        if (window.checkoutConfig.cccc.addressvalidation.endereco.force_valid_address) {
+                            alert(message.split("<br/>").join('\n'))
                             baseView.ccccUpdateAddress(response.predictions[0]);
                             baseView.ccccContinue(type);
                             fullScreenLoader.stopLoader();
