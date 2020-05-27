@@ -57,6 +57,8 @@ define([
 
                         if ((window.checkoutConfig.cccc.addressvalidation.endereco.force_valid_address && alert(message.split("<br/>").join('\n')))) {
                             baseView.ccccUpdateAddress(response.predictions[0]);
+                            baseView.ccccContinue(type);
+                            fullScreenLoader.stopLoader();
                         } else if (!window.checkoutConfig.cccc.addressvalidation.endereco.force_valid_address) {
                             confirmation({
                                 title: $.mage.__('Addressvalidation'),
@@ -158,7 +160,7 @@ define([
                     } else if (!response.valid && window.checkoutConfig.cccc.addressvalidation.endereco.force_valid_address) {
                         confirmation({
                             title: $.mage.__('Addressvalidation'),
-                            content: $.mage.__('We are not able to verify your address. Please check your provide address again.'),
+                            content: $.mage.__('We are not able to verify your address. Please check your provided address again.'),
                             buttons: [{
                                 text: $.mage.__('Cancel'),
                                 class: 'action-primary action-dismiss',
