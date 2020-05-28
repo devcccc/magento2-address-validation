@@ -42,7 +42,8 @@ define([
         },
 
         ccccUpdateAddressSource: function (addressData) {
-
+            this.source.set(this.dataScopePrefix + ".region_id", null);
+            this.source.set(this.dataScopePrefix +".region", null);
             this.source.set(this.dataScopePrefix + "." + this.ccccGetAddressDataByFieldSelector('postCode', 'postcode'), addressData.postCode);
             this.source.set(this.dataScopePrefix + "." + this.ccccGetAddressDataByFieldSelector('cityName', 'city'), addressData.city);
             this.source.set(this.dataScopePrefix + "." + this.ccccGetAddressDataByFieldSelector('street', 'street[0]'), addressData.street);

@@ -70,6 +70,9 @@ define([
             this.source.set("shippingAddress." + this.ccccGetAddressDataByFieldSelector('cityName', 'city'), addressData.city);
             this.source.set("shippingAddress." + this.ccccGetAddressDataByFieldSelector('street', 'street[0]'), addressData.street);
             this.source.set("shippingAddress." + this.ccccGetAddressDataByFieldSelector('houseNumber', 'street[1]'), addressData.houseNumber);
+
+            this.source.set("shippingAddress.region_id", null);
+            this.source.set("shippingAddress.region", null);
         },
         ccccUpdateAddressRegistered: function (addressData) {
             var newShippingAddress = quote.shippingAddress();
@@ -78,6 +81,8 @@ define([
             newShippingAddress = this.ccccUpdateField(newShippingAddress, addressData.city, this.ccccGetAddressDataByFieldSelector('cityName', 'city'));
             newShippingAddress = this.ccccUpdateField(newShippingAddress, addressData.street, this.ccccGetAddressDataByFieldSelector('street', 'street[0]'));
             newShippingAddress = this.ccccUpdateField(newShippingAddress, addressData.houseNumber, this.ccccGetAddressDataByFieldSelector('houseNumber', 'street[1]'));
+            newShippingAddress = this.ccccUpdateField(newShippingAddress, null, "region_id");
+            newShippingAddress = this.ccccUpdateField(newShippingAddress, null, "region");
 
             this.ccccUpdateAddressSource(addressData);
 
