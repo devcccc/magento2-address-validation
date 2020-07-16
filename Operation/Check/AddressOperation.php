@@ -55,7 +55,7 @@ class AddressOperation extends BaseOperation
             $result['changed'] = in_array('A1100', $data['result']['status']) || in_array('A2000', $data['result']['status']);
             $result['valid'] = $result['changed'] || in_array('A1000', $data['result']['status']);
 
-            ObjectManager::getInstance()->get(LoggerInterface::class)->error("Address validation call for [[".serialize($requestDataCompiled)."]] => [[".serialize($data)."]]");
+            $this->logger->info("Address validation call for [[".$this->serializer->serialize($requestDataCompiled)."]] => [[".$this->serializer->serialize($data)."]]");
 
             if ($result['valid'] && array_key_exists('predictions', $data['result']) && count($data['result']['predictions'])<10) {
                 array_walk(
@@ -74,7 +74,7 @@ class AddressOperation extends BaseOperation
                 $result['valid'] = false;
             }
         } else if (!$response->isSuccess()) {
-            ObjectManager::getInstance()->get(LoggerInterface::class)->error("Error while doing address check with data ".json_encode($requestDataCompiled)." => ".json_encode($response->getResultData()["error"]));
+            $this->logger->error("Error while doing address check with data ".json_encode($requestDataCompiled)." => ".json_encode($response->getResultData()["error"]));
             $result['message'] = __("We're sorry, an error has occurred while validating the address. The address entered will be used.");
         }
 

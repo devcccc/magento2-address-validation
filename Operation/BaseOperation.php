@@ -15,6 +15,8 @@ use Magento\Framework\Locale\Resolver;
 use Magento\Framework\App\ProductMetadataInterface;
 use Magento\Framework\View\DesignInterface;
 use Magento\Framework\Module\ModuleListInterface;
+use Psr\Log\LoggerInterface;
+use Magento\Framework\Serialize\SerializerInterface;
 
 class BaseOperation
 {
@@ -34,8 +36,15 @@ class BaseOperation
 
     protected $themeCode;
 
+    /** @var LoggerInterface  */
+    protected $logger;
+
+    /** @var SerializerInterfac  */
+    protected $serializer;
+
     public function __construct(ScopeConfigInterface $config, Resolver $localeResolver, RefererGenerator $refererGenerator,
-                                ProductMetadataInterface $metaInterface, DesignInterface $design, ModuleListInterface $moduleList)
+                                ProductMetadataInterface $metaInterface, DesignInterface $design, ModuleListInterface $moduleList,
+                                LoggerInterface $logger, SerializerInterface $serializer)
     {
         $this->referer = $refererGenerator->getReferer();
 
@@ -46,6 +55,9 @@ class BaseOperation
         $this->themeCode = $design->getDesignTheme()->getCode();
 
         $this->moduleVersion = $moduleList->getOne(self::MODULE_NAME)['setup_version'];
+
+        $this->logger = $logger;
+        $this->serializer = $serializer;
     }
 
     protected function getBaseRequestData(string $methodName, bool $paramsRequired = false) : array {
