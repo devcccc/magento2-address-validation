@@ -100,13 +100,15 @@ define([
                 this.setShippingInformation();
             }
         },
-        setShippingInformation: function () {
+        validateShippingInformation: function() {
+            var superResult = this._super();
+
             if (!this.ccccCheckAddress()) {
-                return this._super();
+                return superResult;
             }
 
             if (!this.source.get('cccc_guest_address_checked')) {
-                if (this.validateShippingInformation()) {
+                if (superResult) {
                     if (!this.isFormInline) {
                         var quoteAddress = quote.shippingAddress();
                         var data = {
@@ -119,11 +121,13 @@ define([
                     } else {
                         addresscheck(this.source.get('shippingAddress'), false, this, 'setShippingInformation');
                     }
+                    return false;
                 }
             } else {
                 this.source.set('cccc_guest_address_checked', false);
-                return this._super();
             }
+
+            return superResult;
         }
     };
 
