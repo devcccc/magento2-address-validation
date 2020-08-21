@@ -29,6 +29,6 @@ class Address extends BaseController
 
     protected function getParamsForData(): array
     {
-        return ['country', 'postCode', 'city', 'street', 'houseNumber'];
+        return ['country', 'postCode', 'city', 'street', 'houseNumber', 'streetFull'];
     }
 }

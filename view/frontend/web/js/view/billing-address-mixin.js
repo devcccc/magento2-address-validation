@@ -30,9 +30,16 @@ define([
                 return this._super();
             }
         },
-        ccccGetAddressDataByFieldSelector: function(field, fallback) {
+
+        ccccGetAdressDataFieldselector: function(field, fallback) {
             var fieldSelector = window.checkoutConfig.cccc.addressvalidation.endereco.mapping && window.checkoutConfig.cccc.addressvalidation.endereco.mapping[field]
                 ? window.checkoutConfig.cccc.addressvalidation.endereco.mapping[field] : fallback;
+
+            return fieldSelector;
+        },
+
+        ccccGetAddressDataByFieldSelector: function(field, fallback) {
+            var fieldSelector = this.ccccGetAdressDataFieldselector(field, fallback);
 
             return fieldSelector.replace(/\[([0-9]+)\]/, ".$1");
         },
@@ -46,8 +53,13 @@ define([
             this.source.set(this.dataScopePrefix +".region", null);
             this.source.set(this.dataScopePrefix + "." + this.ccccGetAddressDataByFieldSelector('postCode', 'postcode'), addressData.postCode);
             this.source.set(this.dataScopePrefix + "." + this.ccccGetAddressDataByFieldSelector('cityName', 'city'), addressData.city);
-            this.source.set(this.dataScopePrefix + "." + this.ccccGetAddressDataByFieldSelector('street', 'street[0]'), addressData.street);
-            this.source.set(this.dataScopePrefix + "." + this.ccccGetAddressDataByFieldSelector('houseNumber', 'street[1]'), addressData.houseNumber);
+
+            if (this.ccccGetAdressDataFieldselector('street', 'street[0') != this.ccccGetAdressDataFieldselector('houseNumber', 'street[1')) {
+                this.source.set(this.dataScopePrefix + "." + this.ccccGetAddressDataByFieldSelector('street', 'street[0]'), addressData.street);
+                this.source.set(this.dataScopePrefix + "." + this.ccccGetAddressDataByFieldSelector('houseNumber', 'street[1]'), addressData.houseNumber);
+            } else {
+                this.source.set(this.dataScopePrefix + "." + this.ccccGetAddressDataByFieldSelector('street', 'street[0]'), addressData.street + " " + addressData.houseNumber);
+            }
         },
         ccccContinue: function () {
             this.source.set('cccc_address_checked', true);

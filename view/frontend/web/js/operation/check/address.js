@@ -11,9 +11,15 @@ define([
 ], function ($, urlBuilder, storage, fullScreenLoader, quote, customer, confirmation) {
     'use strict';
 
-    function ccccGetAddressDataByFieldSelector(addressData, field, fallback) {
+    function ccccGetAdressDataFieldselector(field, fallback) {
         var fieldSelector = window.checkoutConfig.cccc.addressvalidation.endereco.mapping && window.checkoutConfig.cccc.addressvalidation.endereco.mapping[field]
             ? window.checkoutConfig.cccc.addressvalidation.endereco.mapping[field] : fallback;
+
+        return fieldSelector;
+    }
+
+    function ccccGetAddressDataByFieldSelector(addressData, field, fallback) {
+        var fieldSelector = ccccGetAdressDataFieldselector(field, fallback);
 
         if (fieldSelector.indexOf('[') == -1) {
             return addressData[fieldSelector];
@@ -32,7 +38,15 @@ define([
             city: ccccGetAddressDataByFieldSelector(addressData, 'city', 'city'),
             street: ccccGetAddressDataByFieldSelector(addressData, 'street[0]', 'street[0]'),
             houseNumber: ccccGetAddressDataByFieldSelector(addressData, 'houseNumber', 'street[1]'),
+            streetFull: ""
         };
+
+        if (request.street == request.houseNumber && ccccGetAdressDataFieldselector('street[0]', 'street[0]')
+            && ccccGetAdressDataFieldselector('houseNumber', 'street[1]')) {
+            request.streetFull = request.street;
+            request.street = "";
+            request.houseNumber = "";
+        }
 
         for (var paramKey in request) {
             serviceUrl = serviceUrl + "/" + encodeURI(paramKey) + "/" + encodeURI(request[paramKey]);
@@ -193,9 +207,14 @@ define([
                         });
                     }
                 } else {
+                    var error = response.errormessage;
+                    if (!error) {
+                        error = $.mage.__('We are not able to verify your address. Please check your provided address again.');
+                    }
+
                     confirmation({
                         title: $.mage.__('Addressvalidation'),
-                        content: response.errormessage,
+                        content: error,
                         buttons: [{
                             text: $.mage.__('Cancel'),
                             class: 'action-primary action-dismiss',

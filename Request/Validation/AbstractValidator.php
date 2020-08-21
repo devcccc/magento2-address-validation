@@ -63,13 +63,6 @@ abstract class AbstractValidator
         $fieldNames = array_keys($this->dataToValidate);
         sort($fieldNames);
 
-        if (!empty(array_diff($allKeysChecked, $fieldNames)) || !empty(array_diff($fieldNames, $allKeysChecked))) {
-            $fieldsNotChecked = array_merge(array_diff($allKeysChecked, $fieldNames), array_diff($fieldNames, $allKeysChecked));
-
-            $messages[] = __("Some fields in the request data were not checked: %1", [implode(', ', $fieldsNotChecked)]);
-        }
-
-
         if (!empty($messages)) {
             $this->lastMessages = $messages;
             return false;

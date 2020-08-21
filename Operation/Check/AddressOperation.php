@@ -35,8 +35,13 @@ class AddressOperation extends BaseOperation
             'postCode' => $data['postCode'],
             'cityName' => $data['city'],
             'street' => $data['street'],
-            'houseNumber' => $data['houseNumber']
+            'houseNumber' => $data['houseNumber'],
+            'streetFull' => $data['streetFull'],
         ];
+
+        if (empty($requestData['params']['streetFull'])) {
+            unset($requestData['params']['streetFull']);
+        }
 
         $result =  $this->doApiRequest($requestData);
         return $result;

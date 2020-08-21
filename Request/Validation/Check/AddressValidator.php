@@ -21,8 +21,9 @@ class AddressValidator extends AbstractValidator
             'country' => [['class' => NotEmpty::class], ['class' => StringLength::class, 'options' => ['min' => 2, 'max' => 2]]],
             'postCode' => [['class' => NotEmpty::class], ['class' => StringLength::class, 'options' => ['min' => 3, 'max' => 7]]],
             'city' => [['class' => NotEmpty::class], ['class' => StringLength::class, 'options' => ['min' => 2]]],
-            'street' => [['class' => NotEmpty::class], ['class' => StringLength::class, 'options' => ['min' => 2]]],
+            'street' => [['class' => StringLength::class, 'options' => ['max' => 100]]],
             'houseNumber' => [['class' => StringLength::class, 'options' => ['max' => 15]]],
+            'streetFull' => [['class' => StringLength::class, 'options' => ['max' => 100]]],
         ];
 
         return $rules;
