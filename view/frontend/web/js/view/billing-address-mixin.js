@@ -54,7 +54,7 @@ define([
             this.source.set(this.dataScopePrefix + "." + this.ccccGetAddressDataByFieldSelector('postCode', 'postcode'), addressData.postCode);
             this.source.set(this.dataScopePrefix + "." + this.ccccGetAddressDataByFieldSelector('cityName', 'city'), addressData.city);
 
-            if (this.ccccGetAdressDataFieldselector('street', 'street[0') != this.ccccGetAdressDataFieldselector('houseNumber', 'street[1')) {
+            if (this.ccccGetAdressDataFieldselector('street', 'street[0]') != this.ccccGetAdressDataFieldselector('houseNumber', 'street[1]')) {
                 this.source.set(this.dataScopePrefix + "." + this.ccccGetAddressDataByFieldSelector('street', 'street[0]'), addressData.street);
                 this.source.set(this.dataScopePrefix + "." + this.ccccGetAddressDataByFieldSelector('houseNumber', 'street[1]'), addressData.houseNumber);
             } else {

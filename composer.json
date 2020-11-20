@@ -1,7 +1,7 @@
 {
   "name": "devcccc/magento2-address-validation",
   "description": "Magento 2 address validation supporting Endereco as service!",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "type": "magento2-module",
   "keywords": [
     "Magento 2",

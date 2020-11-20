@@ -40,7 +40,11 @@ define([
             if (matches) {
                 if (oSourceAddress[matches[1]][matches[2]] !== oResponseData) {
                     this.ccccReplaceInSelectedShippingAddress(oSourceAddress[matches[1]][matches[2]], oResponseData);
-                    oSourceAddress[matches[1]][matches[2]] = oResponseData;
+                    if (typeof oSourceAddress[matches[1]][matches[2]] === "undefined") {
+                        oSourceAddress[matches[1]][matches[2]] = oSourceAddress[matches[1]][matches[2]] + " " + oResponseData;
+                    } else {
+                        oSourceAddress[matches[1]][matches[2]] = oResponseData;
+                    }
                 }
             } else {
                 if (oSourceAddress[sField] !== oResponseData) {
@@ -74,7 +78,7 @@ define([
         ccccUpdateAddressSource: function (addressData) {
             this.source.set("shippingAddress." + this.ccccGetAddressDataByFieldSelector('postCode', 'postcode'), addressData.postCode);
             this.source.set("shippingAddress." + this.ccccGetAddressDataByFieldSelector('cityName', 'city'), addressData.city);
-            if (this.ccccGetAdressDataFieldselector('street', 'street[0') != this.ccccGetAdressDataFieldselector('houseNumber', 'street[1')) {
+            if (this.ccccGetAdressDataFieldselector('street', 'street[0]') != this.ccccGetAdressDataFieldselector('houseNumber', 'street[1]')) {
                 this.source.set("shippingAddress." + this.ccccGetAddressDataByFieldSelector('street', 'street[0]'), addressData.street);
                 this.source.set("shippingAddress." + this.ccccGetAddressDataByFieldSelector('houseNumber', 'street[1]'), addressData.houseNumber);
             } else {

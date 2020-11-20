@@ -1,3 +1,7 @@
+##### 1.1.2
+
+- Fixed: If street number and housenumbe are merged into a single field concatenate data into one field also for address book entries
+
 ##### 1.1.0
 
 - Support street and housenumber provided in one input field
