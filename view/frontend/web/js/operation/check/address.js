@@ -46,6 +46,10 @@ define([
             request.streetFull = request.street;
             delete request.street;
             delete request.houseNumber;
+        } else {
+            request.streetFull = request.street + ' ' + request.houseNumber;
+            delete request.street;
+            delete request.houseNumber;
         }
 
         for (var paramKey in request) {
