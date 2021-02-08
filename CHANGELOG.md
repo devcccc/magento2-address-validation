@@ -1,4 +1,4 @@
-##### 1.1.4
+##### 1.1.6
 
 - Fixed validator for check request to use only streetFull
 
