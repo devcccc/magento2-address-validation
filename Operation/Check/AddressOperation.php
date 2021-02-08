@@ -57,8 +57,8 @@ class AddressOperation extends BaseOperation
         if ($response->isSuccess() && $response->hasData()) {
             $data = $response->getResultData();
 
-            $result['changed'] = in_array('A1100', $data['result']['status']) || in_array('A2000', $data['result']['status']);
-            $result['valid'] = $result['changed'] || in_array('A1000', $data['result']['status']);
+            $result['changed'] = in_array('address_needs_correction', $data['result']['status']) || in_array('address_multiple_variants', $data['result']['status']);
+            $result['valid'] = $result['changed'] || in_array('address_correct', $data['result']['status']);
 
             $this->logger->info("Address validation call for [[".$this->serializer->serialize($requestDataCompiled)."]] => [[".$this->serializer->serialize($data)."]]");
 

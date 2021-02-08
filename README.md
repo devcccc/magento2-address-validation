@@ -3,7 +3,7 @@ Magento 2: Extended address validation against webservices
 
 # About 
 
-Address validation module for Magento 2.1, 2.2, 2.3 using Endereco as 
+Address validation module for Magento 2.2, 2.3, 2.4 using Endereco as 
 Webservice for validation. A separate Endereco Account (https://www.endereco.de/)
 is required.
 

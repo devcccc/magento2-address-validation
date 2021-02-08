@@ -1,3 +1,7 @@
+##### 1.1.4
+
+- Use new status codes from Endereco-API
+
 ##### 1.1.3
 
 - Fixed result handling for address book entries if street and housenumber merged into a single field

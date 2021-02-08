@@ -36,7 +36,7 @@ define([
             country: ccccGetAddressDataByFieldSelector(addressData, 'country', 'country_id'),
             postCode: ccccGetAddressDataByFieldSelector(addressData, 'postCode', 'postcode'),
             city: ccccGetAddressDataByFieldSelector(addressData, 'city', 'city'),
-            street: ccccGetAddressDataByFieldSelector(addressData, 'street[0]', 'street[0]'),
+            street: ccccGetAddressDataByFieldSelector(addressData, 'street', 'street[0]'),
             houseNumber: ccccGetAddressDataByFieldSelector(addressData, 'houseNumber', 'street[1]'),
             streetFull: ""
         };
@@ -44,8 +44,8 @@ define([
         if (request.street == request.houseNumber && ccccGetAdressDataFieldselector('street[0]', 'street[0]')
             && ccccGetAdressDataFieldselector('houseNumber', 'street[1]')) {
             request.streetFull = request.street;
-            request.street = "";
-            request.houseNumber = "";
+            delete request.street;
+            delete request.houseNumber;
         }
 
         for (var paramKey in request) {
