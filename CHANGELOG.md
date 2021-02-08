@@ -1,5 +1,9 @@
 ##### 1.1.4
 
+- Fixed validator for check request to use only streetFull
+
+##### 1.1.4
+
 - Use new status codes from Endereco-API
 
 ##### 1.1.3
