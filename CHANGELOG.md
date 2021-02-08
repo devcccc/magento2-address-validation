@@ -1,3 +1,8 @@
+##### 1.1.3
+
+- Fixed result handling for address book entries if street and housenumber merged into a single field
+
+
 ##### 1.1.2
 
 - Fixed: If street number and housenumbe are merged into a single field concatenate data into one field also for address book entries

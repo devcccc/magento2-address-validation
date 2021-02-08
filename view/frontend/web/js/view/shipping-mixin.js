@@ -95,8 +95,12 @@ define([
 
             newShippingAddress = this.ccccUpdateField(newShippingAddress, addressData.postCode, this.ccccGetAddressDataByFieldSelector('postCode', 'postcode'));
             newShippingAddress = this.ccccUpdateField(newShippingAddress, addressData.city, this.ccccGetAddressDataByFieldSelector('cityName', 'city'));
-            newShippingAddress = this.ccccUpdateField(newShippingAddress, addressData.street, this.ccccGetAddressDataByFieldSelector('street', 'street[0]'));
-            newShippingAddress = this.ccccUpdateField(newShippingAddress, addressData.houseNumber, this.ccccGetAddressDataByFieldSelector('houseNumber', 'street[1]'));
+            if (this.ccccGetAdressDataFieldselector('street', 'street[0]') != this.ccccGetAdressDataFieldselector('houseNumber', 'street[1]')) {
+                newShippingAddress = this.ccccUpdateField(newShippingAddress, addressData.street, this.ccccGetAddressDataByFieldSelector('street', 'street[0]'));
+                newShippingAddress = this.ccccUpdateField(newShippingAddress, addressData.houseNumber, this.ccccGetAddressDataByFieldSelector('houseNumber', 'street[1]'));
+            } else {
+                newShippingAddress = this.ccccUpdateField(newShippingAddress, addressData.street + " " + addressData.houseNumber, this.ccccGetAddressDataByFieldSelector('street', 'street[0]'));
+            }
             newShippingAddress = this.ccccUpdateField(newShippingAddress, null, "region_id");
             newShippingAddress = this.ccccUpdateField(newShippingAddress, null, "region");
 
