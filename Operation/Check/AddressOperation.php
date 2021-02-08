@@ -34,14 +34,18 @@ class AddressOperation extends BaseOperation
             'language' => $locale,
             'postCode' => $data['postCode'],
             'cityName' => $data['city'],
-            'street' => $data['street'],
-            'houseNumber' => $data['houseNumber'],
+            'street' => array_key_exists('street', $data) ? $data['street'] : null,
+            'houseNumber' => array_key_exists('houseNumber', $data) ? $data['houseNumber'] : null,
             'streetFull' => $data['streetFull'],
         ];
 
         if (empty($requestData['params']['streetFull'])) {
             unset($requestData['params']['streetFull']);
+        } else {
+            unset($requestData['params']['street']);
+            unset($requestData['params']['houseNumber']);
         }
+
 
         $result =  $this->doApiRequest($requestData);
         return $result;
