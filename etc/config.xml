@@ -5,7 +5,7 @@
         <cccc_addressvalidation_endereco_section>
             <connection>
                 <enabled>0</enabled>
-                <baseurl>https://sandbox.endereco-service.de/rpc/v1</baseurl>
+                <baseurl>https://endereco-service.de/rpc/v1</baseurl>
                 <referer_mode>currentpage</referer_mode>
             </connection>
             <integration>
