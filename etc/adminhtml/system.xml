@@ -118,6 +118,23 @@
                     <label>House number</label>
                 </field>
             </group>
+
+            <group id="development" translate="label" type="text" sortOrder="1000" showInDefault="1" showInWebsite="1" showInStore="0">
+                <label>Development</label>
+                <comment>Development settings</comment>
+
+                <field id="log_validation_requests" translate="label" type="select" sortOrder="100" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <label>Write validation log</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <comment>Log requests/responses to the address validation api in the separate cccc-address-validation.log within the var/log-folder</comment>
+                </field>
+
+                <field id="javascript_debugging" translate="label" type="select" sortOrder="100" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <label>Enable Javascript Debugging</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <comment>Enable the output of some JS-debug-outputs in your browsers Console</comment>
+                </field>
+            </group>
         </section>
     </system>
 </config>
