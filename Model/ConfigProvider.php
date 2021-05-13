@@ -72,9 +72,21 @@ class ConfigProvider implements ConfigProviderInterface
                     'checkaddress' => $this->scopeConfig->getValue($this->configPrefix . '/connection/enabled', 'store') == 1 ? $this->urlInterface->getUrl('4cAddress/check/address') : null,
                     'postcodeautocomplete' => $this->scopeConfig->getValue($this->configPrefix . '/features/postcode_autocomplete', 'store') == 1 ? $this->urlInterface->getUrl('4cAddress/autocomplete/postcode') : null,
                     'cityautocomplete' => $this->scopeConfig->getValue($this->configPrefix . '/features/city_autocomplete', 'store') == 1 ? $this->urlInterface->getUrl('4cAddress/autocomplete/street') : null,
+                ],
+                'development' => [
+                    'javascript_debug' => $this->scopeConfig->getValue($this->configPrefix . '/development/javascript_debugging', 'store') == 1
                 ]
             ],
         ];
+    }
+
+    /**
+     * All API requests should be logged in the separate file
+     *
+     * @return bool
+     */
+    public function shouldLogRequestsInSeparateFile() {
+        return $this->scopeConfig->getValue($this->configPrefix . '/development/log_validation_requests', 'store') == 1;
     }
 
     /**

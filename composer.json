@@ -19,16 +19,13 @@
     }
   ],
   "support": {
-    "email": "cccc@4c.media",
-    "issues": "",
-    "forum": "",
-    "source": "",
-    "docs": ""
+    "email": "cccc@4c.media"
   },
   "require": {
     "magento/framework": "101.0.*|102.0.*|103.0.*",
     "ext-curl": "*",
-    "php": "^7.2.0|^7.3.0|^7.4.0"
+    "ext-json": "*",
+    "php": "^7.1.0|^7.2.0|^7.3.0|^7.4.0"
   },
   "autoload": {
     "files": [
@@ -36,6 +33,12 @@
     ],
     "psr-4": {
       "CCCC\\Addressvalidation\\": ""
+    }
+  },
+  "repositories": {
+    "magento": {
+      "type": "composer",
+      "url": "https://repo.magento.com/"
     }
   }
 }

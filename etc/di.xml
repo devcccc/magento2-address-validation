@@ -3,4 +3,18 @@
     <preference for="CCCC\Addressvalidation\Api\UpdateAddressInterface" type="CCCC\Addressvalidation\Service\V1\UpdateAddress" />
     <preference for="CCCC\Addressvalidation\Api\Data\UpdateAddressResponseInterface" type="CCCC\Addressvalidation\Service\V1\Data\UpdateAddressResponse" />
     <preference for="CCCC\Addressvalidation\Api\Data\EditAddressResponseInterface" type="CCCC\Addressvalidation\Service\V1\Data\EditAddressResponse" />
+
+    <type name="CCCC\Addressvalidation\Logger\Handler\RequestResponseHandler">
+        <arguments>
+            <argument name="filesystem" xsi:type="object">Magento\Framework\Filesystem\Driver\File</argument>
+        </arguments>
+    </type>
+    <type name="CCCC\Addressvalidation\Logger\RequestLogger">
+        <arguments>
+            <argument name="name" xsi:type="string">CCCC_AddressValiddation_Request</argument>
+            <argument name="handlers"  xsi:type="array">
+                <item name="system" xsi:type="object">CCCC\Addressvalidation\Logger\Handler\RequestResponseHandler</item>
+            </argument>
+        </arguments>
+    </type>
 </config>

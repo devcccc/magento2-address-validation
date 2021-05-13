@@ -10,6 +10,8 @@
 namespace CCCC\Addressvalidation\Operation;
 
 use CCCC\Addressvalidation\Generator\RefererGenerator;
+use CCCC\Addressvalidation\Logger\RequestLogger;
+use CCCC\Addressvalidation\Model\ConfigProvider;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\Locale\Resolver;
 use Magento\Framework\App\ProductMetadataInterface;
@@ -42,9 +44,16 @@ class BaseOperation
     /** @var SerializerInterfac  */
     protected $serializer;
 
+    /** @var ConfigProvider  */
+    protected $configProvider;
+
+    /** @var RequestLogger  */
+    protected $requestLogger;
+
     public function __construct(ScopeConfigInterface $config, Resolver $localeResolver, RefererGenerator $refererGenerator,
                                 ProductMetadataInterface $metaInterface, DesignInterface $design, ModuleListInterface $moduleList,
-                                LoggerInterface $logger, SerializerInterface $serializer)
+                                LoggerInterface $logger, SerializerInterface $serializer, ConfigProvider $configProvider,
+                                RequestLogger $requestLogger)
     {
         $this->referer = $refererGenerator->getReferer();
 
@@ -58,6 +67,9 @@ class BaseOperation
 
         $this->logger = $logger;
         $this->serializer = $serializer;
+
+        $this->configProvider = $configProvider;
+        $this->requestLogger = $requestLogger;
     }
 
     protected function getBaseRequestData(string $methodName, bool $paramsRequired = false) : array {
@@ -102,9 +114,33 @@ class BaseOperation
             ]
         );
 
+        if ($this->configProvider->shouldLogRequestsInSeparateFile()) {
+            $logHash = md5(time().uniqid(rand(1, PHP_INT_MAX), true));
+
+            $this->requestLogger->notice(
+                sprintf('[%s ] Sending request to %s as POST, current request class: %s', $logHash, curl_getinfo($ch,CURLOPT_URL), get_class($this))
+            );
+            $this->requestLogger->notice(
+                sprintf('[%s ] Headers: %s', $logHash, implode(" | ", curl_getinfo($ch,CURLOPT_HTTPHEADER)))
+            );
+            $this->requestLogger->notice(
+                sprintf('[%s ] Encoded data: %s', $logHash, curl_getinfo($ch, CURLOPT_POSTFIELDS))
+            );
+        }
+
         $result = curl_exec($ch);
 
         $response = new ResponseObject(curl_errno($ch), curl_getinfo($ch, CURLINFO_HTTP_CODE), json_decode($result, true));
+
+        if ($this->configProvider->shouldLogRequestsInSeparateFile()) {
+            $this->requestLogger->notice(
+                sprintf('[%s ] Response retrieved. CURL status: : %d - %s', $logHash, curl_errno($ch), curl_error($ch))
+            );
+            $this->requestLogger->notice(
+                sprintf('[%s ] Response data %s', $logHash, $result)
+            );
+        }
+
         curl_close($ch);
 
         return $response;
