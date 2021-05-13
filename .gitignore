@@ -43,3 +43,4 @@
 
 .idea/
 vendor
+composer.lock
