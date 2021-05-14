@@ -101,8 +101,10 @@ class BaseOperation
     }
 
     protected function doApiRequest(array $requestDataCompiled) {
-        $ch = curl_init($this->config->getValue($this->configPrefix . '/connection/baseurl'));
+        $url = $this->config->getValue($this->configPrefix . '/connection/baseurl');
+        $ch = curl_init($url);
 
+        $headers = $this->getRequestHeaders();
         curl_setopt_array(
             $ch,
             [
@@ -110,7 +112,7 @@ class BaseOperation
                 CURLOPT_RETURNTRANSFER => true,
                 CURLOPT_POST => true,
                 CURLOPT_POSTFIELDS => json_encode($requestDataCompiled),
-                CURLOPT_HTTPHEADER => $this->getRequestHeaders()
+                CURLOPT_HTTPHEADER => $headers
             ]
         );
 
@@ -118,13 +120,13 @@ class BaseOperation
             $logHash = md5(time().uniqid(rand(1, PHP_INT_MAX), true));
 
             $this->requestLogger->notice(
-                sprintf('[%s ] Sending request to %s as POST, current request class: %s', $logHash, curl_getinfo($ch,CURLOPT_URL), get_class($this))
+                sprintf('[%s ] Sending request to %s as POST, current request class: %s', $logHash, $url, get_class($this))
             );
             $this->requestLogger->notice(
-                sprintf('[%s ] Headers: %s', $logHash, implode(" | ", curl_getinfo($ch,CURLOPT_HTTPHEADER)))
+                sprintf('[%s ] Headers: %s', $logHash, implode(" | ", $headers))
             );
             $this->requestLogger->notice(
-                sprintf('[%s ] Encoded data: %s', $logHash, curl_getinfo($ch, CURLOPT_POSTFIELDS))
+                sprintf('[%s ] Encoded data: %s', $logHash, json_encode($requestDataCompiled))
             );
         }
 
