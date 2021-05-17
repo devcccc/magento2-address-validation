@@ -1,3 +1,10 @@
+##### 1.2.0
+
+- Added support for JavaScript-debugging
+- Added support for separate request/response-logging
+- Renamed "Base URL" to "API Endpoint" in configuration
+- Fixed house number bug. An empty housenumber was taken as string "null" in the selected address
+
 ##### 1.1.6
 
 - Fixed validator for check request to use only streetFull

@@ -162,14 +162,14 @@ define([
                     +this.ccccGetAddressDataByFieldSelector('houseNumber', 'street[1]')+" => "
                     +addressData.houseNumber
                 );
-                this.source.set("shippingAddress." + this.ccccGetAddressDataByFieldSelector('houseNumber', 'street[1]'), addressData.houseNumber);
+                this.source.set("shippingAddress." + this.ccccGetAddressDataByFieldSelector('houseNumber', 'street[1]'), (addressData.houseNumber?addressData.houseNumber:""));
             } else {
                 logger.logData(
                     "shipping-mixin/ccccUpdateAddressSource: Setting combined field shippingAddress."
                     +this.ccccGetAddressDataByFieldSelector('street', 'street[0]')+" => "
                     +addressData.street + " " + addressData.houseNumber
                 );
-                this.source.set("shippingAddress." + this.ccccGetAddressDataByFieldSelector('street', 'street[0]'), addressData.street + " " + addressData.houseNumber);
+                this.source.set("shippingAddress." + this.ccccGetAddressDataByFieldSelector('street', 'street[0]'), addressData.street + (addressData.houseNumber?" " + addressData.houseNumber:""));
             }
 
             logger.logData(

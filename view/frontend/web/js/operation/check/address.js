@@ -115,7 +115,7 @@ define([
 
                     if (response.valid && response.changed && response.predictions && response.predictions.length == 1) {
                         var message = response.message + '<br/><br/>'
-                            + '- ' + response.predictions[0].street+' '+response.predictions[0].houseNumber+', '+response.predictions[0].postCode+' '+response.predictions[0].city
+                            + '- ' + response.predictions[0].street+' '+(response.predictions[0].houseNumber?response.predictions[0].houseNumber:"")+', '+response.predictions[0].postCode+' '+response.predictions[0].city
                             +'<br/><br/>';
 
                         logger.logData(

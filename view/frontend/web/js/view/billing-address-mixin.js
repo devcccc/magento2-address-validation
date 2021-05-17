@@ -31,7 +31,7 @@ define([
                 );
                 return this._super();
             }
-            
+
             var addressChecked = this.source.get('cccc_address_checked');
             if (!addressChecked) {
                 var address = this.source.get(this.dataScopePrefix);
@@ -114,13 +114,13 @@ define([
                     "billing-address-mixin/ccccUpdateAddressSource: Setting field "+this.dataScopePrefix + "."+this.ccccGetAddressDataByFieldSelector('houseNumber', 'street[1]')+" => "
                     +addressData.houseNumber
                 );
-                this.source.set(this.dataScopePrefix + "." + this.ccccGetAddressDataByFieldSelector('houseNumber', 'street[1]'), addressData.houseNumber);
+                this.source.set(this.dataScopePrefix + "." + this.ccccGetAddressDataByFieldSelector('houseNumber', 'street[1]'), (addressData.houseNumber?addressData.houseNumber:""));
             } else {
                 logger.logData(
                     "billing-address-mixin/ccccUpdateAddressSource: Setting combined field "+this.dataScopePrefix + "."+this.ccccGetAddressDataByFieldSelector('street', 'street[0]')+" => "
                     + addressData.street + " " + addressData.houseNumber
                 );
-                this.source.set(this.dataScopePrefix + "." + this.ccccGetAddressDataByFieldSelector('street', 'street[0]'), addressData.street + " " + addressData.houseNumber);
+                this.source.set(this.dataScopePrefix + "." + this.ccccGetAddressDataByFieldSelector('street', 'street[0]'), addressData.street + (addressData.houseNumber?" " + addressData.houseNumber:""));
             }
         },
         ccccContinue: function () {
