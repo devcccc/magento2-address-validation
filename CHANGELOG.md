@@ -4,6 +4,7 @@
 - Added support for separate request/response-logging
 - Renamed "Base URL" to "API Endpoint" in configuration
 - Fixed house number bug. An empty housenumber was taken as string "null" in the selected address
+- Fixed city bug - city was not provided to API for address book entries
 
 ##### 1.1.6
 

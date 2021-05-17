@@ -275,12 +275,11 @@ define([
                         "shipping-mixin/validateShippingInformation: Base check was valid, now doing own address check/validation against Endereco-API"
                     );
                     if (!this.isFormInline) {
-                        var quoteAddress = quote.shippingAddress();
-                        // TODO: Check why we only prove country, postcode and street here. Housenumber? City?
-                        var data = {
+                        var quoteAddress = quote.shippingAddress();                        var data = {
                             'country_id': quoteAddress['countryId'],
                             'postcode': quoteAddress['postcode'],
-                            'street': quoteAddress['street']
+                            'street': quoteAddress['street'],
+                            'city': quoteAddress['city']
                         };
 
                         logger.logData(
