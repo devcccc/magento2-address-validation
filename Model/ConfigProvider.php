@@ -50,7 +50,10 @@ class ConfigProvider implements ConfigProviderInterface
     {
         return [
             'endereco' => [
-                'enabled' => $this->scopeConfig->getValue($this->configPrefix . '/connection/enabled', 'store') == 1,
+                'enabled' => $this->scopeConfig->getValue($this->configPrefix . '/connection/enabled', 'store') == 1
+                    && $this->scopeConfig->getValue($this->configPrefix . '/features/address_check', 'store') == 1,
+                'email_check' => $this->scopeConfig->getValue($this->configPrefix . '/connection/enabled', 'store') == 1
+                    && $this->scopeConfig->getValue($this->configPrefix . '/features/email_check', 'store') == 1,
                 'force_valid_address' => $this->scopeConfig->getValue($this->configPrefix . '/features/force_valid_address', 'store') == 1,
                 'check' => [
                     'shipping_enabled' => $this->scopeConfig->getValue($this->configPrefix . '/integration/frontend_checkout_shipping', 'store') == 1,
@@ -69,6 +72,7 @@ class ConfigProvider implements ConfigProviderInterface
                     'houseNumber' => $this->scopeConfig->getValue($this->configPrefix . '/field_mapping/houseNumber', 'store')
                 ],
                 'urls' => [
+                    'checkemail' => $this->scopeConfig->getValue($this->configPrefix . '/connection/enabled', 'store') == 1 ? $this->urlInterface->getUrl('4cAddress/check/email') : null,
                     'checkaddress' => $this->scopeConfig->getValue($this->configPrefix . '/connection/enabled', 'store') == 1 ? $this->urlInterface->getUrl('4cAddress/check/address') : null,
                     'postcodeautocomplete' => $this->scopeConfig->getValue($this->configPrefix . '/features/postcode_autocomplete', 'store') == 1 ? $this->urlInterface->getUrl('4cAddress/autocomplete/postcode') : null,
                     'cityautocomplete' => $this->scopeConfig->getValue($this->configPrefix . '/features/city_autocomplete', 'store') == 1 ? $this->urlInterface->getUrl('4cAddress/autocomplete/street') : null,

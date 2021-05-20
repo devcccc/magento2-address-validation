@@ -22,8 +22,7 @@ class EmailOperation extends BaseOperation
             'email' => $data['email']
         ];
 
-        $result =  $this->doApiRequest($requestData);
-        return $result;
+        return  $this->doApiRequest($requestData);
     }
 
     protected function doApiRequest(array $requestDataCompiled)
@@ -39,7 +38,8 @@ class EmailOperation extends BaseOperation
             $result['valid'] = $result['disposable']
                 || in_array('A1000', $data['result']['status'])
                 || in_array('A1100', $data['result']['status'])
-                || in_array('A1110', $data['result']['status']);
+                || in_array('A1110', $data['result']['status'])
+                || in_array('A1400', $data['result']['status']);
         }
 
         return $result;

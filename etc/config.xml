@@ -16,6 +16,7 @@
             <features>
                 <address_check>1</address_check>
                 <force_valid_address>1</force_valid_address>
+                <email_check>1</email_check>
             </features>
 
             <field_mapping>

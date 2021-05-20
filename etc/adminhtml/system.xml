@@ -82,6 +82,12 @@
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                     <comment>Process can be continued only if the address was validated successfully. Option is used only of address check is also enabled.</comment>
                 </field>
+
+                <field id="email_check" translate="label" type="select" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>eMail check</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <comment>Enable eMail check against Endereco</comment>
+                </field>
             </group>
 
             <group id="field_mapping" translate="label" type="text" sortOrder="40" showInDefault="1" showInWebsite="1"
