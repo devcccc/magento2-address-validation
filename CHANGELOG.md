@@ -5,6 +5,7 @@
 - Renamed "Base URL" to "API Endpoint" in configuration
 - Fixed house number bug. An empty housenumber was taken as string "null" in the selected address
 - Fixed city bug - city was not provided to API for address book entries
+- Added eMail check - at the moment it will display only warnings, no hard bounces yet
 
 ##### 1.1.6
 
