@@ -17,4 +17,22 @@
             </argument>
         </arguments>
     </type>
+
+    <type name="Magento\Framework\App\Request\CsrfValidator">
+        <plugin name="cccc_csrf_validation_disable" type="CCCC\Addressvalidation\Plugin\CsrfValidatorSkip" />
+    </type>
+
+    <type name="Magento\Checkout\Model\PaymentInformationManagement">
+        <plugin name="cccc_save_validation_result_as_comment"
+            type="CCCC\Addressvalidation\Plugin\SaveValidationResultToQuote" sortOrder="10"/>
+        <plugin name="cccc_do_accounting"
+                type="CCCC\Addressvalidation\Plugin\SendDoAccountingBeforePlaceOrder" sortOrder="1"/>
+    </type>
+
+    <type name="Magento\Checkout\Model\GuestPaymentInformationManagement">
+        <plugin name="cccc_save_validation_result_as_comment_guest"
+                type="CCCC\Addressvalidation\Plugin\SaveValidationResultToQuote" sortOrder="10"/>
+        <plugin name="cccc_do_accounting"
+                type="CCCC\Addressvalidation\Plugin\SendDoAccountingBeforePlaceOrder" sortOrder="1"/>
+    </type>
 </config>

@@ -2,12 +2,54 @@
 /*global alert*/
 define([
     'jquery',
-    'CCCC_Addressvalidation/js/operation/check/address',
-    'CCCC_Addressvalidation/js/helper/logger'
-], function ($, addresscheck, logger) {
+    'CCCC_Addressvalidation/js/operation/edit-address',
+    'Magento_Checkout/js/model/quote',
+    'Magento_Checkout/js/action/select-billing-address',
+    'Magento_Checkout/js/checkout-data',
+    'CCCC_Addressvalidation/js/helper/logger',
+    'CCCC_Addressvalidation/js/helper/configuration',
+    'CCCC_Addressvalidation/js/helper/address',
+    'CCCC_Addressvalidation/js/endereco-setup',
+    'Magento_Checkout/js/model/payment/place-order-hooks'
+], function ($, editAddress, quote, selectBillingAddressAction, checkoutData, logger, configurationHelper, addressHelper, enderecosdk, placeOrderHooks) {
     'use strict';
 
     var mixin = {
+        initialize: function () {
+            this._super();
+            // TODO: Fix several address forms (per payment method!)
+            var amsPrefix = {
+                countryCode: "[name='billingAddress."+configurationHelper.ccccGetAddressDataByFieldSelector('country_id', 'country_id')+"'] select[name]",
+                postalCode: "[name='billingAddress."+configurationHelper.ccccGetAddressDataByFieldSelector('postCode', 'postcode')+"'] input[name]",
+                locality: "[name='billingAddress."+configurationHelper.ccccGetAddressDataByFieldSelector('cityName', 'city')+"'] input[name]",
+                streetFull: configurationHelper.ccccGetAddressDataByFieldSelector('street', 'street.0') === configurationHelper.ccccGetAddressDataByFieldSelector('houseNumber', 'street.1')?"[name='billingAddress."+configurationHelper.ccccGetAddressDataByFieldSelector('street', 'street.0')+"'] input[name]":"",
+                streetName: configurationHelper.ccccGetAddressDataByFieldSelector('street', 'street.0') !== configurationHelper.ccccGetAddressDataByFieldSelector('houseNumber', 'street.1')?"[name='billingAddress."+configurationHelper.ccccGetAddressDataByFieldSelector('street', 'street.0')+"'] input[name]":"",
+                buldingNumber: configurationHelper.ccccGetAddressDataByFieldSelector('street', 'street.0') !== configurationHelper.ccccGetAddressDataByFieldSelector('houseNumber', 'street.1')?"[name='billingAddress."+configurationHelper.ccccGetAddressDataByFieldSelector('houseNumber', 'street.1')+"'] input[name]":"",
+                additionalInfo: '',
+                addressStatus: '[name="enderecoamsstatus"]',
+                addressTimestamp: '[name="enderecoamsts"]',
+                addressPredictions: '[name="enderecoamsapredictions"]'
+            };
+
+            enderecosdk.startAms(
+                amsPrefix,
+                {
+                    name: 'billing_address',
+                    addressType: 'general_address'
+                }
+            );
+
+            placeOrderHooks.requestModifiers.push(function (headers, payload) {
+                if (payload.paymentMethod['extension_attributes'] === undefined) {
+                    payload.paymentMethod['extension_attributes'] = {};
+                }
+
+                payload.paymentMethod['extension_attributes']['cccc_validation_shipping_result'] =
+                    enderecosdk.getAddressStatusAsText(window.EnderecoIntegrator.integratedObjects.shipping_address_ams._addressStatus);
+            });
+            return this;
+        },
+
         ccccCheckAddress: function () {
             if (window.checkoutConfig.cccc.addressvalidation.endereco.enabled && window.checkoutConfig.cccc.addressvalidation.endereco.check.billing_enabled) {
                 logger.logData(
@@ -44,7 +86,7 @@ define([
                 logger.logData(
                     "billing-address-mixin/updateAddress: Doing validation..."
                 );
-                addresscheck(address, true, this, 'saveNewAddress');
+                //addresscheck(address, true, this, 'saveNewAddress');
                 logger.logData(
                     "billing-address-mixin/updateAddress: Validation done"
                 );

@@ -2,18 +2,78 @@
 /*global alert*/
 define([
     'jquery',
-    'CCCC_Addressvalidation/js/operation/check/address',
     'CCCC_Addressvalidation/js/operation/edit-address',
     'Magento_Checkout/js/model/quote',
     'Magento_Checkout/js/action/select-shipping-address',
     'Magento_Checkout/js/checkout-data',
-    'CCCC_Addressvalidation/js/helper/logger'
-], function ($, addresscheck, editAddress, quote, selectShippingAddressAction, checkoutData, logger) {
+    'CCCC_Addressvalidation/js/helper/logger',
+    'CCCC_Addressvalidation/js/helper/configuration',
+    'CCCC_Addressvalidation/js/helper/address',
+    'CCCC_Addressvalidation/js/endereco-setup',
+    'Magento_Checkout/js/model/payment/place-order-hooks'
+], function ($, editAddress, quote, selectShippingAddressAction, checkoutData, logger, configurationHelper, addressHelper, enderecosdk, placeOrderHooks) {
     'use strict';
 
     var mixin = {
+        initialize: function () {
+            this._super();
+            var amsPrefix = {
+                countryCode: "[name='shippingAddress."+configurationHelper.ccccGetAddressDataByFieldSelector('country_id', 'country_id')+"'] select[name]",
+                postalCode: "[name='shippingAddress."+configurationHelper.ccccGetAddressDataByFieldSelector('postCode', 'postcode')+"'] input[name]",
+                locality: "[name='shippingAddress."+configurationHelper.ccccGetAddressDataByFieldSelector('cityName', 'city')+"'] input[name]",
+                streetFull: configurationHelper.ccccGetAddressDataByFieldSelector('street', 'street.0') === configurationHelper.ccccGetAddressDataByFieldSelector('houseNumber', 'street.1')?"[name='shippingAddress."+configurationHelper.ccccGetAddressDataByFieldSelector('street', 'street.0')+"'] input[name]":"",
+                streetName: configurationHelper.ccccGetAddressDataByFieldSelector('street', 'street.0') !== configurationHelper.ccccGetAddressDataByFieldSelector('houseNumber', 'street.1')?"[name='shippingAddress."+configurationHelper.ccccGetAddressDataByFieldSelector('street', 'street.0')+"'] input[name]":"",
+                buldingNumber: configurationHelper.ccccGetAddressDataByFieldSelector('street', 'street.0') !== configurationHelper.ccccGetAddressDataByFieldSelector('houseNumber', 'street.1')?"[name='shippingAddress."+configurationHelper.ccccGetAddressDataByFieldSelector('houseNumber', 'street.1')+"'] input[name]":"",
+                additionalInfo: '',
+                addressStatus: '[name="enderecoamsstatus"]',
+                addressTimestamp: '[name="enderecoamsts"]',
+                addressPredictions: '[name="enderecoamsapredictions"]'
+            };
+
+            enderecosdk.startAms(
+                amsPrefix,
+                {
+                    name: 'shipping_address',
+                    addressType: 'general_address'
+                }
+            );
+
+            placeOrderHooks.requestModifiers.push(function (headers, payload) {
+                if (payload.paymentMethod['extension_attributes'] === undefined) {
+                    payload.paymentMethod['extension_attributes'] = {};
+                }
+
+                payload.paymentMethod['extension_attributes']['cccc_validation_shipping_result'] =
+                    enderecosdk.getAddressStatusAsText(window.EnderecoIntegrator.integratedObjects.shipping_address_ams._addressStatus);
+            });
+            return this;
+        },
+
+        ccccUpdateAddressFromEndereco: function(sType = 'setShippingInformation', amsKey = 'shipping_address_ams') {
+            var amsData = window.EnderecoIntegrator.integratedObjects[amsKey];
+            var addressData = {
+                postCode: amsData._postalCode,
+                city: amsData._locality,
+                street: amsData._streetName,
+                houseNumber: amsData._buildingNumber!="&nbsp;" ? amsData._buildingNumber : "",
+                countryId: amsData._countryCode.toUpperCase()
+            };
+
+
+            this.ccccUpdateAddress(addressData);
+
+            var validCodes = ['address_correct'];
+            if(!window.checkoutConfig.cccc.addressvalidation.endereco.force_valid_address) {
+                validCodes.push('address_selected_by_customer');
+            }
+
+            if ($.inArray(amsData._addressStatus, validCodes)) {
+                this.ccccContinue(sType);
+            }
+        },
+
         ccccCheckAddress: function () {
-            if (window.checkoutConfig.cccc.addressvalidation.endereco.enabled && window.checkoutConfig.cccc.addressvalidation.endereco.check.shipping_enabled) {
+            if (configurationHelper.isAddressValidationEnabled()) {
                 logger.logData(
                     "shipping-mixin/ccccCheckAddress: Shipping address will be validated by Endereco API"
                 );
@@ -39,7 +99,9 @@ define([
                 logger.logData(
                     "shipping-mixin/saveNewAddress: Address not yet validated, starting validation"
                 );
-                addresscheck(this.source.get('shippingAddress'), false, this, 'saveNewAddress');
+                window.EnderecoIntegrator.integratedObjects.shipping_address_ams._changed = true;
+                window.EnderecoIntegrator.submitResume = this.ccccUpdateAddressFromEndereco.bind(this, 'saveNewAddress');
+                window.EnderecoIntegrator.integratedObjects.shipping_address_ams.cb.onFormSubmit(new Event('check'))
             } else {
                 logger.logData(
                     "shipping-mixin/saveNewAddress: Address already validated, resetting marker and storing address"
@@ -48,58 +110,7 @@ define([
                 return this._super();
             }
         },
-        ccccReplaceInSelectedShippingAddress: function (sReplace, sReplaceWith) {
-            var oElem = $('.shipping-address-item.selected-item');
-            logger.logData(
-                "shipping-mixin/ccccReplaceInSelectedShippingAddress: Replacing "+sReplace+" => "+sReplaceWith
-            );
-            if (oElem.length > 0) {
-                logger.logData(
-                    "shipping-mixin/ccccReplaceInSelectedShippingAddress: Replacing "+sReplace+" => "+sReplaceWith+" within element-html "+oElem.html()
-                );
-                oElem.html(oElem.html().replace(sReplace, sReplaceWith));
-            } else {
-                logger.logData(
-                    "shipping-mixin/ccccReplaceInSelectedShippingAddress: No selected shipping address item found, skipping "
-                );
-            }
-        },
-        ccccUpdateField: function(oSourceAddress, oResponseData, sField) {
-            logger.logData(
-                "shipping-mixin/ccccUpdateField: Trying to update field "+sField+" with new value "+oResponseData+" within address data "
-                +JSON.stringify(oSourceAddress)
-            );
 
-            var matches = sField.match(/([^\.]+)\.(\d)+/);
-            if (matches) {
-                logger.logData(
-                    "shipping-mixin/ccccUpdateField: Multidimensional field, checking if data changed "+oSourceAddress[matches[1]][matches[2]]+"  => "+oResponseData
-                );
-                if (oSourceAddress[matches[1]][matches[2]] !== oResponseData) {
-                    logger.logData(
-                        "shipping-mixin/ccccUpdateField: Multidimensional field, data changed "+oSourceAddress[matches[1]][matches[2]]+"  => "+oResponseData
-                    );
-                    this.ccccReplaceInSelectedShippingAddress(oSourceAddress[matches[1]][matches[2]], oResponseData);
-                    logger.logData(
-                        "shipping-mixin/ccccUpdateField: Multidimensional field => new value: "+oResponseData
-                    );
-                    oSourceAddress[matches[1]][matches[2]] = oResponseData;
-                }
-            } else {
-                logger.logData(
-                    "shipping-mixin/ccccUpdateField: Simple field, checking if data got changed "+oSourceAddress[sField]+"  => "+oResponseData
-                );
-                if (oSourceAddress[sField] !== oResponseData) {
-                    logger.logData(
-                        "shipping-mixin/ccccUpdateField: Simple field, data changed "+oSourceAddress[sField]+"  => "+oResponseData
-                        +" - set new value"
-                    );
-                    this.ccccReplaceInSelectedShippingAddress(oSourceAddress[sField], oResponseData);
-                    oSourceAddress[sField] = oResponseData;
-                }
-            }
-            return oSourceAddress;
-        },
         ccccUpdateAddress: function (addressData) {
             logger.logData(
                 "shipping-mixin/ccccUpdateAddress: Doing address update => "+JSON.stringify(addressData)
@@ -108,7 +119,7 @@ define([
                 logger.logData(
                     "shipping-mixin/ccccUpdateAddress: Form is inline"
                 );
-                this.ccccUpdateAddressSource(addressData);
+                addressHelper.ccccUpdateAddressSource(addressData, this.source, 'shippingAddress');
             } else {
                 logger.logData(
                     "shipping-mixin/ccccUpdateAddress: Update address book entry"
@@ -117,121 +128,8 @@ define([
             }
         },
 
-        ccccGetAdressDataFieldselector: function(field, fallback) {
-            var fieldSelector = window.checkoutConfig.cccc.addressvalidation.endereco.mapping && window.checkoutConfig.cccc.addressvalidation.endereco.mapping[field]
-                ? window.checkoutConfig.cccc.addressvalidation.endereco.mapping[field] : fallback;
-
-            logger.logData(
-                "shipping-mixin/ccccGetAdressDataFieldselector: Determined field selector for "+field+" (fallback: "+fallback+") => result: "+fieldSelector
-            );
-
-            return fieldSelector;
-        },
-
-        ccccGetAddressDataByFieldSelector: function(field, fallback) {
-            var fieldSelector = this.ccccGetAdressDataFieldselector(field, fallback);
-            var val = fieldSelector.replace(/\[([0-9]+)\]/, ".$1");
-            logger.logData(
-                "shipping-mixin/ccccGetAddressDataByFieldSelector: Determined field selector for "+field+" (fallback: "+fallback+") => normalized result: "+val
-            );
-            return val;
-        },
-
-        ccccUpdateAddressSource: function (addressData) {
-            logger.logData(
-                "shipping-mixin/ccccUpdateAddressSource: Setting field shippingAddress."
-                +this.ccccGetAddressDataByFieldSelector('postCode', 'postcode')+" => "
-                +addressData.postCode
-            );
-            this.source.set("shippingAddress." + this.ccccGetAddressDataByFieldSelector('postCode', 'postcode'), addressData.postCode);
-            logger.logData(
-                "shipping-mixin/ccccUpdateAddressSource: Setting field shippingAddress."
-                +this.ccccGetAddressDataByFieldSelector('cityName', 'city')+" => "
-                +addressData.city
-            );
-            this.source.set("shippingAddress." + this.ccccGetAddressDataByFieldSelector('cityName', 'city'), addressData.city);
-            if (this.ccccGetAdressDataFieldselector('street', 'street[0]') != this.ccccGetAdressDataFieldselector('houseNumber', 'street[1]')) {
-                logger.logData(
-                    "shipping-mixin/ccccUpdateAddressSource: Setting field shippingAddress."
-                    +this.ccccGetAddressDataByFieldSelector('street', 'street[0]')+" => "
-                    +addressData.street
-                );
-                this.source.set("shippingAddress." + this.ccccGetAddressDataByFieldSelector('street', 'street[0]'), addressData.street);
-                logger.logData(
-                    "shipping-mixin/ccccUpdateAddressSource: Setting field shippingAddress."
-                    +this.ccccGetAddressDataByFieldSelector('houseNumber', 'street[1]')+" => "
-                    +addressData.houseNumber
-                );
-                this.source.set("shippingAddress." + this.ccccGetAddressDataByFieldSelector('houseNumber', 'street[1]'), (addressData.houseNumber?addressData.houseNumber:""));
-            } else {
-                logger.logData(
-                    "shipping-mixin/ccccUpdateAddressSource: Setting combined field shippingAddress."
-                    +this.ccccGetAddressDataByFieldSelector('street', 'street[0]')+" => "
-                    +addressData.street + " " + addressData.houseNumber
-                );
-                this.source.set("shippingAddress." + this.ccccGetAddressDataByFieldSelector('street', 'street[0]'), addressData.street + (addressData.houseNumber?" " + addressData.houseNumber:""));
-            }
-
-            logger.logData(
-                "shipping-mixin/ccccUpdateAddressSource: Setting field shippingAddress.region => (null)"
-            );
-            this.source.set("shippingAddress.region_id", null);
-            logger.logData(
-                "shipping-mixin/ccccUpdateAddressSource: Setting field shippingAddress.region => (null)"
-            );
-            this.source.set("shippingAddress.region", null);
-        },
         ccccUpdateAddressRegistered: function (addressData) {
-            var newShippingAddress = quote.shippingAddress();
-
-            logger.logData(
-                "shipping-mixin/ccccUpdateAddressRegistered: Setting field "
-                +this.ccccGetAddressDataByFieldSelector('postCode', 'postcode')+" => "
-                +addressData.postCode
-            );
-            newShippingAddress = this.ccccUpdateField(newShippingAddress, addressData.postCode, this.ccccGetAddressDataByFieldSelector('postCode', 'postcode'));
-            logger.logData(
-                "shipping-mixin/ccccUpdateAddressRegistered: Setting field "
-                +this.ccccGetAddressDataByFieldSelector('city', 'cityName')+" => "
-                +addressData.city
-            );
-            newShippingAddress = this.ccccUpdateField(newShippingAddress, addressData.city, this.ccccGetAddressDataByFieldSelector('cityName', 'city'));
-            if (this.ccccGetAdressDataFieldselector('street', 'street[0]') != this.ccccGetAdressDataFieldselector('houseNumber', 'street[1]')) {
-                logger.logData(
-                    "shipping-mixin/ccccUpdateAddressRegistered: Setting field "
-                    +this.ccccGetAddressDataByFieldSelector('street', 'street[0]')+" => "
-                    +addressData.street
-                );
-                newShippingAddress = this.ccccUpdateField(newShippingAddress, addressData.street, this.ccccGetAddressDataByFieldSelector('street', 'street[0]'));
-                logger.logData(
-                    "shipping-mixin/ccccUpdateAddressRegistered: Setting field "
-                    +this.ccccGetAddressDataByFieldSelector('street', 'street[1]')+" => "
-                    +addressData.houseNumber
-                );
-                newShippingAddress = this.ccccUpdateField(newShippingAddress, addressData.houseNumber, this.ccccGetAddressDataByFieldSelector('houseNumber', 'street[1]'));
-            } else {
-                logger.logData(
-                    "shipping-mixin/ccccUpdateAddressRegistered: Setting combined field "
-                    +this.ccccGetAddressDataByFieldSelector('street', 'street[0]')+" => "
-                    +addressData.street+" "+addressData.houseNumber
-                );
-                newShippingAddress = this.ccccUpdateField(newShippingAddress, addressData.street + " " + addressData.houseNumber, this.ccccGetAddressDataByFieldSelector('street', 'street[0]'));
-            }
-            logger.logData(
-                "shipping-mixin/ccccUpdateAddressRegistered: Setting field region_id => (null)"
-            );
-            newShippingAddress = this.ccccUpdateField(newShippingAddress, null, "region_id");
-            logger.logData(
-                "shipping-mixin/ccccUpdateAddressRegistered: Setting field region => (null)"
-            );
-            newShippingAddress = this.ccccUpdateField(newShippingAddress, null, "region");
-
-            this.ccccUpdateAddressSource(addressData);
-
-            logger.logData(
-                "shipping-mixin/ccccUpdateAddressRegistered: Set new selected shipping address "+JSON.stringify(newShippingAddress)
-            );
-            editAddress(newShippingAddress);
+            var newShippingAddress = addressHelper.ccccUpdateAddressRegistered(addressData, quote.shippingAddress(), '.shipping-address-item.selected-item');
             selectShippingAddressAction(newShippingAddress);
             logger.logData(
                 "shipping-mixin/ccccUpdateAddressRegistered: Select shipping address within checkout by key  "+newShippingAddress.getKey()
@@ -253,6 +151,7 @@ define([
                 this.setShippingInformation();
             }
         },
+
         validateShippingInformation: function() {
             logger.logData(
                 "shipping-mixin/validateShippingInformation: Starting validation of shipping information"
@@ -275,7 +174,8 @@ define([
                         "shipping-mixin/validateShippingInformation: Base check was valid, now doing own address check/validation against Endereco-API"
                     );
                     if (!this.isFormInline) {
-                        var quoteAddress = quote.shippingAddress();                        var data = {
+                        var quoteAddress = quote.shippingAddress();
+                        var data = {
                             'country_id': quoteAddress['countryId'],
                             'postcode': quoteAddress['postcode'],
                             'street': quoteAddress['street'],
@@ -288,7 +188,8 @@ define([
                         logger.logData(
                             "shipping-mixin/validateShippingInformation: setShippingInformation will called directly after address check"
                         );
-                        addresscheck(data, false, this, 'setShippingInformation');
+                        // TODO: Validate?
+                        return true;
                     } else {
                         logger.logData(
                             "shipping-mixin/validateShippingInformation: Base check was valid, doing address check for a new address against Endereco-API: "+JSON.stringify(this.source.get('shippingAddress'))
@@ -296,12 +197,24 @@ define([
                         logger.logData(
                             "shipping-mixin/validateShippingInformation: setShippingInformation will called directly after address check"
                         );
-                        addresscheck(this.source.get('shippingAddress'), false, this, 'setShippingInformation');
+
+                        if (!this.source.get("cccc_initial_check")) {
+                            window.EnderecoIntegrator.integratedObjects.shipping_address_ams._changed = true;
+                            this.source.set("cccc_initial_check", true)
+                        }
+
+                        if (!window.EnderecoIntegrator.integratedObjects.shipping_address_ams._changed) {
+                            this.ccccContinue("setShippingInformation");
+                            return true;
+                        }
+
+                        window.EnderecoIntegrator.submitResume = this.ccccUpdateAddressFromEndereco.bind(this);
+                        window.EnderecoIntegrator.integratedObjects.shipping_address_ams.cb.onFormSubmit(new Event('check'))
                     }
                     return false;
                 }
                 logger.logData(
-                    "shipping-mixin/validateShippingInformation: No validdation of the address against Endereco-API as the basse validation failed"
+                    "shipping-mixin/validateShippingInformation: No validation of the address against Endereco-API as the basse validation failed"
                 );
             } else {
                 logger.logData(

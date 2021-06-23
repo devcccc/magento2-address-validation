@@ -17,6 +17,9 @@
                 <address_check>1</address_check>
                 <force_valid_address>1</force_valid_address>
                 <email_check>1</email_check>
+                <email_show_warnings>1</email_show_warnings>
+                <uppercase_firstname>0</uppercase_firstname>
+                <uppercase_lastname>0</uppercase_lastname>
             </features>
 
             <field_mapping>
@@ -25,6 +28,7 @@
                 <cityName>city</cityName>
                 <street>street[0]</street>
                 <houseNumber>street[1]</houseNumber>
+                <email>.checkout-shipping-address #customer-email</email>
             </field_mapping>
 
             <development>

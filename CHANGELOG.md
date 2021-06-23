@@ -1,3 +1,13 @@
+##### 1.2.3
+
+- Switched to Endereco JS-SDK for the frontend
+- Removed unused controllers
+- Reworked doAccounting
+- Integrated eMail validation
+- Supports now autocomplete functionality
+- Cleaned up javascript
+- Extended Configuration
+
 ##### 1.2.0
 
 - Added support for JavaScript-debugging

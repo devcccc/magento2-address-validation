@@ -21,21 +21,21 @@
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                 </field>
 
-                <field id="baseurl" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="1"
+                <field id="baseurl" translate="label comment" type="text" sortOrder="20" showInDefault="1" showInWebsite="1"
                        showInStore="0">
                     <label>API Endpoint</label>
                     <comment>Endpoint URL of the Endereco-API</comment>
                     <validate>validate-no-empty</validate>
                 </field>
 
-                <field id="authkey" translate="label" type="text" sortOrder="30" showInDefault="1" showInWebsite="1"
+                <field id="authkey" translate="label comment" type="text" sortOrder="30" showInDefault="1" showInWebsite="1"
                        showInStore="0">
                     <label>Auth-Key</label>
-                    <comment>Authorization key retrieved from endereco</comment>
+                    <comment>Authorization key retrieved from Endereco</comment>
                     <validate>validate-no-empty</validate>
                 </field>
 
-                <field id="referer_mode" translate="label" type="select" sortOrder="50" showInDefault="1" showInWebsite="1"
+                <field id="referer_mode" translate="label comment" type="select" sortOrder="50" showInDefault="1" showInWebsite="1"
                        showInStore="0">
                     <label>Referer-Mode</label>
                     <comment>Referer to send to Endereco</comment>
@@ -48,52 +48,85 @@
                    showInStore="1">
                 <label>Process integration</label>
 
-                <field id="frontend_checkout_shipping" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                <field id="frontend_checkout_shipping" translate="label comment" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Frontend: Checkout - Shipping address</label>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-                    <comment>Apply module to shipping address within checkout (frontend)</comment>
+                    <comment>Apply validation to shipping address within checkout (frontend)</comment>
                 </field>
 
-                <field id="frontend_checkout_billing" translate="label" type="select" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+                <field id="frontend_checkout_billing" translate="label comment" type="select" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Frontend: Checkout - Billing address</label>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-                    <comment>Apply module to billing address within checkout (frontend)</comment>
+                    <comment>Apply validation to billing address within checkout (frontend)</comment>
                 </field>
-
-                <field id="customer_addressbook" translate="label" type="select" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>Frontend: Customer account address address book</label>
+<!--
+                <field id="customer_addressbook" translate="label comment" type="select" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Frontend: Customer account address book</label>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                     <comment>Apply module to customer account/address book</comment>
                 </field>
+                -->
             </group>
 
             <group id="features" translate="label" type="text" sortOrder="30" showInDefault="1" showInWebsite="1"
                    showInStore="1">
                 <label>Features to use</label>
 
-                <field id="address_check" translate="label" type="select" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
+                <field id="address_check" translate="label comment" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Address check</label>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                     <comment>Enable address check against Endereco</comment>
                 </field>
 
-                <field id="force_valid_address" translate="label" type="select" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
+                <field id="force_valid_address" translate="label comment" type="select" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Force valid address</label>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                     <comment>Process can be continued only if the address was validated successfully. Option is used only of address check is also enabled.</comment>
+                    <depends>
+                        <field id="address_check">1</field>
+                    </depends>
                 </field>
 
-                <field id="email_check" translate="label" type="select" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
+                <field id="uppercase_firstname" translate="label comment" type="select" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>First name as upper case</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <comment>Set first name to UPPER CASE letters after validation</comment>
+                    <depends>
+                        <field id="address_check">1</field>
+                    </depends>
+                </field>
+
+                <field id="uppercase_lastname" translate="label comment" type="select" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Last name as upper case</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <comment>Set last name to UPPER CASE letters after validation</comment>
+                    <depends>
+                        <field id="address_check">1</field>
+                    </depends>
+                </field>
+
+                <field id="email_check" translate="label comment" type="select" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>eMail check</label>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                     <comment>Enable eMail check against Endereco</comment>
                 </field>
+
+                <field id="email_show_warnings" translate="label comment" type="select" sortOrder="60" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>eMail-warnings in frontend</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <comment>Display also eMail-Validation warnings in frontend/checkout</comment>
+                    <depends>
+                        <field id="email_check">1</field>
+                    </depends>
+                </field>
+
+
             </group>
 
-            <group id="field_mapping" translate="label" type="text" sortOrder="40" showInDefault="1" showInWebsite="1"
+            <group id="field_mapping" translate="label comment" type="text" sortOrder="40" showInDefault="1" showInWebsite="1"
                    showInStore="0">
                 <label>Field mapping</label>
-                <comment>Use HTML field names here to identify the fields </comment>
+                <comment>Use HTML field names here to identify the fields. Use the same value for street and house number to use a combined address line.</comment>
 
                 <field id="country" translate="label" type="text" sortOrder="1" showInDefault="1" showInWebsite="0"
                        showInStore="0">
@@ -123,11 +156,15 @@
                        showInStore="0">
                     <label>House number</label>
                 </field>
+
+                <field id="email" translate="label" type="text" sortOrder="1" showInDefault="1" showInWebsite="0"
+                       showInStore="0">
+                    <label>eMail</label>
+                </field>
             </group>
 
             <group id="development" translate="label" type="text" sortOrder="1000" showInDefault="1" showInWebsite="1" showInStore="0">
                 <label>Development</label>
-                <comment>Development settings</comment>
 
                 <field id="log_validation_requests" translate="label" type="select" sortOrder="100" showInDefault="1" showInWebsite="1" showInStore="0">
                     <label>Write validation log</label>

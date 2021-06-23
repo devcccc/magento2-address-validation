@@ -50,6 +50,9 @@ class BaseOperation
     /** @var RequestLogger  */
     protected $requestLogger;
 
+    /** @var string */
+    protected $moduleVersion;
+
     public function __construct(ScopeConfigInterface $config, Resolver $localeResolver, RefererGenerator $refererGenerator,
                                 ProductMetadataInterface $metaInterface, DesignInterface $design, ModuleListInterface $moduleList,
                                 LoggerInterface $logger, SerializerInterface $serializer, ConfigProvider $configProvider,

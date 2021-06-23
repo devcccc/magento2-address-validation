@@ -54,28 +54,24 @@ class ConfigProvider implements ConfigProviderInterface
                     && $this->scopeConfig->getValue($this->configPrefix . '/features/address_check', 'store') == 1,
                 'email_check' => $this->scopeConfig->getValue($this->configPrefix . '/connection/enabled', 'store') == 1
                     && $this->scopeConfig->getValue($this->configPrefix . '/features/email_check', 'store') == 1,
+                'email_show_warnings' => $this->scopeConfig->getValue($this->configPrefix . '/features/email_show_warnings', 'store') == 1,
                 'force_valid_address' => $this->scopeConfig->getValue($this->configPrefix . '/features/force_valid_address', 'store') == 1,
                 'check' => [
                     'shipping_enabled' => $this->scopeConfig->getValue($this->configPrefix . '/integration/frontend_checkout_shipping', 'store') == 1,
                     'billing_enabled' => $this->scopeConfig->getValue($this->configPrefix . '/integration/frontend_checkout_billing', 'store') == 1,
                     'customer_addressbook_enabled' => $this->scopeConfig->getValue($this->configPrefix . '/integration/customer_addressbook', 'store') == 1
                 ],
-                'autocomplete' => [
-                    'postcode' => $this->scopeConfig->getValue($this->configPrefix . '/features/postcode_autocomplete', 'store') == 1,
-                    'city' => $this->scopeConfig->getValue($this->configPrefix . '/features/city_autocomplete', 'store') == 1,
-                ],
                 'mapping' => [
                     'country' => $this->scopeConfig->getValue($this->configPrefix . '/field_mapping/country', 'store'),
                     'postCode' => $this->scopeConfig->getValue($this->configPrefix . '/field_mapping/postCode', 'store'),
                     'cityName' => $this->scopeConfig->getValue($this->configPrefix . '/field_mapping/cityName', 'store'),
                     'street' => $this->scopeConfig->getValue($this->configPrefix . '/field_mapping/street', 'store'),
-                    'houseNumber' => $this->scopeConfig->getValue($this->configPrefix . '/field_mapping/houseNumber', 'store')
+                    'houseNumber' => $this->scopeConfig->getValue($this->configPrefix . '/field_mapping/houseNumber', 'store'),
+                    'email' => $this->scopeConfig->getValue($this->configPrefix . '/field_mapping/email', 'store'),
                 ],
-                'urls' => [
-                    'checkemail' => $this->scopeConfig->getValue($this->configPrefix . '/connection/enabled', 'store') == 1 ? $this->urlInterface->getUrl('4cAddress/check/email') : null,
-                    'checkaddress' => $this->scopeConfig->getValue($this->configPrefix . '/connection/enabled', 'store') == 1 ? $this->urlInterface->getUrl('4cAddress/check/address') : null,
-                    'postcodeautocomplete' => $this->scopeConfig->getValue($this->configPrefix . '/features/postcode_autocomplete', 'store') == 1 ? $this->urlInterface->getUrl('4cAddress/autocomplete/postcode') : null,
-                    'cityautocomplete' => $this->scopeConfig->getValue($this->configPrefix . '/features/city_autocomplete', 'store') == 1 ? $this->urlInterface->getUrl('4cAddress/autocomplete/street') : null,
+                'transformation' => [
+                    'uppercase_firstname' => $this->scopeConfig->getValue($this->configPrefix . '/features/uppercase_firstname', 'store') == 1,
+                    'uppercase_lastname' => $this->scopeConfig->getValue($this->configPrefix . '/features/uppercase_lastname', 'store') == 1
                 ],
                 'development' => [
                     'javascript_debug' => $this->scopeConfig->getValue($this->configPrefix . '/development/javascript_debugging', 'store') == 1
@@ -91,6 +87,11 @@ class ConfigProvider implements ConfigProviderInterface
      */
     public function shouldLogRequestsInSeparateFile() {
         return $this->scopeConfig->getValue($this->configPrefix . '/development/log_validation_requests', 'store') == 1;
+    }
+
+    public function isEnabled() {
+        return $this->scopeConfig->getValue($this->configPrefix . '/connection/enabled', 'store') == 1
+            && $this->scopeConfig->getValue($this->configPrefix . '/features/address_check', 'store') == 1;
     }
 
     /**
