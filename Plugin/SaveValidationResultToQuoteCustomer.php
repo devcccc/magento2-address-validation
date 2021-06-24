@@ -12,7 +12,7 @@ namespace CCCC\Addressvalidation\Plugin;
 use CCCC\Addressvalidation\Model\ConfigProvider;
 use Magento\Sales\Model\Order;
 use Magento\Sales\Model\OrderFactory;
-class SaveValidationResultToQuote
+class SaveValidationResultToQuoteCustomer
 {
     /** @var \Magento\Sales\Model\OrderRepository  */
     protected $orderRepository;
@@ -28,7 +28,7 @@ class SaveValidationResultToQuote
 
 
     public function afterSavePaymentInformationAndPlaceOrder(
-        $subject, $result, $cartId, $email,
+        $subject, $result, $cartId,
         \Magento\Quote\Api\Data\PaymentInterface $paymentMethod,
         \Magento\Quote\Api\Data\AddressInterface $billingAddress = null) {
 

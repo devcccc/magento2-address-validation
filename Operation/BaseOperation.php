@@ -120,7 +120,7 @@ class BaseOperation
         );
 
         if ($this->configProvider->shouldLogRequestsInSeparateFile()) {
-            $logHash = md5(time().uniqid(rand(1, PHP_INT_MAX), true));
+            $logHash = hash('sha256', time().uniqid(rand(1, PHP_INT_MAX), true));
 
             $this->requestLogger->notice(
                 sprintf('[%s ] Sending request to %s as POST, current request class: %s', $logHash, $url, get_class($this))

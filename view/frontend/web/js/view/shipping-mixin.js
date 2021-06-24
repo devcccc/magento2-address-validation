@@ -30,22 +30,28 @@ define([
                 addressPredictions: '[name="enderecoamsapredictions"]'
             };
 
-            enderecosdk.startAms(
-                amsPrefix,
-                {
-                    name: 'shipping_address',
-                    addressType: 'general_address'
-                }
-            );
+            if (configurationHelper.isAddressValidationEnabled()) {
+                enderecosdk.startAms(
+                    amsPrefix,
+                    {
+                        name: 'shipping_address',
+                        addressType: 'general_address'
+                    }
+                );
 
-            placeOrderHooks.requestModifiers.push(function (headers, payload) {
-                if (payload.paymentMethod['extension_attributes'] === undefined) {
-                    payload.paymentMethod['extension_attributes'] = {};
-                }
+                placeOrderHooks.requestModifiers.push(function (headers, payload) {
+                    if (!window.EnderecoIntegrator || !window.EnderecoIntegrator.integratedObjects || !window.EnderecoIntegrator.integratedObjects.shipping_address_ams) {
+                        return;
+                    }
 
-                payload.paymentMethod['extension_attributes']['cccc_validation_shipping_result'] =
-                    enderecosdk.getAddressStatusAsText(window.EnderecoIntegrator.integratedObjects.shipping_address_ams._addressStatus);
-            });
+                    if (payload.paymentMethod['extension_attributes'] === undefined) {
+                        payload.paymentMethod['extension_attributes'] = {};
+                    }
+
+                    payload.paymentMethod['extension_attributes']['cccc_validation_shipping_result'] =
+                        enderecosdk.getAddressStatusAsText(window.EnderecoIntegrator.integratedObjects.shipping_address_ams._addressStatus);
+                });
+            }
             return this;
         },
 

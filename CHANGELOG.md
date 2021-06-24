@@ -1,4 +1,4 @@
-##### 1.2.3
+##### 1.2.4
 
 - Switched to Endereco JS-SDK for the frontend
 - Removed unused controllers
