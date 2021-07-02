@@ -13,6 +13,7 @@ use CCCC\Addressvalidation\Generator\RefererGenerator;
 use CCCC\Addressvalidation\Logger\RequestLogger;
 use CCCC\Addressvalidation\Model\ConfigProvider;
 use Magento\Framework\App\Config\ScopeConfigInterface;
+use Magento\Framework\App\RequestInterface;
 use Magento\Framework\Locale\Resolver;
 use Magento\Framework\App\ProductMetadataInterface;
 use Magento\Framework\View\DesignInterface;
@@ -53,10 +54,13 @@ class BaseOperation
     /** @var string */
     protected $moduleVersion;
 
+    /** @var RequestInterface */
+    protected $request;
+
     public function __construct(ScopeConfigInterface $config, Resolver $localeResolver, RefererGenerator $refererGenerator,
                                 ProductMetadataInterface $metaInterface, DesignInterface $design, ModuleListInterface $moduleList,
                                 LoggerInterface $logger, SerializerInterface $serializer, ConfigProvider $configProvider,
-                                RequestLogger $requestLogger)
+                                RequestLogger $requestLogger, RequestInterface  $request)
     {
         $this->referer = $refererGenerator->getReferer();
 
@@ -73,6 +77,7 @@ class BaseOperation
 
         $this->configProvider = $configProvider;
         $this->requestLogger = $requestLogger;
+        $this->request = $request;
     }
 
     protected function getBaseRequestData(string $methodName, bool $paramsRequired = false) : array {
@@ -89,13 +94,17 @@ class BaseOperation
     }
 
     protected function getRequestHeaders() {
-        return [
+        $headers = [
             'Content-Type: application/json',
             'X-Auth-Key: ' . $this->config->getValue($this->configPrefix . '/connection/authkey'),
             'X-Transaction-Referer: ' . $this->referer,
-            'X-Transaction-Id: ' . 'not_required',
+            'X-Transaction-Id: ' .  $this->request->getHeader('x-transaction-id'),
             'X-Agent: '. 'Magento:'.$this->magentoVersion.', Theme: '.$this->themeCode.', '.self::MODULE_NAME.': '.$this->moduleVersion
         ];
+        if (empty($headers['X-Transaction-Id'])) {
+            $headers['X-Transaction-Id'] = !empty($this->request->getHeader('X-Transaction-Id'))?$this->request->getHeader('X-Transaction-Id'):'n/a';
+        }
+        return $headers;
     }
 
     protected function getLanguage() {

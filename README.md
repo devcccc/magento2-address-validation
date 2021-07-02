@@ -23,3 +23,9 @@ also to deploy the static content files:
 ```
 php bin/magento setup:static-content:deploy
 ```
+
+For development systems we suggest a cleanup of the generated and pub/static/frontend-folders:
+
+```
+rm -Rf generated pub/static/frontend
+```

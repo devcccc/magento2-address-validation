@@ -1,5 +1,12 @@
 ##### 1.2.4
 
+- Correct doAccounting-Handling
+- Fixed a bug when the city was filled out by postal codes auto suggest
+- A changed country is now taking into account of the shipping address
+- 
+
+##### 1.2.4
+
 - Switched to Endereco JS-SDK for the frontend
 - Removed unused controllers
 - Reworked doAccounting

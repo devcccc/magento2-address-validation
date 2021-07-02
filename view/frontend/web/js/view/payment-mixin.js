@@ -3,8 +3,7 @@
 define([
     'jquery',
     'uiRegistry',
-    'Magento_Checkout/js/model/step-navigator',
-    ''
+    'Magento_Checkout/js/model/step-navigator'
 ], function ($, registry, stepNavigator) {
     'use strict';
 
@@ -27,7 +26,7 @@ define([
         },
     };
 
-    return function (shipping) {
-        return shipping.extend(mixin);
+    return function (payment) {
+        return payment.extend(mixin);
     };
 });

@@ -93,8 +93,8 @@ define([
             window.EnderecoIntegrator.config.ux.allowCloseModal = !window.checkoutConfig.cccc.addressvalidation.endereco.force_valid_address;
             window.EnderecoIntegrator.config.ux.confirmWithCheckbox = !window.checkoutConfig.cccc.addressvalidation.endereco.force_valid_address;
             window.EnderecoIntegrator.config.ux.changeFieldsOrder = true;
-            window.EnderecoIntegrator.config.templates.primaryButtonClasses = 'btn btn-primary btn-lg';
-            window.EnderecoIntegrator.config.templates.secondaryButtonClasses = 'btn btn-secondary btn-lg';
+            window.EnderecoIntegrator.config.templates.primaryButtonClasses = 'button action continue primary';
+            window.EnderecoIntegrator.config.templates.secondaryButtonClasses = 'button action continue';
             window.EnderecoIntegrator.config.texts = {
                 popUpHeadline: $.mage.__('Address validation'),
                 popUpSubline: $.mage.__('The address you entered seems to be incorrect or incomplete. Please select the correct address.'),
@@ -142,17 +142,16 @@ define([
             };
 
             // Country matching functions.
-            EnderecoIntegrator.resolvers.countryCodeWrite = function (value) {
+            window.EnderecoIntegrator.resolvers.countryCodeWrite = function (value) {
                 return new Promise(function (resolve, reject) {
                     resolve(value.toUpperCase());
                 });
             }
-            EnderecoIntegrator.resolvers.countryCodeRead = function (value) {
+            window.EnderecoIntegrator.resolvers.countryCodeRead = function (value) {
                 return new Promise(function (resolve, reject) {
                     resolve(value.toLowerCase());
                 });
             }
-
 
             window.EnderecoIntegrator.activeServices = {
                 ams: window.checkoutConfig.cccc.addressvalidation.endereco.enabled,
@@ -160,6 +159,7 @@ define([
                     && window.checkoutConfig.cccc.addressvalidation.endereco.email_check,
                 personService: false
             };
+
             window.EnderecoIntegrator.ready = true;
 
             if (window.amsCallback) {

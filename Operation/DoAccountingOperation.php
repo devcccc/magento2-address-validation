@@ -12,7 +12,8 @@ namespace CCCC\Addressvalidation\Operation;
 class DoAccountingOperation extends BaseOperation
 {
     public function doRequest() {
-        $requestData = $this->getBaseRequestData('doAccounting', false);
+        $requestData = $this->getBaseRequestData('doAccounting', true);
+        $requestData['params']['sessionId'] = $this->request->getHeader('X-Transaction-Id');
 
         $result =  $this->doApiRequest($requestData);
         return $result;

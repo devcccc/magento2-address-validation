@@ -54,11 +54,6 @@
                     <comment>Apply validation to shipping address within checkout (frontend)</comment>
                 </field>
 
-                <field id="frontend_checkout_billing" translate="label comment" type="select" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>Frontend: Checkout - Billing address</label>
-                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-                    <comment>Apply validation to billing address within checkout (frontend)</comment>
-                </field>
 <!--
                 <field id="customer_addressbook" translate="label comment" type="select" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Frontend: Customer account address book</label>

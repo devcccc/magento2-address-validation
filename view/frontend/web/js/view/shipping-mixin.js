@@ -2,6 +2,7 @@
 /*global alert*/
 define([
     'jquery',
+    'ko',
     'CCCC_Addressvalidation/js/operation/edit-address',
     'Magento_Checkout/js/model/quote',
     'Magento_Checkout/js/action/select-shipping-address',
@@ -11,7 +12,7 @@ define([
     'CCCC_Addressvalidation/js/helper/address',
     'CCCC_Addressvalidation/js/endereco-setup',
     'Magento_Checkout/js/model/payment/place-order-hooks'
-], function ($, editAddress, quote, selectShippingAddressAction, checkoutData, logger, configurationHelper, addressHelper, enderecosdk, placeOrderHooks) {
+], function ($, ko, editAddress, quote, selectShippingAddressAction, checkoutData, logger, configurationHelper, addressHelper, enderecosdk, placeOrderHooks) {
     'use strict';
 
     var mixin = {
@@ -156,12 +157,86 @@ define([
                 this.source.set('cccc_guest_address_checked', true);
                 this.setShippingInformation();
             }
+
+            if (this.ccccCheckAddress()) {
+                logger.logData(
+                    "shipping-mixin/ccccContinue: Start DoAccounting for AMS"
+                );
+
+                $.post(
+                    {
+                        url: window.EnderecoIntegrator.integratedObjects.shipping_address_ams.config.apiUrl,
+                        data: JSON.stringify({
+                            id: ++window.EnderecoIntegrator.integratedObjects.shipping_address_ams._addressCheckRequestIndex,
+                            jsonrpc: '2.0',
+                            method: 'doAccounting',
+                            params: { sessionId: window.EnderecoIntegrator.integratedObjects.shipping_address_ams.sessionId}
+                        }),
+                        processData: false,
+                        headers: {
+                            'X-Agent': window.EnderecoIntegrator.integratedObjects.shipping_address_ams.config.agentName,
+                            'X-Auth-Key': window.EnderecoIntegrator.integratedObjects.shipping_address_ams.apiKey,
+                            'X-Transaction-Id': window.EnderecoIntegrator.integratedObjects.shipping_address_ams.sessionId,
+                        },
+                        method: 'POST',
+                        contentType: 'application/json'
+                    }
+                );
+                window.EnderecoIntegrator.integratedObjects.shipping_address_ams.sessionId = window.EnderecoIntegrator.integratedObjects.shipping_address_ams.util.generateId();
+
+                if (window.checkoutConfig.cccc.addressvalidation.endereco.email_check && window.EnderecoIntegrator.integratedObjects.customer_email_emailservices.sessionCounter > 1) {
+                    debugger;
+                    $.post(
+                        {
+                            url: window.EnderecoIntegrator.integratedObjects.customer_email_emailservices.config.apiUrl,
+                            data: JSON.stringify({
+                                id: ++window.EnderecoIntegrator.integratedObjects.customer_email_emailservices._addressCheckRequestIndex,
+                                jsonrpc: '2.0',
+                                method: 'doAccounting',
+                                params: { sessionId: window.EnderecoIntegrator.integratedObjects.customer_email_emailservices.sessionId}
+                            }),
+                            processData: false,
+                            headers: {
+                                'X-Agent': window.EnderecoIntegrator.integratedObjects.customer_email_emailservices.config.agentName,
+                                'X-Auth-Key': window.EnderecoIntegrator.integratedObjects.customer_email_emailservices.apiKey,
+                                'X-Transaction-Id': window.EnderecoIntegrator.integratedObjects.customer_email_emailservices.sessionId,
+                            },
+                            method: 'POST',
+                            contentType: 'application/json'
+                        }
+                    );
+                    window.EnderecoIntegrator.integratedObjects.customer_email_emailservices.sessionId = window.EnderecoIntegrator.integratedObjects.customer_email_emailservices.util.generateId();
+
+                }
+
+            }
         },
 
         validateShippingInformation: function() {
             logger.logData(
                 "shipping-mixin/validateShippingInformation: Starting validation of shipping information"
             );
+
+            var quoteAddress = quote.shippingAddress();
+            if (this.ccccCheckAddress()) {
+                if (window.EnderecoIntegrator.integratedObjects.shipping_address_ams.addressStatus.indexOf("address_selected_by_customer") != -1 &&
+                    quoteAddress['city'] == "" && window.EnderecoIntegrator.integratedObjects.shipping_address_ams.locality != "") {
+                    quoteAddress['city'] = window.EnderecoIntegrator.integratedObjects.shipping_address_ams.locality;
+                    ko.dataFor(window.EnderecoIntegrator.integratedObjects.shipping_address_ams._subscribers.locality[0].object).value(
+                        window.EnderecoIntegrator.integratedObjects.shipping_address_ams.locality
+                    );
+                }
+
+                if (window.EnderecoIntegrator.integratedObjects.shipping_address_ams.addressStatus.indexOf("address_selected_by_customer") != -1 &&
+                    window.EnderecoIntegrator.integratedObjects.shipping_address_ams.countryCode &&
+                    quoteAddress['countryId'] != window.EnderecoIntegrator.integratedObjects.shipping_address_ams.countryCode.toUpperCase()) {
+                    quoteAddress['countryId'] = window.EnderecoIntegrator.integratedObjects.shipping_address_ams.countryCode.toUpperCase()
+                    ko.dataFor(window.EnderecoIntegrator.integratedObjects.shipping_address_ams._subscribers.countryCode[0].object).value(
+                        window.EnderecoIntegrator.integratedObjects.shipping_address_ams.countryCode.toUpperCase()
+                    );
+                }
+            }
+
             var superResult = this._super();
             logger.logData(
                 "shipping-mixin/validateShippingInformation: Result of base functionality: "+(superResult?"valid":"invalid")
@@ -180,7 +255,6 @@ define([
                         "shipping-mixin/validateShippingInformation: Base check was valid, now doing own address check/validation against Endereco-API"
                     );
                     if (!this.isFormInline) {
-                        var quoteAddress = quote.shippingAddress();
                         var data = {
                             'country_id': quoteAddress['countryId'],
                             'postcode': quoteAddress['postcode'],
