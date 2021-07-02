@@ -218,7 +218,7 @@ define([
             );
 
             var quoteAddress = quote.shippingAddress();
-            if (this.ccccCheckAddress()) {
+            if (this.ccccCheckAddress() && window.EnderecoIntegrator.integratedObjects.shipping_address_ams) {
                 if (window.EnderecoIntegrator.integratedObjects.shipping_address_ams.addressStatus.indexOf("address_selected_by_customer") != -1 &&
                     quoteAddress['city'] == "" && window.EnderecoIntegrator.integratedObjects.shipping_address_ams.locality != "") {
                     quoteAddress['city'] = window.EnderecoIntegrator.integratedObjects.shipping_address_ams.locality;
