@@ -82,19 +82,19 @@
                     </depends>
                 </field>
 
-                <field id="uppercase_firstname" translate="label comment" type="select" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>First name as upper case</label>
-                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-                    <comment>Set first name to UPPER CASE letters after validation</comment>
+                <field id="convert_firstname" translate="label comment" type="select" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>First name handling</label>
+                    <source_model>CCCC\Addressvalidation\Model\Config\Source\NameConversion</source_model>
+                    <validate>validate-no-empty</validate>
                     <depends>
                         <field id="address_check">1</field>
                     </depends>
                 </field>
 
-                <field id="uppercase_lastname" translate="label comment" type="select" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>Last name as upper case</label>
-                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-                    <comment>Set last name to UPPER CASE letters after validation</comment>
+                <field id="convert_lastname" translate="label comment" type="select" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Last name handling</label>
+                    <source_model>CCCC\Addressvalidation\Model\Config\Source\NameConversion</source_model>
+                    <validate>validate-no-empty</validate>
                     <depends>
                         <field id="address_check">1</field>
                     </depends>

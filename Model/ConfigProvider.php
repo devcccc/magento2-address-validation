@@ -70,8 +70,8 @@ class ConfigProvider implements ConfigProviderInterface
                     'email' => $this->scopeConfig->getValue($this->configPrefix . '/field_mapping/email', 'store'),
                 ],
                 'transformation' => [
-                    'uppercase_firstname' => $this->scopeConfig->getValue($this->configPrefix . '/features/uppercase_firstname', 'store') == 1,
-                    'uppercase_lastname' => $this->scopeConfig->getValue($this->configPrefix . '/features/uppercase_lastname', 'store') == 1
+                    'convert_firstname' => $this->scopeConfig->getValue($this->configPrefix . '/features/convert_firstname', 'store'),
+                    'convert_lastname' => $this->scopeConfig->getValue($this->configPrefix . '/features/convert_lastname', 'store')
                 ],
                 'development' => [
                     'javascript_debug' => $this->scopeConfig->getValue($this->configPrefix . '/development/javascript_debugging', 'store') == 1

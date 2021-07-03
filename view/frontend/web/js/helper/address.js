@@ -57,18 +57,46 @@ define([
             );
             source.set(contextPrefix+configurationHelper.ccccGetAddressDataByFieldSelector('country', 'country_id'), addressData.countryId);
 
-            if(configurationHelper.isFirstnameToUppercaseEnabled()) {
-                var currentFirstname = source.get('shippingAddress.firstname').toUpperCase();
+            var firstnameConversion = configurationHelper.getFirstnameConversion();
+            var currentFirstname = source.get('shippingAddress.firstname');
+            if (configurationHelper.isUpperCaseConversion(firstnameConversion)) {
+                currentFirstname = currentFirstname.toUpperCase();
                 logger.logData(
                     "helper/address/ccccUpdateAddressSource: Setting field shippingAddress.firstname to upper case => "+" => "+currentFirstname
                 );
                 source.set('shippingAddress.firstname', currentFirstname)
+            } else if (configurationHelper.isLowerCaseConversion(firstnameConversion)) {
+                currentFirstname = currentFirstname.toLowerCase();
+                logger.logData(
+                    "helper/address/ccccUpdateAddressSource: Setting field shippingAddress.firstname to lower case => "+" => "+currentFirstname
+                );
+                source.set('shippingAddress.firstname', currentFirstname)
+            } else if (configurationHelper.isUcFirstConversion(firstnameConversion)) {
+                currentFirstname = currentFirstname.charAt(0).toUpperCase() + currentFirstname.slice(1);
+                logger.logData(
+                    "helper/address/ccccUpdateAddressSource: Setting field shippingAddress.firstname to uc first => "+" => "+currentFirstname
+                );
+                source.set('shippingAddress.firstname', currentFirstname)
             }
 
-            if(configurationHelper.isLastnameToUppercaseEnabled()) {
-                var currentLastname = source.get('shippingAddress.lastname').toUpperCase();
+            var lastnameConversion = configurationHelper.getLastnameConversion();
+            var currentLastname = source.get('shippingAddress.lastname');
+            if (configurationHelper.isUpperCaseConversion(lastnameConversion)) {
+                currentLastname = currentLastname.toUpperCase();
                 logger.logData(
                     "helper/address/ccccUpdateAddressSource: Setting field shippingAddress.lastname to upper case => "+" => "+currentLastname
+                );
+                source.set('shippingAddress.lastname', currentLastname)
+            } else if (configurationHelper.isLowerCaseConversion(lastnameConversion)) {
+                currentLastname = currentLastname.toLowerCase();
+                logger.logData(
+                    "helper/address/ccccUpdateAddressSource: Setting field shippingAddress.lastname to lower case => "+" => "+currentLastname
+                );
+                source.set('shippingAddress.lastname', currentLastname)
+            } else if (configurationHelper.isUcFirstConversion(lastnameConversion)) {
+                currentLastname = currentLastname.charAt(0).toUpperCase() + currentLastname.slice(1);
+                logger.logData(
+                    "helper/address/ccccUpdateAddressSource: Setting field shippingAddress.lastname to uc first => "+" => "+currentLastname
                 );
                 source.set('shippingAddress.lastname', currentLastname)
             }

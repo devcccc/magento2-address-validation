@@ -1,20 +1,14 @@
 <?php
-/**
- * Module: CCCC\Addressvalidation\Model\Config\Source
- * Copyright: (c) 2019 cccc.de
- * Date: 2019-05-21 09:00
- *
- *
- */
-
 namespace CCCC\Addressvalidation\Model\Config\Source;
 
 use Magento\Framework\Data\OptionSourceInterface;
 
-class RefererMode implements OptionSourceInterface
+class NameConversion implements OptionSourceInterface
 {
-    const MODE_CURRENT_PAGE = 'currentpage';
-    const MODE_BASEURL = 'baseurl';
+    const CONVERT_KEEP_IT = 'keep_it';
+    const CONVERT_UPPERCASE = 'uppercase';
+    const CONVERT_LOWERCASE = 'lowercase';
+    const CONVERT_UCFIRST = 'ucfirst';
 
     /**
      * Options getter
@@ -24,8 +18,11 @@ class RefererMode implements OptionSourceInterface
     public function toOptionArray()
     {
         return [
-            ['value' => self::MODE_CURRENT_PAGE, 'label' => __('Use current page url')],
-            ['value' => self::MODE_BASEURL, 'label' => __('Report base url only')],
+            ['value' => self::CONVERT_KEEP_IT, 'label' => __('Keep entered spelling')],
+            ['value' => self::CONVERT_UPPERCASE, 'label' => __('Upper case')],
+            ['value' => self::CONVERT_LOWERCASE, 'label' => __('Lower case')],
+            ['value' => self::CONVERT_UCFIRST, 'label' => __('First character in upper case')],
+
         ];
     }
 

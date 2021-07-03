@@ -14,12 +14,24 @@ define([
             return this.isModuleEnabled() && window.checkoutConfig.cccc.addressvalidation.endereco.check.shipping_enabled;
         },
 
-        isFirstnameToUppercaseEnabled: function() {
-            return window.checkoutConfig.cccc.addressvalidation.endereco.transformation.uppercase_firstname;
+        getFirstnameConversion: function() {
+            return window.checkoutConfig.cccc.addressvalidation.endereco.transformation.convert_firstname;
         },
 
-        isLastnameToUppercaseEnabled: function() {
-            return window.checkoutConfig.cccc.addressvalidation.endereco.transformation.uppercase_lastname;
+        getLastnameConversion: function() {
+            return window.checkoutConfig.cccc.addressvalidation.endereco.transformation.convert_lastname;
+        },
+
+        isUpperCaseConversion: function(val) {
+            return val == 'uppercase';
+        },
+
+        isLowerCaseConversion: function(val) {
+            return val == 'lowercase';
+        },
+
+        isUcFirstConversion: function(val) {
+            return val == 'ucfirst';
         },
 
         ccccGetAdressDataFieldselector: function(field, fallback) {
