@@ -1,3 +1,7 @@
+##### 1.2.7
+
+- Display version in backend configuration
+
 ##### 1.2.6
 
 - Performance changes

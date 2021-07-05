@@ -31,6 +31,8 @@ define([
                 addressPredictions: '[name="enderecoamsapredictions"]'
             };
 
+            this.isStreetFull = configurationHelper.ccccGetAddressDataByFieldSelector('street', 'street.0') === configurationHelper.ccccGetAddressDataByFieldSelector('houseNumber', 'street.1');
+
             if (configurationHelper.isAddressValidationEnabled()) {
                 enderecosdk.startAms(
                     amsPrefix,
@@ -218,6 +220,11 @@ define([
 
             var quoteAddress = quote.shippingAddress();
             if (this.ccccCheckAddress() && window.EnderecoIntegrator.integratedObjects.shipping_address_ams) {
+                if (configurationHelper.ccccGetAddressDataByFieldSelector('street', 'street.0') !== configurationHelper.ccccGetAddressDataByFieldSelector('houseNumber', 'street.1') && window.EnderecoIntegrator.integratedObjects.shipping_address_ams.buildingNumber == "") {
+                    window.EnderecoIntegrator.integratedObjects.shipping_address_ams.buildingNumber = quoteAddress['street'][1];
+                    window.EnderecoIntegrator.integratedObjects.shipping_address_ams._buildingNumber = quoteAddress['street'][1];
+                }
+
                 if (quoteAddress['city'] == "" && window.EnderecoIntegrator.integratedObjects.shipping_address_ams.locality != "") {
                     quoteAddress['city'] = window.EnderecoIntegrator.integratedObjects.shipping_address_ams.locality;
                     ko.dataFor(window.EnderecoIntegrator.integratedObjects.shipping_address_ams._subscribers.locality[0].object).value(
