@@ -185,7 +185,6 @@ define([
                 window.EnderecoIntegrator.integratedObjects.shipping_address_ams.sessionId = window.EnderecoIntegrator.integratedObjects.shipping_address_ams.util.generateId();
 
                 if (window.checkoutConfig.cccc.addressvalidation.endereco.email_check && window.EnderecoIntegrator.integratedObjects.customer_email_emailservices.sessionCounter > 1) {
-                    debugger;
                     $.post(
                         {
                             url: window.EnderecoIntegrator.integratedObjects.customer_email_emailservices.config.apiUrl,
@@ -219,16 +218,14 @@ define([
 
             var quoteAddress = quote.shippingAddress();
             if (this.ccccCheckAddress() && window.EnderecoIntegrator.integratedObjects.shipping_address_ams) {
-                if (window.EnderecoIntegrator.integratedObjects.shipping_address_ams.addressStatus.indexOf("address_selected_by_customer") != -1 &&
-                    quoteAddress['city'] == "" && window.EnderecoIntegrator.integratedObjects.shipping_address_ams.locality != "") {
+                if (quoteAddress['city'] == "" && window.EnderecoIntegrator.integratedObjects.shipping_address_ams.locality != "") {
                     quoteAddress['city'] = window.EnderecoIntegrator.integratedObjects.shipping_address_ams.locality;
                     ko.dataFor(window.EnderecoIntegrator.integratedObjects.shipping_address_ams._subscribers.locality[0].object).value(
                         window.EnderecoIntegrator.integratedObjects.shipping_address_ams.locality
                     );
                 }
 
-                if (window.EnderecoIntegrator.integratedObjects.shipping_address_ams.addressStatus.indexOf("address_selected_by_customer") != -1 &&
-                    window.EnderecoIntegrator.integratedObjects.shipping_address_ams.countryCode &&
+                if (window.EnderecoIntegrator.integratedObjects.shipping_address_ams.countryCode &&
                     quoteAddress['countryId'] != window.EnderecoIntegrator.integratedObjects.shipping_address_ams.countryCode.toUpperCase()) {
                     quoteAddress['countryId'] = window.EnderecoIntegrator.integratedObjects.shipping_address_ams.countryCode.toUpperCase()
                     ko.dataFor(window.EnderecoIntegrator.integratedObjects.shipping_address_ams._subscribers.countryCode[0].object).value(

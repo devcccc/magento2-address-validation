@@ -1,4 +1,8 @@
-##### 1.2.4
+##### 1.2.6
+
+- Performance changes
+
+##### 1.2.5
 
 - Correct doAccounting-Handling
 - Fixed a bug when the city was filled out by postal codes auto suggest
