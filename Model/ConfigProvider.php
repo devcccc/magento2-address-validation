@@ -75,7 +75,9 @@ class ConfigProvider implements ConfigProviderInterface
                 ],
                 'development' => [
                     'javascript_debug' => $this->scopeConfig->getValue($this->configPrefix . '/development/javascript_debugging', 'store') == 1
-                ]
+                ],
+                'countryId' => $this->scopeConfig->getValue('general/country/default', 'store'),
+                'baseUrl' => $this->urlInterface->getUrl('4cAddress/proxy/proxy'),
             ],
         ];
     }

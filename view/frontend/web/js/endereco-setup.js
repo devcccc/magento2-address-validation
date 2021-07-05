@@ -29,18 +29,25 @@ define([
     }
 
     function ccccSetupJsSdkCheck() {
+        var selectorPostCode = ccccGetAddressDataByFieldSelector('postCode', 'postcode');
+        var selectorCityName = ccccGetAddressDataByFieldSelector('cityName', 'city');
+        var selectorStreet = ccccGetAddressDataByFieldSelector('street', 'street.0');
+        var selectorHouseNumber = ccccGetAddressDataByFieldSelector('street', 'street.1');
+        var selectorCountryId = ccccGetAddressDataByFieldSelector('country', 'country_id');
+        var selectorEmail = ccccGetAddressDataByFieldSelector('email', '.checkout-shipping-address #customer-email');
+
         var fieldsArrived = function() {
             return (
                 window.checkoutConfig.cccc.addressvalidation.endereco.enabled ?
                     (
-                        $("[name='shippingAddress."+ccccGetAddressDataByFieldSelector('postCode', 'postcode')+"'] input[name]").length
-                        && $("[name='shippingAddress."+ccccGetAddressDataByFieldSelector('cityName', 'city')+"'] input[name]").length
-                        && $("[name='shippingAddress."+ccccGetAddressDataByFieldSelector('street', 'street.0')+"'] input[name]").length
-                        && $("[name='shippingAddress."+ccccGetAddressDataByFieldSelector('houseNumber', 'street.1')+"'] input[name]").length
-                        && $("[name='shippingAddress."+ccccGetAddressDataByFieldSelector('country_id', 'country_id')+"'] select[name]").length
+                        $("[name='shippingAddress."+selectorPostCode+"'] input[name]").length
+                        && $("[name='shippingAddress."+selectorCityName+"'] input[name]").length
+                        && $("[name='shippingAddress."+selectorStreet+"'] input[name]").length
+                        && $("[name='shippingAddress."+selectorHouseNumber+"'] input[name]").length
+                        && $("[name='shippingAddress."+selectorCountryId+"'] select[name]").length
                     ) : true
                 )
-                && (window.checkoutConfig.cccc.addressvalidation.endereco.email_check ? $(ccccGetAddressDataByFieldSelector('email', '.checkout-shipping-address #customer-email')).length : true)
+                && (window.checkoutConfig.cccc.addressvalidation.endereco.email_check ? $(selectorEmail).length : true)
         }.bind(this);
 
         if (!window.amsInitialized && fieldsArrived()) {
@@ -79,11 +86,11 @@ define([
                 return;
             }
             // TODO: Get from store view
-            window.EnderecoIntegrator.defaultCountry = 'DE';
+            window.EnderecoIntegrator.defaultCountry = window.checkoutConfig.cccc.addressvalidation.endereco.countryId;
             window.EnderecoIntegrator.defaultCountrySelect = true;
             window.EnderecoIntegrator.themeName = 'm2-addressvalidation';
             window.EnderecoIntegrator.config.agentName = "Magento 2 Address Validation";
-            window.EnderecoIntegrator.config.apiUrl = '/4cAddress/proxy/proxy';
+            window.EnderecoIntegrator.config.apiUrl = window.checkoutConfig.cccc.addressvalidation.endereco.baseUrl; //'/4cAddress/proxy/proxy';
             window.EnderecoIntegrator.config.showDebugInfo = false;
             window.EnderecoIntegrator.config.trigger.onblur = false;
             window.EnderecoIntegrator.config.trigger.onsubmit = true;

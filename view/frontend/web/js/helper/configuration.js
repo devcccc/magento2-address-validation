@@ -14,6 +14,10 @@ define([
             return this.isModuleEnabled() && window.checkoutConfig.cccc.addressvalidation.endereco.check.shipping_enabled;
         },
 
+        getCountryId: function() {
+            return window.checkoutConfig.cccc.addressvalidation.endereco.countryId;
+        },
+
         getFirstnameConversion: function() {
             return window.checkoutConfig.cccc.addressvalidation.endereco.transformation.convert_firstname;
         },
