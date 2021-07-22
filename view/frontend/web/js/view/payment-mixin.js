@@ -3,8 +3,9 @@
 define([
     'jquery',
     'uiRegistry',
-    'Magento_Checkout/js/model/step-navigator'
-], function ($, registry, stepNavigator) {
+    'Magento_Checkout/js/model/step-navigator',
+    'Magento_Checkout/js/model/quote'
+], function ($, registry, stepNavigator, quote) {
     'use strict';
 
     var mixin = {
@@ -24,6 +25,13 @@ define([
                 this._super();
             }
         },
+
+        /**
+         * @return {Boolean}
+         */
+        /*isVisible: function () {
+            return quote.isVirtual() || stepNavigator.isProcessed('shipping');
+        },*/
     };
 
     return function (payment) {

@@ -57,5 +57,9 @@ define([
             );
             return val;
         },
+
+        useStreetFull: function() {
+            return window.checkoutConfig.cccc.addressvalidation.endereco.mapping && window.checkoutConfig.cccc.addressvalidation.endereco.mapping.useStreetFull
+        }
     };
 });

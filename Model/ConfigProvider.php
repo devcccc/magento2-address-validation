@@ -31,14 +31,19 @@ class ConfigProvider implements ConfigProviderInterface
     /** @var UrlInterface  */
     protected $urlInterface;
 
+    /** @var \Magento\Directory\Model\ResourceModel\Country\Collection  */
+    protected $countryCollection;
+
     public function __construct(
         ScopeConfigInterface $scopeConfig,
         \Magento\Checkout\Model\Session $checkoutSession,
-        UrlInterface $urlInterface
+        UrlInterface $urlInterface,
+        \Magento\Directory\Model\ResourceModel\Country\Collection $countryCollection
     ) {
         $this->scopeConfig = $scopeConfig;
         $this->checkoutSession = $checkoutSession;
         $this->urlInterface = $urlInterface;
+        $this->countryCollection = $countryCollection;
     }
 
     /**
@@ -48,6 +53,10 @@ class ConfigProvider implements ConfigProviderInterface
      */
     protected function getAddressValidationConfig()
     {
+        $countries = [];
+        foreach ($this->countryCollection->getItems() as $item) {
+            $countries[$item->getData('iso2_code')] = $item->getName();
+        }
         return [
             'endereco' => [
                 'enabled' => $this->scopeConfig->getValue($this->configPrefix . '/connection/enabled', 'store') == 1
@@ -58,7 +67,6 @@ class ConfigProvider implements ConfigProviderInterface
                 'force_valid_address' => $this->scopeConfig->getValue($this->configPrefix . '/features/force_valid_address', 'store') == 1,
                 'check' => [
                     'shipping_enabled' => $this->scopeConfig->getValue($this->configPrefix . '/integration/frontend_checkout_shipping', 'store') == 1,
-                    'billing_enabled' => $this->scopeConfig->getValue($this->configPrefix . '/integration/frontend_checkout_billing', 'store') == 1,
                     'customer_addressbook_enabled' => $this->scopeConfig->getValue($this->configPrefix . '/integration/customer_addressbook', 'store') == 1
                 ],
                 'mapping' => [
@@ -68,6 +76,8 @@ class ConfigProvider implements ConfigProviderInterface
                     'street' => $this->scopeConfig->getValue($this->configPrefix . '/field_mapping/street', 'store'),
                     'houseNumber' => $this->scopeConfig->getValue($this->configPrefix . '/field_mapping/houseNumber', 'store'),
                     'email' => $this->scopeConfig->getValue($this->configPrefix . '/field_mapping/email', 'store'),
+                    'useStreetFull' => $this->scopeConfig->getValue($this->configPrefix . '/field_mapping/street', 'store') ===
+                        $this->scopeConfig->getValue($this->configPrefix . '/field_mapping/houseNumber', 'store')
                 ],
                 'transformation' => [
                     'convert_firstname' => $this->scopeConfig->getValue($this->configPrefix . '/features/convert_firstname', 'store'),
@@ -78,6 +88,7 @@ class ConfigProvider implements ConfigProviderInterface
                 ],
                 'countryId' => $this->scopeConfig->getValue('general/country/default', 'store'),
                 'baseUrl' => $this->urlInterface->getUrl('4cAddress/proxy/proxy'),
+                'countries' => $countries
             ],
         ];
     }

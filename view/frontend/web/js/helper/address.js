@@ -14,33 +14,33 @@ define([
                 +configurationHelper.ccccGetAddressDataByFieldSelector('postCode', 'postcode')+" => "
                 +addressData.postCode
             );
-            source.set(contextPrefix + configurationHelper.ccccGetAddressDataByFieldSelector('postCode', 'postcode'), addressData.postCode);
+            source.set(contextPrefix +"."+ configurationHelper.ccccGetAddressDataByFieldSelector('postCode', 'postcode'), addressData.postCode);
             logger.logData(
                 "helper/address/ccccUpdateAddressSource: Setting field "+source+"."
                 +configurationHelper.ccccGetAddressDataByFieldSelector('cityName', 'city')+" => "
                 +addressData.city
             );
-            source.set(contextPrefix + configurationHelper.ccccGetAddressDataByFieldSelector('cityName', 'city'), addressData.city);
-            if (configurationHelper.ccccGetAdressDataFieldselector('street', 'street[0]') != configurationHelper.ccccGetAdressDataFieldselector('houseNumber', 'street[1]')) {
+            source.set(contextPrefix +"."+ configurationHelper.ccccGetAddressDataByFieldSelector('cityName', 'city'), addressData.city);
+            if (!configurationHelper.useStreetFull()) {
                 logger.logData(
                     "helper/address/ccccUpdateAddressSource: Setting field "+source+"."
                     +configurationHelper.ccccGetAddressDataByFieldSelector('street', 'street[0]')+" => "
                     +addressData.street
                 );
-                source.set(contextPrefix + configurationHelper.ccccGetAddressDataByFieldSelector('street', 'street[0]'), addressData.street);
+                source.set(contextPrefix +"."+ configurationHelper.ccccGetAddressDataByFieldSelector('street', 'street[0]'), addressData.street);
                 logger.logData(
                     "helper/address/ccccUpdateAddressSource: Setting field "+source+"."
                     +configurationHelper.ccccGetAddressDataByFieldSelector('houseNumber', 'street[1]')+" => "
                     +addressData.houseNumber
                 );
-                source.set(contextPrefix + configurationHelper.ccccGetAddressDataByFieldSelector('houseNumber', 'street[1]'), (addressData.houseNumber?addressData.houseNumber:""));
+                source.set(contextPrefix +"."+ configurationHelper.ccccGetAddressDataByFieldSelector('houseNumber', 'street[1]'), (addressData.houseNumber?addressData.houseNumber:""));
             } else {
                 logger.logData(
                     "helper/address/ccccUpdateAddressSource: Setting combined field "+source+"."
                     +configurationHelper.ccccGetAddressDataByFieldSelector('street', 'street[0]')+" => "
                     +addressData.street + " " + addressData.houseNumber
                 );
-                source.set(contextPrefix + configurationHelper.ccccGetAddressDataByFieldSelector('street', 'street[0]'), addressData.street + (addressData.houseNumber?" " + addressData.houseNumber:""));
+                source.set(contextPrefix +"."+ configurationHelper.ccccGetAddressDataByFieldSelector('street', 'street[0]'), addressData.street + (addressData.houseNumber?" " + addressData.houseNumber:""));
             }
 
             logger.logData(
@@ -55,7 +55,7 @@ define([
             logger.logData(
                 "helper/address/ccccUpdateAddressSource: Setting field "+source+"."+configurationHelper.ccccGetAddressDataByFieldSelector('country', 'country_id')+" => "+addressData.countryId
             );
-            source.set(contextPrefix+configurationHelper.ccccGetAddressDataByFieldSelector('country', 'country_id'), addressData.countryId);
+            source.set(contextPrefix+"."+configurationHelper.ccccGetAddressDataByFieldSelector('country', 'country_id'), addressData.countryId);
 
             var firstnameConversion = configurationHelper.getFirstnameConversion();
             var currentFirstname = source.get('shippingAddress.firstname');
@@ -115,7 +115,7 @@ define([
                 +addressData.city
             );
             quoteAddress = this.ccccUpdateField(quoteAddress, addressData.city, configurationHelper.ccccGetAddressDataByFieldSelector('cityName', 'city'), selectedItemSelector);
-            if (configurationHelper.ccccGetAdressDataFieldselector('street', 'street[0]') != configurationHelper.ccccGetAdressDataFieldselector('houseNumber', 'street[1]')) {
+            if (!configurationHelper.useStreetFull()) {
                 logger.logData(
                     "helper/address/ccccUpdateAddressRegistered: Setting field "
                     +configurationHelper.ccccGetAddressDataByFieldSelector('street', 'street[0]')+" => "

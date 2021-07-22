@@ -8,17 +8,12 @@ define([
     'use strict';
 
     var mixin = {
+        default: {
+            emailInitialized: false
+        },
+
         initialize: function () {
             this._super();
-            enderecosdk.startEmailServices(
-                "",
-                {
-                    postfixCollection:
-                        {
-                            email: ".checkout-shipping-address #customer-email"
-                        }, name: 'customer_email'
-                }
-            );
             return this;
         },
 
@@ -41,10 +36,25 @@ define([
                 usernameSelector = loginFormSelector + ' input[name=username]',
                 emailField = $(usernameSelector);
 
-            if (focused === false && !!this.email()) {
+            var regex = /^([a-zA-Z0-9_.+-])+\@(([a-zA-Z0-9-])+\.)+([a-zA-Z0-9]{2,4})+$/;
+
+            if (focused === false && !!this.email() && this.email().length > 0 && regex.test(this.email())) {
                 $('#customer-email-error-api').remove();
                 $('#customer-email-warning-api').remove();
                 emailField.removeClass('mage-error');
+
+                if (!this.emailInitialized) {
+                    this.emailInitialized = true;
+                    enderecosdk.startEmailServices(
+                        "",
+                        {
+                            postfixCollection:
+                                {
+                                    email: ".checkout-shipping-address #customer-email"
+                                }, name: 'customer_email'
+                        }
+                    );
+                }
 
                 var rtc = await window.EnderecoIntegrator.integratedObjects.customer_email_emailservices.util.checkEmail();
 

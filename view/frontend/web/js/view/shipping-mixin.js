@@ -16,22 +16,29 @@ define([
     'use strict';
 
     var mixin = {
+
         initialize: function () {
             this._super();
+
             var amsPrefix = {
                 countryCode: "[name='shippingAddress."+configurationHelper.ccccGetAddressDataByFieldSelector('country_id', 'country_id')+"'] select[name]",
                 postalCode: "[name='shippingAddress."+configurationHelper.ccccGetAddressDataByFieldSelector('postCode', 'postcode')+"'] input[name]",
                 locality: "[name='shippingAddress."+configurationHelper.ccccGetAddressDataByFieldSelector('cityName', 'city')+"'] input[name]",
-                streetFull: configurationHelper.ccccGetAddressDataByFieldSelector('street', 'street.0') === configurationHelper.ccccGetAddressDataByFieldSelector('houseNumber', 'street.1')?"[name='shippingAddress."+configurationHelper.ccccGetAddressDataByFieldSelector('street', 'street.0')+"'] input[name]":"",
-                streetName: configurationHelper.ccccGetAddressDataByFieldSelector('street', 'street.0') !== configurationHelper.ccccGetAddressDataByFieldSelector('houseNumber', 'street.1')?"[name='shippingAddress."+configurationHelper.ccccGetAddressDataByFieldSelector('street', 'street.0')+"'] input[name]":"",
-                buldingNumber: configurationHelper.ccccGetAddressDataByFieldSelector('street', 'street.0') !== configurationHelper.ccccGetAddressDataByFieldSelector('houseNumber', 'street.1')?"[name='shippingAddress."+configurationHelper.ccccGetAddressDataByFieldSelector('houseNumber', 'street.1')+"'] input[name]":"",
+                streetFull: configurationHelper.useStreetFull() ?"[name='shippingAddress."+configurationHelper.ccccGetAddressDataByFieldSelector('street', 'street.0')+"'] input[name]":"",
+                streetName: !configurationHelper.useStreetFull()?"[name='shippingAddress."+configurationHelper.ccccGetAddressDataByFieldSelector('street', 'street.0')+"'] input[name]":"",
+                buildingNumber: !configurationHelper.useStreetFull()?"[name='shippingAddress."+configurationHelper.ccccGetAddressDataByFieldSelector('houseNumber', 'street.1')+"'] input[name]":"",
                 additionalInfo: '',
                 addressStatus: '[name="enderecoamsstatus"]',
                 addressTimestamp: '[name="enderecoamsts"]',
                 addressPredictions: '[name="enderecoamsapredictions"]'
             };
 
-            this.isStreetFull = configurationHelper.ccccGetAddressDataByFieldSelector('street', 'street.0') === configurationHelper.ccccGetAddressDataByFieldSelector('houseNumber', 'street.1');
+            if (configurationHelper.useStreetFull()) {
+                delete amsPrefix.streetName;
+                delete amsPrefix.buildingNumber;
+            } else {
+                delete amsPrefix.streetFull;
+            }
 
             if (configurationHelper.isAddressValidationEnabled()) {
                 enderecosdk.startAms(
@@ -59,6 +66,11 @@ define([
         },
 
         ccccUpdateAddressFromEndereco: function(sType = 'setShippingInformation', amsKey = 'shipping_address_ams') {
+            if (typeof sType == "object") {
+                sType = "setShippingInformation";
+
+            }
+
             var amsData = window.EnderecoIntegrator.integratedObjects[amsKey];
             var addressData = {
                 postCode: amsData._postalCode,
@@ -68,6 +80,7 @@ define([
                 countryId: amsData._countryCode.toUpperCase()
             };
 
+            this.checkInProgress = false;
 
             this.ccccUpdateAddress(addressData);
 
@@ -207,22 +220,23 @@ define([
                         }
                     );
                     window.EnderecoIntegrator.integratedObjects.customer_email_emailservices.sessionId = window.EnderecoIntegrator.integratedObjects.customer_email_emailservices.util.generateId();
-
                 }
-
             }
         },
 
         validateShippingInformation: function() {
+            if (this.checkInProgress) {
+                return false;
+            }
             logger.logData(
                 "shipping-mixin/validateShippingInformation: Starting validation of shipping information"
             );
 
             var quoteAddress = quote.shippingAddress();
             if (this.ccccCheckAddress() && window.EnderecoIntegrator.integratedObjects.shipping_address_ams) {
-                if (configurationHelper.ccccGetAddressDataByFieldSelector('street', 'street.0') !== configurationHelper.ccccGetAddressDataByFieldSelector('houseNumber', 'street.1') && window.EnderecoIntegrator.integratedObjects.shipping_address_ams.buildingNumber == "") {
-                    window.EnderecoIntegrator.integratedObjects.shipping_address_ams.buildingNumber = quoteAddress['street'][1];
-                    window.EnderecoIntegrator.integratedObjects.shipping_address_ams._buildingNumber = quoteAddress['street'][1];
+                if (!configurationHelper.useStreetFull() && window.EnderecoIntegrator.integratedObjects.shipping_address_ams.buildingNumber == "") {
+                    window.EnderecoIntegrator.integratedObjects.shipping_address_ams.buildingNumber = quoteAddress['street'].length>1 ? quoteAddress['street'][1] : "";
+                    window.EnderecoIntegrator.integratedObjects.shipping_address_ams._buildingNumber = quoteAddress['street'].length>1 ? quoteAddress['street'][1] : "";
                 }
 
                 if (quoteAddress['city'] == "" && window.EnderecoIntegrator.integratedObjects.shipping_address_ams.locality != "") {
@@ -259,20 +273,6 @@ define([
                         "shipping-mixin/validateShippingInformation: Base check was valid, now doing own address check/validation against Endereco-API"
                     );
                     if (!this.isFormInline) {
-                        var data = {
-                            'country_id': quoteAddress['countryId'],
-                            'postcode': quoteAddress['postcode'],
-                            'street': quoteAddress['street'],
-                            'city': quoteAddress['city']
-                        };
-
-                        logger.logData(
-                            "shipping-mixin/validateShippingInformation: Base check was valid, doing address check for stored address against Endereco-API: "+JSON.stringify(data)
-                        );
-                        logger.logData(
-                            "shipping-mixin/validateShippingInformation: setShippingInformation will called directly after address check"
-                        );
-                        // TODO: Validate?
                         return true;
                     } else {
                         logger.logData(
@@ -282,18 +282,20 @@ define([
                             "shipping-mixin/validateShippingInformation: setShippingInformation will called directly after address check"
                         );
 
-                        if (!this.source.get("cccc_initial_check")) {
-                            window.EnderecoIntegrator.integratedObjects.shipping_address_ams._changed = true;
-                            this.source.set("cccc_initial_check", true)
-                        }
-
-                        if (!window.EnderecoIntegrator.integratedObjects.shipping_address_ams._changed) {
-                            this.ccccContinue("setShippingInformation");
-                            return true;
-                        }
-
+                        window.EnderecoIntegrator.integratedObjects.shipping_address_ams._changed = true;
                         window.EnderecoIntegrator.submitResume = this.ccccUpdateAddressFromEndereco.bind(this);
+                        window.EnderecoIntegrator.integratedObjects.shipping_address_ams.onConfirmAddress.push(this.ccccUpdateAddressFromEndereco.bind(this));
+                        window.EnderecoIntegrator.integratedObjects.shipping_address_ams.onAfterAddressCheckNoAction.push(this.ccccUpdateAddressFromEndereco.bind(this));
                         window.EnderecoIntegrator.integratedObjects.shipping_address_ams.cb.onFormSubmit(new Event('check'))
+                        this.checkInProgress = true;
+                        var self = this;
+                        setTimeout(
+                            function() {
+                                delete self.checkInProgress;
+                            },
+                            2000
+                        )
+                        //window.EnderecoIntegrator.integratedObjects.shipping_address_ams.util.checkAddress();
                     }
                     return false;
                 }
