@@ -85,12 +85,11 @@ define([
                 || !window.checkoutConfig.cccc.addressvalidation.endereco.check.shipping_enabled) {
                 return;
             }
-            // TODO: Get from store view
             window.EnderecoIntegrator.defaultCountry = window.checkoutConfig.cccc.addressvalidation.endereco.countryId;
             window.EnderecoIntegrator.defaultCountrySelect = true;
             window.EnderecoIntegrator.themeName = 'm2-addressvalidation';
             window.EnderecoIntegrator.config.agentName = "Magento 2 Address Validation";
-            window.EnderecoIntegrator.config.apiUrl = window.checkoutConfig.cccc.addressvalidation.endereco.baseUrl; //'/4cAddress/proxy/proxy';
+            window.EnderecoIntegrator.config.apiUrl = window.checkoutConfig.cccc.addressvalidation.endereco.baseUrl;
             window.EnderecoIntegrator.config.showDebugInfo = false;
             window.EnderecoIntegrator.config.trigger.onblur = false;
             window.EnderecoIntegrator.config.trigger.onsubmit = true;
@@ -147,6 +146,8 @@ define([
                     email_A4500: $.mage.__('Relay error - the email server is probably not configured correctly.'),
                 }
             };
+
+            window.EnderecoIntegrator.countryCodeToNameMapping = window.checkoutConfig.cccc.addressvalidation.endereco.countries;
 
             // Country matching functions.
             window.EnderecoIntegrator.resolvers.countryCodeWrite = function (value) {
