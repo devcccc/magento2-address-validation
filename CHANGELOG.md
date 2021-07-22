@@ -1,3 +1,8 @@
+##### 1.2.8
+
+- Fixed display of country name in modal
+- Fixed several mapping errors
+
 ##### 1.2.7
 
 - Display version in backend configuration
