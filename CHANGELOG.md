@@ -1,5 +1,10 @@
 ##### 1.2.8
 
+- Fixed error when switching to payment step
+
+
+##### 1.2.8
+
 - Fixed display of country name in modal
 - Fixed several mapping errors
 
