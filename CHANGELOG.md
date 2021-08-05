@@ -1,4 +1,10 @@
-##### 1.2.8
+##### 1.2.10
+
+- Payment method got hidden if you entered a correct address that did not require any change
+- Registered customers were not able to add a new shipping address in checkout
+- If the city was entered and the post code were completed automatically the post code got not used in the final shipping address
+
+##### 1.2.9
 
 - Fixed error when switching to payment step
 

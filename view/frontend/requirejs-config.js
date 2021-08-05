@@ -8,9 +8,6 @@ var config = {
             },
             'Magento_Checkout/js/view/form/element/email': {
                 'CCCC_Addressvalidation/js/view/email-mixin': true
-            },
-            'Magento_Checkout/js/view/payment': {
-                'CCCC_Addressvalidation/js/view/payment-mixin': true
             }
         }
     }

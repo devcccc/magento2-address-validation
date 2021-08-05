@@ -95,7 +95,7 @@ define([
         },
 
         ccccCheckAddress: function () {
-            if (configurationHelper.isAddressValidationEnabled()) {
+            if (configurationHelper.isAddressValidationEnabled() && this.isFormInline) {
                 logger.logData(
                     "shipping-mixin/ccccCheckAddress: Shipping address will be validated by Endereco API"
                 );
@@ -178,28 +178,33 @@ define([
                     "shipping-mixin/ccccContinue: Start DoAccounting for AMS"
                 );
 
-                $.post(
-                    {
-                        url: window.EnderecoIntegrator.integratedObjects.shipping_address_ams.config.apiUrl,
-                        data: JSON.stringify({
-                            id: ++window.EnderecoIntegrator.integratedObjects.shipping_address_ams._addressCheckRequestIndex,
-                            jsonrpc: '2.0',
-                            method: 'doAccounting',
-                            params: { sessionId: window.EnderecoIntegrator.integratedObjects.shipping_address_ams.sessionId}
-                        }),
-                        processData: false,
-                        headers: {
-                            'X-Agent': window.EnderecoIntegrator.integratedObjects.shipping_address_ams.config.agentName,
-                            'X-Auth-Key': window.EnderecoIntegrator.integratedObjects.shipping_address_ams.apiKey,
-                            'X-Transaction-Id': window.EnderecoIntegrator.integratedObjects.shipping_address_ams.sessionId,
-                        },
-                        method: 'POST',
-                        contentType: 'application/json'
-                    }
-                );
+                if (!this.lastAmsSessionIdUsedForAccounting || this.lastAmsSessionIdUsedForAccounting != window.EnderecoIntegrator.integratedObjects.shipping_address_ams.sessionId) {
+                    this.lastAmsSessionIdUsedForAccounting = window.EnderecoIntegrator.integratedObjects.shipping_address_ams.sessionId;
+                    $.post(
+                        {
+                            url: window.EnderecoIntegrator.integratedObjects.shipping_address_ams.config.apiUrl,
+                            data: JSON.stringify({
+                                id: ++window.EnderecoIntegrator.integratedObjects.shipping_address_ams._addressCheckRequestIndex,
+                                jsonrpc: '2.0',
+                                method: 'doAccounting',
+                                params: {sessionId: window.EnderecoIntegrator.integratedObjects.shipping_address_ams.sessionId}
+                            }),
+                            processData: false,
+                            headers: {
+                                'X-Agent': window.EnderecoIntegrator.integratedObjects.shipping_address_ams.config.agentName,
+                                'X-Auth-Key': window.EnderecoIntegrator.integratedObjects.shipping_address_ams.apiKey,
+                                'X-Transaction-Id': window.EnderecoIntegrator.integratedObjects.shipping_address_ams.sessionId,
+                            },
+                            method: 'POST',
+                            contentType: 'application/json'
+                        }
+                    );
+                }
                 window.EnderecoIntegrator.integratedObjects.shipping_address_ams.sessionId = window.EnderecoIntegrator.integratedObjects.shipping_address_ams.util.generateId();
 
-                if (window.checkoutConfig.cccc.addressvalidation.endereco.email_check && window.EnderecoIntegrator.integratedObjects.customer_email_emailservices.sessionCounter > 1) {
+                if (window.checkoutConfig.cccc.addressvalidation.endereco.email_check && window.EnderecoIntegrator.integratedObjects.customer_email_emailservices.sessionCounter > 1
+                    && (!this.lastEmailSessionIdUsedForAccounting || this.lastEmailSessionIdUsedForAccounting != window.EnderecoIntegrator.integratedObjects.customer_email_emailservices.sessionId)) {
+                    this.lastEmailSessionIdUsedForAccounting = window.EnderecoIntegrator.integratedObjects.customer_email_emailservices.sessionId;
                     $.post(
                         {
                             url: window.EnderecoIntegrator.integratedObjects.customer_email_emailservices.config.apiUrl,
@@ -243,6 +248,13 @@ define([
                     quoteAddress['city'] = window.EnderecoIntegrator.integratedObjects.shipping_address_ams.locality;
                     ko.dataFor(window.EnderecoIntegrator.integratedObjects.shipping_address_ams._subscribers.locality[0].object).value(
                         window.EnderecoIntegrator.integratedObjects.shipping_address_ams.locality
+                    );
+                }
+
+                if (((typeof quoteAddress['postcode'] === "object" && !quoteAddress['postcode']) || quoteAddress['postcode'] == "") && window.EnderecoIntegrator.integratedObjects.shipping_address_ams.postalCode != "") {
+                    quoteAddress['postcode'] = window.EnderecoIntegrator.integratedObjects.shipping_address_ams.postalCode;
+                    ko.dataFor(window.EnderecoIntegrator.integratedObjects.shipping_address_ams._subscribers.postalCode[0].object).value(
+                        window.EnderecoIntegrator.integratedObjects.shipping_address_ams.postalCode
                     );
                 }
 
