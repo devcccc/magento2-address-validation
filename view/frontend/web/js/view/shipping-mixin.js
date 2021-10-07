@@ -11,11 +11,14 @@ define([
     'CCCC_Addressvalidation/js/helper/configuration',
     'CCCC_Addressvalidation/js/helper/address',
     'CCCC_Addressvalidation/js/endereco-setup',
-    'Magento_Checkout/js/model/payment/place-order-hooks'
-], function ($, ko, editAddress, quote, selectShippingAddressAction, checkoutData, logger, configurationHelper, addressHelper, enderecosdk, placeOrderHooks) {
+    'Magento_Checkout/js/model/payment/place-order-hooks',
+    'Magento_Checkout/js/model/step-navigator'
+], function ($, ko, editAddress, quote, selectShippingAddressAction, checkoutData, logger, configurationHelper, addressHelper, enderecosdk, placeOrderHooks, stepNavigator) {
     'use strict';
 
     var mixin = {
+
+        fieldSelectors: {},
 
         initialize: function () {
             this._super();
@@ -32,6 +35,7 @@ define([
                 addressTimestamp: '[name="enderecoamsts"]',
                 addressPredictions: '[name="enderecoamsapredictions"]'
             };
+            this.fieldSelectors = amsPrefix;
 
             if (configurationHelper.useStreetFull()) {
                 delete amsPrefix.streetName;
@@ -60,6 +64,68 @@ define([
 
                     payload.paymentMethod['extension_attributes']['cccc_validation_shipping_result'] =
                         enderecosdk.getAddressStatusAsText(window.EnderecoIntegrator.integratedObjects.shipping_address_ams._addressStatus);
+                });
+
+                var that = this;
+                placeOrderHooks.afterRequestListeners.push(function() {
+                    if (that.ccccCheckAddress()) {
+                        logger.logData(
+                            "shipping-mixin/ccccContinue: Start DoAccounting for AMS"
+                        );
+
+                        if ((!that.lastAmsAddressCheckIndex || that.lastAmsAddressCheckIndex != window.EnderecoIntegrator.integratedObjects.shipping_address_ams._addressCheckRequestIndex) &&
+                            (!that.lastAmsSessionIdUsedForAccounting || that.lastAmsSessionIdUsedForAccounting != window.EnderecoIntegrator.integratedObjects.shipping_address_ams.sessionId)) {
+                            that.lastAmsSessionIdUsedForAccounting = window.EnderecoIntegrator.integratedObjects.shipping_address_ams.sessionId;
+                            $.post(
+                                {
+                                    url: window.EnderecoIntegrator.integratedObjects.shipping_address_ams.config.apiUrl,
+                                    data: JSON.stringify({
+                                        id: ++window.EnderecoIntegrator.integratedObjects.shipping_address_ams._addressCheckRequestIndex,
+                                        jsonrpc: '2.0',
+                                        method: 'doAccounting',
+                                        params: {sessionId: window.EnderecoIntegrator.integratedObjects.shipping_address_ams.sessionId}
+                                    }),
+                                    processData: false,
+                                    headers: {
+                                        'X-Agent': window.EnderecoIntegrator.integratedObjects.shipping_address_ams.config.agentName,
+                                        'X-Auth-Key': window.EnderecoIntegrator.integratedObjects.shipping_address_ams.apiKey,
+                                        'X-Transaction-Id': window.EnderecoIntegrator.integratedObjects.shipping_address_ams.sessionId,
+                                    },
+                                    method: 'POST',
+                                    contentType: 'application/json'
+                                }
+                            );
+                            that.lastAmsAddressCheckIndex = window.EnderecoIntegrator.integratedObjects.shipping_address_ams._addressCheckRequestIndex;
+                            window.EnderecoIntegrator.integratedObjects.shipping_address_ams.sessionId = window.EnderecoIntegrator.integratedObjects.shipping_address_ams.util.generateId();
+                        }
+
+                        if (window.checkoutConfig.cccc.addressvalidation.endereco.email_check && window.EnderecoIntegrator.integratedObjects.customer_email_emailservices.sessionCounter > 1
+                            && (!that.lastEmailSessionIdUsedForAccounting || that.lastEmailSessionIdUsedForAccounting != window.EnderecoIntegrator.integratedObjects.customer_email_emailservices.sessionId)) {
+                            that.lastEmailSessionIdUsedForAccounting = window.EnderecoIntegrator.integratedObjects.customer_email_emailservices.sessionId;
+                            $.post(
+                                {
+                                    url: window.EnderecoIntegrator.integratedObjects.customer_email_emailservices.config.apiUrl,
+                                    data: JSON.stringify({
+                                        id: ++window.EnderecoIntegrator.integratedObjects.customer_email_emailservices._addressCheckRequestIndex,
+                                        jsonrpc: '2.0',
+                                        method: 'doAccounting',
+                                        params: { sessionId: window.EnderecoIntegrator.integratedObjects.customer_email_emailservices.sessionId}
+                                    }),
+                                    processData: false,
+                                    headers: {
+                                        'X-Agent': window.EnderecoIntegrator.integratedObjects.customer_email_emailservices.config.agentName,
+                                        'X-Auth-Key': window.EnderecoIntegrator.integratedObjects.customer_email_emailservices.apiKey,
+                                        'X-Transaction-Id': window.EnderecoIntegrator.integratedObjects.customer_email_emailservices.sessionId,
+                                    },
+                                    method: 'POST',
+                                    contentType: 'application/json'
+                                }
+                            );
+                            window.EnderecoIntegrator.integratedObjects.customer_email_emailservices.sessionId = window.EnderecoIntegrator.integratedObjects.customer_email_emailservices.util.generateId();
+                        }
+                    }
+
+
                 });
             }
             return this;
@@ -91,11 +157,13 @@ define([
 
             if ($.inArray(amsData._addressStatus, validCodes)) {
                 this.ccccContinue(sType);
+            } else {
+                stepNavigator.setHash('#shipping');
             }
         },
 
         ccccCheckAddress: function () {
-            if (configurationHelper.isAddressValidationEnabled() && this.isFormInline) {
+            if (configurationHelper.isAddressValidationEnabled() /*&& this.isFormInline*/) {
                 logger.logData(
                     "shipping-mixin/ccccCheckAddress: Shipping address will be validated by Endereco API"
                 );
@@ -106,33 +174,6 @@ define([
             );
             return false;
         },
-        saveNewAddress: function () {
-            logger.logData(
-                "shipping-mixin/saveNewAddress: Saving new address"
-            );
-            if (!this.ccccCheckAddress()) {
-                logger.logData(
-                    "shipping-mixin/saveNewAddress: Using magento base functionality"
-                );
-                return this._super();
-            }
-
-            if (!this.source.get('cccc_address_checked')) {
-                logger.logData(
-                    "shipping-mixin/saveNewAddress: Address not yet validated, starting validation"
-                );
-                window.EnderecoIntegrator.integratedObjects.shipping_address_ams._changed = true;
-                window.EnderecoIntegrator.submitResume = this.ccccUpdateAddressFromEndereco.bind(this, 'saveNewAddress');
-                window.EnderecoIntegrator.integratedObjects.shipping_address_ams.cb.onFormSubmit(new Event('check'))
-            } else {
-                logger.logData(
-                    "shipping-mixin/saveNewAddress: Address already validated, resetting marker and storing address"
-                );
-                this.source.set('cccc_address_checked', false);
-                return this._super();
-            }
-        },
-
         ccccUpdateAddress: function (addressData) {
             logger.logData(
                 "shipping-mixin/ccccUpdateAddress: Doing address update => "+JSON.stringify(addressData)
@@ -146,12 +187,12 @@ define([
                 logger.logData(
                     "shipping-mixin/ccccUpdateAddress: Update address book entry"
                 );
-                this.ccccUpdateAddressRegistered(addressData);
+                this.ccccUpdateAddressRegistered(addressData, this.source, 'shippingAddress');
             }
         },
 
-        ccccUpdateAddressRegistered: function (addressData) {
-            var newShippingAddress = addressHelper.ccccUpdateAddressRegistered(addressData, quote.shippingAddress(), '.shipping-address-item.selected-item');
+        ccccUpdateAddressRegistered: function (addressData, source, context) {
+            var newShippingAddress = addressHelper.ccccUpdateAddressRegistered(addressData, quote.shippingAddress(), '.shipping-address-item.selected-item', source, context);
             selectShippingAddressAction(newShippingAddress);
             logger.logData(
                 "shipping-mixin/ccccUpdateAddressRegistered: Select shipping address within checkout by key  "+newShippingAddress.getKey()
@@ -170,62 +211,7 @@ define([
                     "shipping-mixin/ccccContinue: Setting address as checked and set it in the shipping information"
                 );
                 this.source.set('cccc_guest_address_checked', true);
-                this.setShippingInformation();
-            }
-
-            if (this.ccccCheckAddress()) {
-                logger.logData(
-                    "shipping-mixin/ccccContinue: Start DoAccounting for AMS"
-                );
-
-                if (!this.lastAmsSessionIdUsedForAccounting || this.lastAmsSessionIdUsedForAccounting != window.EnderecoIntegrator.integratedObjects.shipping_address_ams.sessionId) {
-                    this.lastAmsSessionIdUsedForAccounting = window.EnderecoIntegrator.integratedObjects.shipping_address_ams.sessionId;
-                    $.post(
-                        {
-                            url: window.EnderecoIntegrator.integratedObjects.shipping_address_ams.config.apiUrl,
-                            data: JSON.stringify({
-                                id: ++window.EnderecoIntegrator.integratedObjects.shipping_address_ams._addressCheckRequestIndex,
-                                jsonrpc: '2.0',
-                                method: 'doAccounting',
-                                params: {sessionId: window.EnderecoIntegrator.integratedObjects.shipping_address_ams.sessionId}
-                            }),
-                            processData: false,
-                            headers: {
-                                'X-Agent': window.EnderecoIntegrator.integratedObjects.shipping_address_ams.config.agentName,
-                                'X-Auth-Key': window.EnderecoIntegrator.integratedObjects.shipping_address_ams.apiKey,
-                                'X-Transaction-Id': window.EnderecoIntegrator.integratedObjects.shipping_address_ams.sessionId,
-                            },
-                            method: 'POST',
-                            contentType: 'application/json'
-                        }
-                    );
-                }
-                window.EnderecoIntegrator.integratedObjects.shipping_address_ams.sessionId = window.EnderecoIntegrator.integratedObjects.shipping_address_ams.util.generateId();
-
-                if (window.checkoutConfig.cccc.addressvalidation.endereco.email_check && window.EnderecoIntegrator.integratedObjects.customer_email_emailservices.sessionCounter > 1
-                    && (!this.lastEmailSessionIdUsedForAccounting || this.lastEmailSessionIdUsedForAccounting != window.EnderecoIntegrator.integratedObjects.customer_email_emailservices.sessionId)) {
-                    this.lastEmailSessionIdUsedForAccounting = window.EnderecoIntegrator.integratedObjects.customer_email_emailservices.sessionId;
-                    $.post(
-                        {
-                            url: window.EnderecoIntegrator.integratedObjects.customer_email_emailservices.config.apiUrl,
-                            data: JSON.stringify({
-                                id: ++window.EnderecoIntegrator.integratedObjects.customer_email_emailservices._addressCheckRequestIndex,
-                                jsonrpc: '2.0',
-                                method: 'doAccounting',
-                                params: { sessionId: window.EnderecoIntegrator.integratedObjects.customer_email_emailservices.sessionId}
-                            }),
-                            processData: false,
-                            headers: {
-                                'X-Agent': window.EnderecoIntegrator.integratedObjects.customer_email_emailservices.config.agentName,
-                                'X-Auth-Key': window.EnderecoIntegrator.integratedObjects.customer_email_emailservices.apiKey,
-                                'X-Transaction-Id': window.EnderecoIntegrator.integratedObjects.customer_email_emailservices.sessionId,
-                            },
-                            method: 'POST',
-                            contentType: 'application/json'
-                        }
-                    );
-                    window.EnderecoIntegrator.integratedObjects.customer_email_emailservices.sessionId = window.EnderecoIntegrator.integratedObjects.customer_email_emailservices.util.generateId();
-                }
+                //this.setShippingInformation();
             }
         },
 
@@ -285,31 +271,57 @@ define([
                         "shipping-mixin/validateShippingInformation: Base check was valid, now doing own address check/validation against Endereco-API"
                     );
                     if (!this.isFormInline) {
-                        return true;
-                    } else {
-                        logger.logData(
-                            "shipping-mixin/validateShippingInformation: Base check was valid, doing address check for a new address against Endereco-API: "+JSON.stringify(this.source.get('shippingAddress'))
-                        );
-                        logger.logData(
-                            "shipping-mixin/validateShippingInformation: setShippingInformation will called directly after address check"
-                        );
 
-                        window.EnderecoIntegrator.integratedObjects.shipping_address_ams._changed = true;
-                        window.EnderecoIntegrator.submitResume = this.ccccUpdateAddressFromEndereco.bind(this);
-                        window.EnderecoIntegrator.integratedObjects.shipping_address_ams.onConfirmAddress.push(this.ccccUpdateAddressFromEndereco.bind(this));
-                        window.EnderecoIntegrator.integratedObjects.shipping_address_ams.onAfterAddressCheckNoAction.push(this.ccccUpdateAddressFromEndereco.bind(this));
-                        window.EnderecoIntegrator.integratedObjects.shipping_address_ams.cb.onFormSubmit(new Event('check'))
-                        this.checkInProgress = true;
-                        var self = this;
-                        setTimeout(
-                            function() {
-                                delete self.checkInProgress;
-                            },
-                            2000
-                        )
-                        //window.EnderecoIntegrator.integratedObjects.shipping_address_ams.util.checkAddress();
+                        $(this.fieldSelectors.countryCode).val(quoteAddress['countryId']).change();
+                        $(this.fieldSelectors.postalCode).val(quoteAddress['postcode']).change();
+                        $(this.fieldSelectors.locality).val(quoteAddress['city']).change();
+
+                        if (configurationHelper.useStreetFull()) {
+                            $(this.fieldSelectors.streetFull).val(quoteAddress['street'][0] + (quoteAddress['street'].length>1 ? " "+quoteAddress['street'][1]:"")).change();
+                        } else {
+                            $(this.fieldSelectors.streetName).val(quoteAddress['street'][0]).change();
+                            $(this.fieldSelectors.buildingNumber).val((quoteAddress['street'].length>1 ? quoteAddress['street'][1]:"")).change();
+                        }
                     }
-                    return false;
+
+                    logger.logData(
+                        "shipping-mixin/validateShippingInformation: Base check was valid, doing address check for a new address against Endereco-API: "+JSON.stringify(this.source.get('shippingAddress'))
+                    );
+                    logger.logData(
+                        "shipping-mixin/validateShippingInformation: setShippingInformation will called directly after address check"
+                    );
+
+                    window.EnderecoIntegrator.integratedObjects.shipping_address_ams._changed = true;
+
+                    if (window.EnderecoIntegrator.submitResume==undefined) {
+                        window.EnderecoIntegrator.submitResume = this.ccccUpdateAddressFromEndereco.bind(this);
+                    }
+                    if (window.EnderecoIntegrator.integratedObjects.shipping_address_ams.onConfirmAddress ==undefined) {
+                        window.EnderecoIntegrator.integratedObjects.shipping_address_ams.onConfirmAddress.push(this.ccccUpdateAddressFromEndereco.bind(this));
+                    }
+                    if (window.EnderecoIntegrator.integratedObjects.shipping_address_ams.onAfterAddressCheckNoAction==undefined) {
+                        window.EnderecoIntegrator.integratedObjects.shipping_address_ams.onAfterAddressCheckNoAction.push(this.ccccUpdateAddressFromEndereco.bind(this));
+                    }
+                    if (!this.isFormInline) {
+//debugger;
+
+                        window.EnderecoIntegrator.integratedObjects.shipping_address_ams.util.checkAddress(
+                           null
+                        );
+                    } else {
+                        window.EnderecoIntegrator.integratedObjects.shipping_address_ams.cb.onFormSubmit(new Event('check'))
+                    }
+
+                    this.checkInProgress = true;
+                    var self = this;
+                    setTimeout(
+                        function() {
+                            delete self.checkInProgress;
+                        },
+                        2000
+                    )
+                    this.setShippingInformation();
+                    return superResult;
                 }
                 logger.logData(
                     "shipping-mixin/validateShippingInformation: No validation of the address against Endereco-API as the basse validation failed"

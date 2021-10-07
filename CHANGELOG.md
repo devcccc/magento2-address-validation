@@ -1,3 +1,8 @@
+##### 1.3.0
+
+- Updated JS-SDK
+- Address validation works also for addresses selected from address book
+
 ##### 1.2.10
 
 - Payment method got hidden if you entered a correct address that did not require any change

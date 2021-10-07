@@ -218,6 +218,23 @@ define([
                             window.EnderecoIntegrator.integratedObjects.shipping_address_ams._changed = true;
                         });
                     }
+                    window.EnderecoIntegrator.integratedObjects.shipping_address_ams.waitForAllExtension().then(
+                        function(EAO) {
+                            EAO.onEditAddress.push(function () {
+                                window.location = '#shipping';
+                            });
+
+                            EAO.onAfterAddressCheckSelected.push( function(EAO) {
+                                EAO.waitForAllPopupsToClose().then(function () {
+                                    EAO.waitUntilReady().then(function () {
+                                        if (window.EnderecoIntegrator && window.EnderecoIntegrator.globalSpace.reloadPage && !window.checkoutConfig.isCustomerLoggedIn) {
+                                            window.EnderecoIntegrator.globalSpace.reloadPage();
+                                        }
+                                    }).catch()
+                                }).catch();
+                            });
+                        }
+                    );
                 }
                 return;
             }
@@ -230,6 +247,14 @@ define([
                     window.EnderecoIntegrator.integratedObjects.shipping_address_ams._changed = true;
                 });
             }
+
+            window.EnderecoIntegrator.integratedObjects.shipping_address_ams.waitForAllExtension().then(
+                function(EAO) {
+                    EAO.onEditAddress.push(function () {
+                        window.location = '#shipping';
+                    });
+                }
+            );
         },
 
         getAddressStatusAsText: function (statusArray) {

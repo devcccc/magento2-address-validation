@@ -1,10 +1,11 @@
 /*jshint browser:true jquery:true*/
 /*global alert*/
 define([
+    'jquery',
     'CCCC_Addressvalidation/js/helper/logger',
     'CCCC_Addressvalidation/js/helper/configuration',
     'CCCC_Addressvalidation/js/operation/edit-address'
-], function (logger, configurationHelper, editAddress) {
+], function ($, logger, configurationHelper, editAddress) {
     'use strict';
 
     return {
@@ -102,7 +103,7 @@ define([
             }
         },
 
-        ccccUpdateAddressRegistered: function (addressData, quoteAddress, selectedItemSelector) {
+        ccccUpdateAddressRegistered: function (addressData, quoteAddress, selectedItemSelector, source, context) {
             logger.logData(
                 "helper/address/ccccUpdateAddressRegistered: Setting field "
                 +configurationHelper.ccccGetAddressDataByFieldSelector('postCode', 'postcode')+" => "
@@ -166,7 +167,8 @@ define([
                 quoteAddress = this.ccccUpdateField(quoteAddress, currentLastname, "lastname", selectedItemSelector);
             }
 
-            this.ccccUpdateAddressSource(addressData);
+            debugger;
+            this.ccccUpdateAddressSource(addressData, source, context);
 
             logger.logData(
                 "helper/address/ccccUpdateAddressRegistered: Set new selected shipping address "+JSON.stringify(quoteAddress)

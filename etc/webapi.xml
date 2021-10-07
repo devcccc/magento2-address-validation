@@ -3,7 +3,7 @@
     <route url="/V1/carts/mine/cccc-updateAddress" method="POST">
         <service class="CCCC\Addressvalidation\Api\UpdateAddressInterface" method="updateAddress"/>
         <resources>
-            <resource ref="self" />
+            <resource ref="anonymous"/>
         </resources>
         <data>
             <parameter name="cartId" force="true">%cart_id%</parameter>
