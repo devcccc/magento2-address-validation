@@ -1,3 +1,7 @@
+##### 1.3.2
+
+- Fixed eMail selector
+
 ##### 1.3.1
 
 - Fixed Typo in settings
