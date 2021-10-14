@@ -6,6 +6,8 @@ define([
     'CCCC_Addressvalidation/js/operation/edit-address',
     'Magento_Checkout/js/model/quote',
     'Magento_Checkout/js/action/select-shipping-address',
+    'Magento_Checkout/js/action/select-billing-address',
+    'Magento_Checkout/js/view/billing-address',
     'Magento_Checkout/js/checkout-data',
     'CCCC_Addressvalidation/js/helper/logger',
     'CCCC_Addressvalidation/js/helper/configuration',
@@ -13,7 +15,7 @@ define([
     'CCCC_Addressvalidation/js/endereco-setup',
     'Magento_Checkout/js/model/payment/place-order-hooks',
     'Magento_Checkout/js/model/step-navigator'
-], function ($, ko, editAddress, quote, selectShippingAddressAction, checkoutData, logger, configurationHelper, addressHelper, enderecosdk, placeOrderHooks, stepNavigator) {
+], function ($, ko, editAddress, quote, selectShippingAddressAction, selectBillingAddressAction, billingAddress, checkoutData, logger, configurationHelper, addressHelper, enderecosdk, placeOrderHooks, stepNavigator) {
     'use strict';
 
     var mixin = {
@@ -183,6 +185,30 @@ define([
                     "shipping-mixin/ccccUpdateAddress: Form is inline"
                 );
                 addressHelper.ccccUpdateAddressSource(addressData, this.source, 'shippingAddress');
+
+                var quoteAddress = quote.shippingAddress();
+                if(configurationHelper.isFirstnameToUppercaseEnabled()) {
+                    var currentFirstname = quoteAddress["firstname"].toUpperCase();
+                    logger.logData(
+                        "helper/address/ccccUpdateAddressRegistered: Setting field shippingAddress.firstname to upper case => "+" => "+currentFirstname
+                    );
+                    quoteAddress["firstname"] = currentFirstname;
+                }
+
+                if(configurationHelper.isLastnameToUppercaseEnabled()) {
+                    var currentLastname = quoteAddress["lastname"].toUpperCase();
+                    logger.logData(
+                        "helper/address/ccccUpdateAddressRegistered: Setting field shippingAddress.lastname to upper case => "+" => "+currentLastname
+                    );
+                    quoteAddress["lastname"] = currentLastname;
+                }
+                selectShippingAddressAction(quoteAddress);
+
+                var billingAddress = quote.billingAddress();
+                var shippingAddress = quote.shippingAddress();
+                if (billingAddress.getCacheKey() == shippingAddress.getCacheKey()) {
+                    selectBillingAddressAction(shippingAddress);
+                }
             } else {
                 logger.logData(
                     "shipping-mixin/ccccUpdateAddress: Update address book entry"
@@ -303,8 +329,6 @@ define([
                         window.EnderecoIntegrator.integratedObjects.shipping_address_ams.onAfterAddressCheckNoAction.push(this.ccccUpdateAddressFromEndereco.bind(this));
                     }
                     if (!this.isFormInline) {
-//debugger;
-
                         window.EnderecoIntegrator.integratedObjects.shipping_address_ams.util.checkAddress(
                            null
                         );

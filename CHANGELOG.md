@@ -1,3 +1,8 @@
+##### 1.3.1
+
+- Fixed Typo in settings
+- Fixed name conversions for inline address
+
 ##### 1.3.0
 
 - Updated JS-SDK

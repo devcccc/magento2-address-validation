@@ -73,7 +73,7 @@
 "Log requests/responses to the address validation api in the separate cccc-address-validation.log within the var/log-folder","Alle Anfragen und Antworten an die Endereco-API werden in die Datei cccc-address-validation.log im Verzeichnis var/log-folder protokolliert."
 "Enable Javascript Debugging","Aktivieren Javascript-Debugging"
 "Enable the output of some JS-debug-outputs in your browsers Console","Aktiviert die Ausgabe einiger JavaScript-Debug-Ausgaben in der Browser-Konsole"
-"First name handling","Vorname - Umwandling"
+"First name handling","Vorname - Umwandlung"
 "Last name handling","Nachname - Umwandlung"
 "Keep entered spelling","Eingegebene Schreibweise behalten"
 "Upper case","Wert in Großbuchstaben umwandeln"
