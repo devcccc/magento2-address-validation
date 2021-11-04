@@ -47,7 +47,7 @@ define([
                         && $("[name='shippingAddress."+selectorCountryId+"'] select[name]").length
                     ) : true
                 )
-                && (window.checkoutConfig.cccc.addressvalidation.endereco.email_check ? $(selectorEmail).length : true)
+                && (!window.isCustomerLoggedIn && window.checkoutConfig.cccc.addressvalidation.endereco.email_check ? $(selectorEmail).length : true)
         }.bind(this);
 
         if (!window.amsInitialized && fieldsArrived()) {
@@ -58,21 +58,18 @@ define([
                 if (!window.amsInitialized && fieldsArrived()) {
                     $(document).off(
                         'DOMSubtreeModified',
-                        "#shipping",
                         cb
                     );
                     ccccSetupJsSdk();
                 } else if(window.amsInitialized) {
                     $(document).off(
                         'DOMSubtreeModified',
-                        "#shipping",
                         cb
                     );
                 }
             }.bind(this);
             $(document).on(
                 'DOMSubtreeModified',
-                '#shipping',
                 cb
             );
         }

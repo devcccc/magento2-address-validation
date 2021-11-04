@@ -1,3 +1,7 @@
+#### 1.3.3
+
+- Fixed initialization for logged in customer
+
 ##### 1.3.2
 
 - Fixed eMail selector
