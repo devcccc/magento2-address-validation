@@ -47,7 +47,7 @@ define([
                         && $("[name='shippingAddress."+selectorCountryId+"'] select[name]").length
                     ) : true
                 )
-                && (window.checkoutConfig.cccc.addressvalidation.endereco.email_check ? $(selectorEmail).length : true)
+                && (!window.isCustomerLoggedIn && window.checkoutConfig.cccc.addressvalidation.endereco.email_check ? $(selectorEmail).length : true)
         }.bind(this);
 
         if (!window.amsInitialized && fieldsArrived()) {
@@ -58,21 +58,18 @@ define([
                 if (!window.amsInitialized && fieldsArrived()) {
                     $(document).off(
                         'DOMSubtreeModified',
-                        "#shipping",
                         cb
                     );
                     ccccSetupJsSdk();
                 } else if(window.amsInitialized) {
                     $(document).off(
                         'DOMSubtreeModified',
-                        "#shipping",
                         cb
                     );
                 }
             }.bind(this);
             $(document).on(
                 'DOMSubtreeModified',
-                '#shipping',
                 cb
             );
         }
@@ -218,6 +215,23 @@ define([
                             window.EnderecoIntegrator.integratedObjects.shipping_address_ams._changed = true;
                         });
                     }
+                    window.EnderecoIntegrator.integratedObjects.shipping_address_ams.waitForAllExtension().then(
+                        function(EAO) {
+                            EAO.onEditAddress.push(function () {
+                                window.location = '#shipping';
+                            });
+
+                            EAO.onAfterAddressCheckSelected.push( function(EAO) {
+                                EAO.waitForAllPopupsToClose().then(function () {
+                                    EAO.waitUntilReady().then(function () {
+                                        if (window.EnderecoIntegrator && window.EnderecoIntegrator.globalSpace.reloadPage && !window.checkoutConfig.isCustomerLoggedIn) {
+                                            window.EnderecoIntegrator.globalSpace.reloadPage();
+                                        }
+                                    }).catch()
+                                }).catch();
+                            });
+                        }
+                    );
                 }
                 return;
             }
@@ -230,6 +244,14 @@ define([
                     window.EnderecoIntegrator.integratedObjects.shipping_address_ams._changed = true;
                 });
             }
+
+            window.EnderecoIntegrator.integratedObjects.shipping_address_ams.waitForAllExtension().then(
+                function(EAO) {
+                    EAO.onEditAddress.push(function () {
+                        window.location = '#shipping';
+                    });
+                }
+            );
         },
 
         getAddressStatusAsText: function (statusArray) {

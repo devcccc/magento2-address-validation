@@ -1,10 +1,11 @@
 /*jshint browser:true jquery:true*/
 /*global alert*/
 define([
+    'jquery',
     'CCCC_Addressvalidation/js/helper/logger',
     'CCCC_Addressvalidation/js/helper/configuration',
     'CCCC_Addressvalidation/js/operation/edit-address'
-], function (logger, configurationHelper, editAddress) {
+], function ($, logger, configurationHelper, editAddress) {
     'use strict';
 
     return {
@@ -64,19 +65,19 @@ define([
                 logger.logData(
                     "helper/address/ccccUpdateAddressSource: Setting field shippingAddress.firstname to upper case => "+" => "+currentFirstname
                 );
-                source.set('shippingAddress.firstname', currentFirstname)
+                source.set(contextPrefix +'.firstname', currentFirstname)
             } else if (configurationHelper.isLowerCaseConversion(firstnameConversion)) {
                 currentFirstname = currentFirstname.toLowerCase();
                 logger.logData(
                     "helper/address/ccccUpdateAddressSource: Setting field shippingAddress.firstname to lower case => "+" => "+currentFirstname
                 );
-                source.set('shippingAddress.firstname', currentFirstname)
+                source.set(contextPrefix +'.firstname', currentFirstname)
             } else if (configurationHelper.isUcFirstConversion(firstnameConversion)) {
                 currentFirstname = currentFirstname.charAt(0).toUpperCase() + currentFirstname.slice(1);
                 logger.logData(
                     "helper/address/ccccUpdateAddressSource: Setting field shippingAddress.firstname to uc first => "+" => "+currentFirstname
                 );
-                source.set('shippingAddress.firstname', currentFirstname)
+                source.set(contextPrefix +'.firstname', currentFirstname)
             }
 
             var lastnameConversion = configurationHelper.getLastnameConversion();
@@ -86,23 +87,23 @@ define([
                 logger.logData(
                     "helper/address/ccccUpdateAddressSource: Setting field shippingAddress.lastname to upper case => "+" => "+currentLastname
                 );
-                source.set('shippingAddress.lastname', currentLastname)
+                source.set(contextPrefix +'.lastname', currentLastname)
             } else if (configurationHelper.isLowerCaseConversion(lastnameConversion)) {
                 currentLastname = currentLastname.toLowerCase();
                 logger.logData(
                     "helper/address/ccccUpdateAddressSource: Setting field shippingAddress.lastname to lower case => "+" => "+currentLastname
                 );
-                source.set('shippingAddress.lastname', currentLastname)
+                source.set(contextPrefix +'.lastname', currentLastname)
             } else if (configurationHelper.isUcFirstConversion(lastnameConversion)) {
                 currentLastname = currentLastname.charAt(0).toUpperCase() + currentLastname.slice(1);
                 logger.logData(
                     "helper/address/ccccUpdateAddressSource: Setting field shippingAddress.lastname to uc first => "+" => "+currentLastname
                 );
-                source.set('shippingAddress.lastname', currentLastname)
+                source.set(contextPrefix +'.lastname', currentLastname)
             }
         },
 
-        ccccUpdateAddressRegistered: function (addressData, quoteAddress, selectedItemSelector) {
+        ccccUpdateAddressRegistered: function (addressData, quoteAddress, selectedItemSelector, source, context) {
             logger.logData(
                 "helper/address/ccccUpdateAddressRegistered: Setting field "
                 +configurationHelper.ccccGetAddressDataByFieldSelector('postCode', 'postcode')+" => "
@@ -166,7 +167,7 @@ define([
                 quoteAddress = this.ccccUpdateField(quoteAddress, currentLastname, "lastname", selectedItemSelector);
             }
 
-            this.ccccUpdateAddressSource(addressData);
+            this.ccccUpdateAddressSource(addressData, source, context);
 
             logger.logData(
                 "helper/address/ccccUpdateAddressRegistered: Set new selected shipping address "+JSON.stringify(quoteAddress)

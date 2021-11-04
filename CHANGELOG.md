@@ -1,3 +1,21 @@
+#### 1.3.3
+
+- Fixed initialization for logged in customer
+
+##### 1.3.2
+
+- Fixed eMail selector
+
+##### 1.3.1
+
+- Fixed Typo in settings
+- Fixed name conversions for inline address
+
+##### 1.3.0
+
+- Updated JS-SDK
+- Address validation works also for addresses selected from address book
+
 ##### 1.2.10
 
 - Payment method got hidden if you entered a correct address that did not require any change

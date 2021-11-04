@@ -18,6 +18,14 @@ define([
             return window.checkoutConfig.cccc.addressvalidation.endereco.countryId;
         },
 
+        isFirstnameToUppercaseEnabled: function() {
+            return this.isUpperCaseConversion(this.getFirstnameConversion());
+        },
+
+        isLastnameToUppercaseEnabled: function() {
+            return this.isUpperCaseConversion(this.getLastnameConversion());
+        },
+
         getFirstnameConversion: function() {
             return window.checkoutConfig.cccc.addressvalidation.endereco.transformation.convert_firstname;
         },

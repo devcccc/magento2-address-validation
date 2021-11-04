@@ -27,7 +27,7 @@
                 <cityName>city</cityName>
                 <street>street[0]</street>
                 <houseNumber>street[1]</houseNumber>
-                <email>.checkout-shipping-address #customer-email</email>
+                <email>#customer-email</email>
             </field_mapping>
 
             <development>
