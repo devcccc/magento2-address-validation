@@ -65,6 +65,7 @@ class ConfigProvider implements ConfigProviderInterface
                     && $this->scopeConfig->getValue($this->configPrefix . '/features/email_check', 'store') == 1,
                 'email_show_warnings' => $this->scopeConfig->getValue($this->configPrefix . '/features/email_show_warnings', 'store') == 1,
                 'force_valid_address' => $this->scopeConfig->getValue($this->configPrefix . '/features/force_valid_address', 'store') == 1,
+                'use_autocomplete' => $this->scopeConfig->getValue($this->configPrefix . '/development/use_autocomplete', 'store') == 1,
                 'check' => [
                     'shipping_enabled' => $this->scopeConfig->getValue($this->configPrefix . '/integration/frontend_checkout_shipping', 'store') == 1,
                     'customer_addressbook_enabled' => $this->scopeConfig->getValue($this->configPrefix . '/integration/customer_addressbook', 'store') == 1

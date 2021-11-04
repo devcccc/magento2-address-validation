@@ -180,6 +180,12 @@
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                     <comment>Enable the output of some JS-debug-outputs in your browsers Console</comment>
                 </field>
+
+                <field id="use_autocomplete" translate="label" type="select" sortOrder="100" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <label>[BETA!] Enable Autocomplete Feature</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <comment>Enable autocomplete-features - ABSOLUTE BETA. Do not activate on production or staging systems!</comment>
+                </field>
             </group>
         </section>
     </system>

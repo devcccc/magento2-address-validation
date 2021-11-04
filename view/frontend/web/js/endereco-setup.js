@@ -90,6 +90,7 @@ define([
             window.EnderecoIntegrator.config.showDebugInfo = false;
             window.EnderecoIntegrator.config.trigger.onblur = false;
             window.EnderecoIntegrator.config.trigger.onsubmit = true;
+            window.EnderecoIntegrator.config.useAutocomplete = window.checkoutConfig.cccc.addressvalidation.endereco.use_autocomplete;
             window.EnderecoIntegrator.config.ux.smartFill = true;
             window.EnderecoIntegrator.config.ux.resumeSubmit = true;
             window.EnderecoIntegrator.config.ux.useStandardCss = true;

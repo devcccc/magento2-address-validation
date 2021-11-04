@@ -33,6 +33,7 @@
             <development>
                 <log_validation_requests>0</log_validation_requests>
                 <javascript_debugging>0</javascript_debugging>
+                <use_autocomplete>0</use_autocomplete>
             </development>
 
         </cccc_addressvalidation_endereco_section>
