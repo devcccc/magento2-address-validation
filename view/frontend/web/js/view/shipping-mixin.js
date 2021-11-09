@@ -328,13 +328,7 @@ define([
                     if (window.EnderecoIntegrator.integratedObjects.shipping_address_ams.onAfterAddressCheckNoAction==undefined) {
                         window.EnderecoIntegrator.integratedObjects.shipping_address_ams.onAfterAddressCheckNoAction.push(this.ccccUpdateAddressFromEndereco.bind(this));
                     }
-                    if (!this.isFormInline) {
-                        window.EnderecoIntegrator.integratedObjects.shipping_address_ams.util.checkAddress(
-                           null
-                        );
-                    } else {
-                        window.EnderecoIntegrator.integratedObjects.shipping_address_ams.cb.onFormSubmit(new Event('check'))
-                    }
+                    window.EnderecoIntegrator.integratedObjects.shipping_address_ams.cb.onFormSubmit(new Event('check'));
 
                     this.checkInProgress = true;
                     var self = this;
