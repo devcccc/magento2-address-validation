@@ -1,3 +1,9 @@
+#### 1.3.4
+
+- Using MutationObserver instead of DOMSubtreeModified
+- Fixed firstname/lastname handling for address book entries
+- Check also address book entry in checkout
+
 #### 1.3.3
 
 - Fixed initialization for logged in customer
