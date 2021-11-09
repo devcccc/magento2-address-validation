@@ -56,21 +56,26 @@ define([
         } else {
             var cb = function(e) {
                 if (!window.amsInitialized && fieldsArrived()) {
-                    $(document).off(
-                        'DOMSubtreeModified',
-                        cb
-                    );
+                    observer.disconnect();
                     ccccSetupJsSdk();
                 } else if(window.amsInitialized) {
-                    $(document).off(
-                        'DOMSubtreeModified',
-                        cb
-                    );
+                    observer.disconnect();
                 }
             }.bind(this);
-            $(document).on(
-                'DOMSubtreeModified',
-                cb
+
+            var target = document.querySelector('body');
+            var observer = new MutationObserver(function(mutations) {
+                mutations.forEach(function(mutation) {
+                    if (!window.amsInitialized && fieldsArrived()) {
+                        observer.disconnect();
+                        ccccSetupJsSdk();
+                    }
+                });
+            });
+
+            observer.observe(
+                target,
+                { attributes: false, childList: true, characterData: false, subtree: true }
             );
         }
     }
