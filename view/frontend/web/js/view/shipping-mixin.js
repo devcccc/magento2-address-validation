@@ -298,9 +298,9 @@ define([
                     );
                     if (!this.isFormInline) {
 
-                        window.EnderecoIntegrator.integratedObjects.shipping_address_ams.cb._countryCode = (quoteAddress['countryId']);
-                        window.EnderecoIntegrator.integratedObjects.shipping_address_ams.cb._postalCode = (quoteAddress['postcode']);
-                        window.EnderecoIntegrator.integratedObjects.shipping_address_ams.cb._locality = (quoteAddress['city']);
+                        window.EnderecoIntegrator.integratedObjects.shipping_address_ams._countryCode = (quoteAddress['countryId']);
+                        window.EnderecoIntegrator.integratedObjects.shipping_address_ams._postalCode = (quoteAddress['postcode']);
+                        window.EnderecoIntegrator.integratedObjects.shipping_address_ams._locality = (quoteAddress['city']);
   /*                      $(this.fieldSelectors.countryCode).val(quoteAddress['countryId']).change();
                         $(this.fieldSelectors.postalCode).val(quoteAddress['postcode']).change();
                         $(this.fieldSelectors.locality).val(quoteAddress['city']).change();
