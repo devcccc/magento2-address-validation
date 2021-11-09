@@ -152,7 +152,7 @@ define([
             quoteAddress = this.ccccUpdateField(quoteAddress, addressData.countryId, configurationHelper.ccccGetAddressDataByFieldSelector('country', 'country_id'), selectedItemSelector);
 
             if(configurationHelper.isFirstnameToUppercaseEnabled()) {
-                var currentFirstname = quoteAddress[firstname].toUpperCase();
+                var currentFirstname = quoteAddress["firstname"].toUpperCase();
                 logger.logData(
                     "helper/address/ccccUpdateAddressRegistered: Setting field shippingAddress.firstname to upper case => "+" => "+currentFirstname
                 );
@@ -160,7 +160,7 @@ define([
             }
 
             if(configurationHelper.isLastnameToUppercaseEnabled()) {
-                var currentLastname = quoteAddress[lastname].toUpperCase();
+                var currentLastname = quoteAddress["lastname"].toUpperCase();
                 logger.logData(
                     "helper/address/ccccUpdateAddressRegistered: Setting field shippingAddress.lastname to upper case => "+" => "+currentLastname
                 );
