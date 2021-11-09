@@ -298,16 +298,26 @@ define([
                     );
                     if (!this.isFormInline) {
 
-                        $(this.fieldSelectors.countryCode).val(quoteAddress['countryId']).change();
+                        window.EnderecoIntegrator.integratedObjects.shipping_address_ams.cb._countryCode = (quoteAddress['countryId']);
+                        window.EnderecoIntegrator.integratedObjects.shipping_address_ams.cb._postalCode = (quoteAddress['postcode']);
+                        window.EnderecoIntegrator.integratedObjects.shipping_address_ams.cb._locality = (quoteAddress['city']);
+  /*                      $(this.fieldSelectors.countryCode).val(quoteAddress['countryId']).change();
                         $(this.fieldSelectors.postalCode).val(quoteAddress['postcode']).change();
                         $(this.fieldSelectors.locality).val(quoteAddress['city']).change();
-
+*/
                         if (configurationHelper.useStreetFull()) {
-                            $(this.fieldSelectors.streetFull).val(quoteAddress['street'][0] + (quoteAddress['street'].length>1 ? " "+quoteAddress['street'][1]:"")).change();
+                            window.EnderecoIntegrator.integratedObjects.shipping_address_ams.streetFull =quoteAddress['street'][0] + (quoteAddress['street'].length>1 ? " "+quoteAddress['street'][1]:"");
+//                            $(this.fieldSelectors.streetFull).val(quoteAddress['street'][0] + (quoteAddress['street'].length>1 ? " "+quoteAddress['street'][1]:"")).change();
                         } else {
-                            $(this.fieldSelectors.streetName).val(quoteAddress['street'][0]).change();
-                            $(this.fieldSelectors.buildingNumber).val((quoteAddress['street'].length>1 ? quoteAddress['street'][1]:"")).change();
+                            window.EnderecoIntegrator.integratedObjects.shipping_address_ams.buildingNumber = (quoteAddress['street'].length>1 ? quoteAddress['street'][1]:"");
+                            window.EnderecoIntegrator.integratedObjects.shipping_address_ams.streetName = quoteAddress['street'][0];
+//                            $(this.fieldSelectors.streetName).val(quoteAddress['street'][0]).change();
+//                            $(this.fieldSelectors.buildingNumber).val((quoteAddress['street'].length>1 ? quoteAddress['street'][1]:"")).change();
                         }
+                        logger.logData(
+                            "shipping-mixin/validateShippingInformation: Transferred data from address book to inline form: "
+                            +$(this.fieldSelectors.countryCode).val()+" "+$(this.fieldSelectors.postalCode).val()+" "+$(this.fieldSelectors.locality).val()
+                        );
                     }
 
                     logger.logData(
