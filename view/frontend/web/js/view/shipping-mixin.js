@@ -101,7 +101,7 @@ define([
                             window.EnderecoIntegrator.integratedObjects.shipping_address_ams.sessionId = window.EnderecoIntegrator.integratedObjects.shipping_address_ams.util.generateId();
                         }
 
-                        if (window.checkoutConfig.cccc.addressvalidation.endereco.email_check && window.EnderecoIntegrator.integratedObjects.customer_email_emailservices.sessionCounter > 1
+                        if (window.checkoutConfig.cccc.addressvalidation.endereco.email_check && window.EnderecoIntegrator.integratedObjects.customer_email_emailservices && window.EnderecoIntegrator.integratedObjects.customer_email_emailservices.sessionCounter > 1
                             && (!that.lastEmailSessionIdUsedForAccounting || that.lastEmailSessionIdUsedForAccounting != window.EnderecoIntegrator.integratedObjects.customer_email_emailservices.sessionId)) {
                             that.lastEmailSessionIdUsedForAccounting = window.EnderecoIntegrator.integratedObjects.customer_email_emailservices.sessionId;
                             $.post(
@@ -306,11 +306,11 @@ define([
                         $(this.fieldSelectors.locality).val(quoteAddress['city']).change();
 */
                         if (configurationHelper.useStreetFull()) {
-                            window.EnderecoIntegrator.integratedObjects.shipping_address_ams.streetFull =quoteAddress['street'][0] + (quoteAddress['street'].length>1 ? " "+quoteAddress['street'][1]:"");
+                            window.EnderecoIntegrator.integratedObjects.shipping_address_ams._streetFull =quoteAddress['street'][0] + (quoteAddress['street'].length>1 ? " "+quoteAddress['street'][1]:"");
 //                            $(this.fieldSelectors.streetFull).val(quoteAddress['street'][0] + (quoteAddress['street'].length>1 ? " "+quoteAddress['street'][1]:"")).change();
                         } else {
-                            window.EnderecoIntegrator.integratedObjects.shipping_address_ams.buildingNumber = (quoteAddress['street'].length>1 ? quoteAddress['street'][1]:"");
-                            window.EnderecoIntegrator.integratedObjects.shipping_address_ams.streetName = quoteAddress['street'][0];
+                            window.EnderecoIntegrator.integratedObjects.shipping_address_ams._buildingNumber = (quoteAddress['street'].length>1 ? quoteAddress['street'][1]:"");
+                            window.EnderecoIntegrator.integratedObjects.shipping_address_ams._streetName = quoteAddress['street'][0];
 //                            $(this.fieldSelectors.streetName).val(quoteAddress['street'][0]).change();
 //                            $(this.fieldSelectors.buildingNumber).val((quoteAddress['street'].length>1 ? quoteAddress['street'][1]:"")).change();
                         }
