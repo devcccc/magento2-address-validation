@@ -96,6 +96,29 @@ define([
             window.EnderecoIntegrator.config.trigger.onblur = false;
             window.EnderecoIntegrator.config.trigger.onsubmit = true;
             window.EnderecoIntegrator.config.useAutocomplete = window.checkoutConfig.cccc.addressvalidation.endereco.use_autocomplete;
+
+            if (window.EnderecoIntegrator.config.useAutocomplete) {
+                var selectorPostCode = ccccGetAddressDataByFieldSelector('postCode', 'postcode');
+                var selectorCityName = ccccGetAddressDataByFieldSelector('cityName', 'city');
+                var selectorStreet = ccccGetAddressDataByFieldSelector('street', 'street.0');
+                var selectorHouseNumber = ccccGetAddressDataByFieldSelector('street', 'street.1');
+                var selectorCountryId = ccccGetAddressDataByFieldSelector('country', 'country_id');
+                var selectorEmail = ccccGetAddressDataByFieldSelector('email', '.checkout-shipping-address #customer-email');
+
+                var cbBlur = function(e) {
+                    //debugger;
+                    console.log("blur => "+e.target.value);
+                    $(e.target).change();
+                }
+
+                $("[name='shippingAddress."+selectorPostCode+"'] input[name]").on('endereco-blur', cbBlur);
+                $("[name='shippingAddress."+selectorCityName+"'] input[name]").on('endereco-blur', cbBlur);
+                $("[name='shippingAddress."+selectorStreet+"'] input[name]").on('endereco-blur', cbBlur);
+                $("[name='shippingAddress."+selectorHouseNumber+"'] input[name]").on('endereco-blur', cbBlur);
+                $("[name='shippingAddress."+selectorCountryId+"'] input[name]").on('endereco-blur', cbBlur);
+                $("[name='shippingAddress."+selectorEmail+"'] input[name]").on('endereco-blur', cbBlur);
+            }
+
             window.EnderecoIntegrator.config.ux.smartFill = true;
             window.EnderecoIntegrator.config.ux.resumeSubmit = true;
             window.EnderecoIntegrator.config.ux.useStandardCss = true;
