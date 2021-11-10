@@ -1,3 +1,7 @@
+#### 1.3.9 
+
+- Several fixes with address book entries
+
 #### 1.3.4
 
 - Using MutationObserver instead of DOMSubtreeModified

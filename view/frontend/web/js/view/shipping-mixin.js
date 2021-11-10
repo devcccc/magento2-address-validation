@@ -215,6 +215,16 @@ define([
                 );
                 this.ccccUpdateAddressRegistered(addressData, this.source, 'shippingAddress');
             }
+            var checkbox = jQuery("input[name=billing-address-same-as-shipping][type=checkbox]");
+            if (checkbox.length) {
+                checkbox.click();
+                setTimeout(
+                    function () {
+                        checkbox.click();
+                    },
+                    500
+                );
+            }
         },
 
         ccccUpdateAddressRegistered: function (addressData, source, context) {
@@ -365,15 +375,20 @@ define([
                             }
                         ).finally(
                             function() {
-                                window.EnderecoIntegrator.integratedObjects.shipping_address_ams.cb.onFormSubmit(new Event('check'));
-                                self.checkInProgress = true;
                                 setTimeout(
-                                    function () {
-                                        delete self.checkInProgress;
+                                    function() {
+                                        window.EnderecoIntegrator.integratedObjects.shipping_address_ams.cb.onFormSubmit(new Event('check'));
+                                        self.checkInProgress = true;
+                                        setTimeout(
+                                            function () {
+                                                delete self.checkInProgress;
+                                            },
+                                            2000
+                                        )
+                                        self.setShippingInformation();
                                     },
-                                    2000
-                                )
-                                self.setShippingInformation();
+                                    3000
+                                );
                             }
                         );
 
