@@ -292,6 +292,8 @@ define([
             }
 
             if (!this.source.get('cccc_guest_address_checked')) {
+                var promise;
+
                 if (superResult) {
                     logger.logData(
                         "shipping-mixin/validateShippingInformation: Base check was valid, now doing own address check/validation against Endereco-API"
@@ -307,7 +309,11 @@ define([
 */
                         if (configurationHelper.useStreetFull()) {
                             window.EnderecoIntegrator.integratedObjects.shipping_address_ams._streetFull =quoteAddress['street'][0] + (quoteAddress['street'].length>1 ? " "+quoteAddress['street'][1]:"");
-//                            $(this.fieldSelectors.streetFull).val(quoteAddress['street'][0] + (quoteAddress['street'].length>1 ? " "+quoteAddress['street'][1]:"")).change();
+                            //$(this.fieldSelectors.streetFull).val(quoteAddress['street'][0] + (quoteAddress['street'].length>1 ? " "+quoteAddress['street'][1]:"")).change();
+
+                            promise = window.EnderecoIntegrator.integratedObjects.shipping_address_ams.util.splitStreet();
+
+
                         } else {
                             window.EnderecoIntegrator.integratedObjects.shipping_address_ams._buildingNumber = (quoteAddress['street'].length>1 ? quoteAddress['street'][1]:"");
                             window.EnderecoIntegrator.integratedObjects.shipping_address_ams._streetName = quoteAddress['street'][0];
@@ -338,17 +344,40 @@ define([
                     if (window.EnderecoIntegrator.integratedObjects.shipping_address_ams.onAfterAddressCheckNoAction==undefined) {
                         window.EnderecoIntegrator.integratedObjects.shipping_address_ams.onAfterAddressCheckNoAction.push(this.ccccUpdateAddressFromEndereco.bind(this));
                     }
-                    window.EnderecoIntegrator.integratedObjects.shipping_address_ams.cb.onFormSubmit(new Event('check'));
 
-                    this.checkInProgress = true;
                     var self = this;
-                    setTimeout(
-                        function() {
-                            delete self.checkInProgress;
-                        },
-                        2000
-                    )
-                    this.setShippingInformation();
+                    if (!promise) {
+                        window.EnderecoIntegrator.integratedObjects.shipping_address_ams.cb.onFormSubmit(new Event('check'));
+
+                        this.checkInProgress = true;
+                        setTimeout(
+                            function () {
+                                delete self.checkInProgress;
+                            },
+                            2000
+                        )
+                        this.setShippingInformation();
+                    } else {
+                        promise.then(
+                            function(data) {
+                                window.EnderecoIntegrator.integratedObjects.shipping_address_ams._buildingNumber = data.houseNumber;
+                                window.EnderecoIntegrator.integratedObjects.shipping_address_ams._streetName = data.streetName;
+                            }
+                        ).finally(
+                            function() {
+                                window.EnderecoIntegrator.integratedObjects.shipping_address_ams.cb.onFormSubmit(new Event('check'));
+                                self.checkInProgress = true;
+                                setTimeout(
+                                    function () {
+                                        delete self.checkInProgress;
+                                    },
+                                    2000
+                                )
+                                self.setShippingInformation();
+                            }
+                        );
+
+                    }
                     return superResult;
                 }
                 logger.logData(
