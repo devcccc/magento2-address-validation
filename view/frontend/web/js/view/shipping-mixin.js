@@ -233,7 +233,7 @@ define([
                 var shippingAddress = quote.shippingAddress();
 
                 if (billingAddress.getCacheKey() == shippingAddress.getCacheKey()) {
-                    selectBillingAddressAction(shippingAddress);
+                 //   selectBillingAddressAction(shippingAddress);
                 }
 
                 setTimeout(function () {
