@@ -253,9 +253,9 @@ define([
                             EAO.onAfterAddressCheckSelected.push( function(EAO) {
                                 EAO.waitForAllPopupsToClose().then(function () {
                                     EAO.waitUntilReady().then(function () {
-                                        if (window.EnderecoIntegrator && window.EnderecoIntegrator.globalSpace.reloadPage && !window.checkoutConfig.isCustomerLoggedIn) {
+                                        /*if (window.EnderecoIntegrator && window.EnderecoIntegrator.globalSpace.reloadPage && !window.checkoutConfig.isCustomerLoggedIn) {
                                             window.EnderecoIntegrator.globalSpace.reloadPage();
-                                        }
+                                        }*/
                                     }).catch()
                                 }).catch();
                             });

@@ -228,11 +228,14 @@ define([
                 }
 
                 shippingSaveProcessor.saveShippingInformation();
+                setTimeout(function () {
+                    window.EnderecoIntegrator.globalSpace.reloadPage();
+                }, 1000);
             } else {
                 logger.logData(
                     "shipping-mixin/ccccUpdateAddress: Update address book entry"
                 );
-                this.ccccUpdateAddressRegisterased(addressData, this.source, 'shippingAddress');
+                this.ccccUpdateAddressRegistered(addressData, this.source, 'shippingAddress');
             }
             var checkbox = jQuery("input[name=billing-address-same-as-shipping][type=checkbox]");
             if (checkbox.length) {
