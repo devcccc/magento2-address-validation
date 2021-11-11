@@ -216,6 +216,14 @@ define([
                 quote.shippingAddress().city = this.source.shippingAddress.city;
                 quote.shippingAddress().countryId = this.source.shippingAddress.country_id;
                 quote.shippingAddress().postcode = this.source.shippingAddress.postcode;
+                quote.shippingAddress().street = [];
+                for (var key in this.source.shippingAddress.street) {
+                    if (this.source.shippingAddress.street.hasOwnProperty(key)) {
+                        quote.shippingAddress().street.push(this.source.shippingAddress.street[key]);
+                    }
+                }
+
+
                 quote.shippingAddress().street = this.source.shippingAddress.street;
                 quote.shippingAddress().lastname = this.source.shippingAddress.lastname;
                 quote.shippingAddress().firstname = this.source.shippingAddress.firstname;
