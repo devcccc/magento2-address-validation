@@ -1,3 +1,8 @@
+#### 1.3.15
+
+- Several fixes
+- Suggest: Fixed position of auto suggestion layer in address book popup
+
 #### 1.3.10
 
 - Changed delivery address was displayed correctly in frontend but not got pushed in the order
