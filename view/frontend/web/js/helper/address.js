@@ -4,7 +4,7 @@ define([
     'jquery',
     'CCCC_Addressvalidation/js/helper/logger',
     'CCCC_Addressvalidation/js/helper/configuration',
-    'CCCC_Addressvalidation/js/operation/edit-address'
+    'CCCC_Addressvalidation/js/operation/edit-address',
 ], function ($, logger, configurationHelper, editAddress) {
     'use strict';
 

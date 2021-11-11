@@ -1,3 +1,9 @@
+#### 1.3.10
+
+- Changed delivery address was displayed correctly in frontend but not got pushed in the order
+- If the email validation was enabled a timing problem resulted in a javascript error
+- If the first address entered was fully corrected no address correction popup got displayed if the user changed to address that requires correction
+
 #### 1.3.9 
 
 - Several fixes with address book entries

@@ -14,6 +14,20 @@ define([
 
         initialize: function () {
             this._super();
+
+            if (window.checkoutConfig.cccc.addressvalidation.endereco.email_check) {
+                this.emailInitialized = true;
+                enderecosdk.startEmailServices(
+                    "",
+                    {
+                        postfixCollection:
+                            {
+                                email: ".checkout-shipping-address #customer-email"
+                            }, name: 'customer_email'
+                    }
+                );
+            }
+
             return this;
         },
 
