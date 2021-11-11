@@ -219,6 +219,7 @@ define([
                 quote.shippingAddress().street = this.source.shippingAddress.street;
                 quote.shippingAddress().lastname = this.source.shippingAddress.lastname;
                 quote.shippingAddress().firstname = this.source.shippingAddress.firstname;
+                shippingSaveProcessor.saveShippingInformation();
 
                 var billingAddress = quote.billingAddress();
                 var shippingAddress = quote.shippingAddress();
@@ -227,7 +228,6 @@ define([
                     selectBillingAddressAction(shippingAddress);
                 }
 
-                shippingSaveProcessor.saveShippingInformation();
                 setTimeout(function () {
                     window.EnderecoIntegrator.globalSpace.reloadPage();
                 }, 1000);
