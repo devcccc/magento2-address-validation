@@ -13,8 +13,9 @@ namespace CCCC\Addressvalidation\Api;
 interface UpdateAddressInterface
 {
     /**
+     * @param mixed $cartId
      * @param \Magento\Quote\Api\Data\AddressInterface $addressData
      * @return \CCCC\Addressvalidation\Service\V1\Data\UpdateAddressResponse
      */
-    public function updateAddress(\Magento\Quote\Api\Data\AddressInterface $addressData);
+    public function updateAddress($cartId, \Magento\Quote\Api\Data\AddressInterface $addressData);
 }
