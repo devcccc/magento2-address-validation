@@ -1,3 +1,7 @@
+#### 1.3.17 
+
+- Fixed issue with address book entries created in checkout
+
 #### 1.3.16
 
 - Fixed issue when using address book entry that got changed by address validation - only the address book entry but not the address within the quote/order got changed

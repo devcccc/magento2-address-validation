@@ -56,17 +56,19 @@ class UpdateAddress implements UpdateAddressInterface
      */
     public function updateAddress($cartId, AddressInterface $addressData)
     {
-        $address = $this->addressRepository->getById($addressData->getCustomerAddressId());
-        $address->setPostcode($addressData->getPostcode());
-        $address->setCity($addressData->getCity());
+        if ($addressData->getCustomerAddressId()) {
+            $address = $this->addressRepository->getById($addressData->getCustomerAddressId());
+            $address->setPostcode($addressData->getPostcode());
+            $address->setCity($addressData->getCity());
 
-        $street = $addressData->getStreet();
-        if (!is_array($street)) {
-            $street = [$street];
+            $street = $addressData->getStreet();
+            if (!is_array($street)) {
+                $street = [$street];
+            }
+            $address->setStreet($street);
+
+            $this->addressRepository->save($address);
         }
-        $address->setStreet($street);
-
-        $this->addressRepository->save($address);
 
         /** @var Quote $quote */
         $quote = $this->quoteFactory->create()->loadActive($cartId);
