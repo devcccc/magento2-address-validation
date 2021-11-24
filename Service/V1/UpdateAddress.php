@@ -10,6 +10,7 @@
 namespace CCCC\Addressvalidation\Service\V1;
 
 use Magento\Quote\Api\Data\AddressInterface;
+use Magento\Quote\Api\Data\AddressInterfaceFactory;
 use Magento\Customer\Api\AddressRepositoryInterface;
 use CCCC\Addressvalidation\Service\V1\Data\EditAddressResponseFactory;
 use CCCC\Addressvalidation\Api\UpdateAddressInterface;
@@ -37,16 +38,21 @@ class UpdateAddress implements UpdateAddressInterface
     /** @var \Magento\Quote\Model\ResourceModel\Quote  */
     protected $quoteRm;
 
+    /** @var AddressInterfaceFactory  */
+    protected $addressInterfaceFactory;
+
     public function __construct(
         EditAddressResponseFactory $responseFactory,
         AddressRepositoryInterface $addressRepository,
         \Magento\Quote\Model\QuoteFactory $quoteFactory,
-        \Magento\Quote\Model\ResourceModel\Quote $quoteRm
+        \Magento\Quote\Model\ResourceModel\Quote $quoteRm,
+        AddressInterfaceFactory $addressInterfaceFactory
     ) {
         $this->responseFactory = $responseFactory;
         $this->addressRepository = $addressRepository;
         $this->quoteFactory = $quoteFactory;
         $this->quoteRm = $quoteRm;
+        $this->addressInterfaceFactory = $addressInterfaceFactory;
     }
 
     /**
@@ -56,17 +62,28 @@ class UpdateAddress implements UpdateAddressInterface
      */
     public function updateAddress($cartId, AddressInterface $addressData)
     {
-        if ($addressData->getCustomerAddressId()) {
+        try {
             $address = $this->addressRepository->getById($addressData->getCustomerAddressId());
-            $address->setPostcode($addressData->getPostcode());
-            $address->setCity($addressData->getCity());
+        } catch (\Exception $e) {
+            /** @var AddressInterface $address */
+            $address = $this->addressInterfaceFactory->create();
+        }
 
-            $street = $addressData->getStreet();
-            if (!is_array($street)) {
-                $street = [$street];
-            }
-            $address->setStreet($street);
+        $address->setPostcode($addressData->getPostcode());
+        $address->setCity($addressData->getCity());
 
+        $street = $addressData->getStreet();
+        if (!is_array($street)) {
+            $street = [$street];
+        }
+        $address->setStreet($street);
+
+        $address->setFirstname($addressData->getFirstname());
+        $address->setLastname($addressData->getLastname());
+        $address->setPrefix($addressData->getPrefix());
+        $address->setCountryId($addressData->getCountryId());
+
+        if ($addressData->getCustomerAddressId()) {
             $this->addressRepository->save($address);
         }
 
@@ -76,6 +93,10 @@ class UpdateAddress implements UpdateAddressInterface
         $quoteAddress->setStreet($address->getStreet());
         $quoteAddress->setPostcode($address->getPostcode());
         $quoteAddress->setCity($address->getCity());
+        $quoteAddress->setCountryId($address->getCountryId());
+        $quoteAddress->setFirstname($address->getFirstname());
+        $quoteAddress->setLastname($address->getLastname());
+        $quoteAddress->setPrefix($address->getPrefix());
         $quote->setShippingAddress($quoteAddress);
         $this->quoteRm->save($quote);
 
