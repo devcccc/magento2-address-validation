@@ -1,0 +1,17 @@
+<?php
+/** @var \CCCC\Addressvalidation\Block\Customer\Address\ConfigData $block */
+
+$configData = json_encode($block->getConfig());
+
+?>
+<!-- Address validation configuration Endereco -->
+<script type="text/javascript">
+    if (!window.checkoutConfig) {
+        window.checkoutConfig = JSON.parse('<?php echo $configData; ?>');
+        window.checkoutConfig.cccc.addressvalidation.endereco.email_check = false;
+        window.checkoutConfig.cccc.addressvalidation.endereco.mapping.street = "street[]";
+        window.checkoutConfig.cccc.addressvalidation.endereco.mapping.houseNumber = "street[]";
+        window.checkoutConfig.cccc.addressvalidation.endereco.mapping.houseNumber = "street[]";
+        window.checkoutConfig.cccc.addressvalidation.endereco.mapping.template = ".form-address-edit .field [name='##field##']";
+    }
+</script>

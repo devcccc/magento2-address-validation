@@ -78,7 +78,8 @@ class ConfigProvider implements ConfigProviderInterface
                     'houseNumber' => $this->scopeConfig->getValue($this->configPrefix . '/field_mapping/houseNumber', 'store'),
                     'email' => $this->scopeConfig->getValue($this->configPrefix . '/field_mapping/email', 'store'),
                     'useStreetFull' => $this->scopeConfig->getValue($this->configPrefix . '/field_mapping/street', 'store') ===
-                        $this->scopeConfig->getValue($this->configPrefix . '/field_mapping/houseNumber', 'store')
+                        $this->scopeConfig->getValue($this->configPrefix . '/field_mapping/houseNumber', 'store'),
+                    'template' => "[name=shippingAddress.##field##] input[name]"
                 ],
                 'transformation' => [
                     'convert_firstname' => $this->scopeConfig->getValue($this->configPrefix . '/features/convert_firstname', 'store'),

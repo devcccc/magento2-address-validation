@@ -37,22 +37,24 @@ define([
         var selectorEmail = ccccGetAddressDataByFieldSelector('email', '.checkout-shipping-address #customer-email');
 
         var fieldsArrived = function() {
+            var fieldTemplate = window.checkoutConfig.cccc.addressvalidation.endereco.mapping.template;
+
             return (
                 window.checkoutConfig.cccc.addressvalidation.endereco.enabled ?
                     (
-                        $("[name='shippingAddress."+selectorPostCode+"'] input[name]").length
-                        && $("[name='shippingAddress."+selectorCityName+"'] input[name]").length
-                        && $("[name='shippingAddress."+selectorStreet+"'] input[name]").length
-                        && $("[name='shippingAddress."+selectorHouseNumber+"'] input[name]").length
-                        && $("[name='shippingAddress."+selectorCountryId+"'] select[name]").length
+                        $(fieldTemplate.replace("##field##", selectorPostCode)).length
+                        && $(fieldTemplate.replace("##field##", selectorCityName)).length
+                        && $(fieldTemplate.replace("##field##", selectorStreet)).length
+                        && $(fieldTemplate.replace("##field##", selectorHouseNumber)).length
+                        && $(fieldTemplate.replace("##field##", selectorCountryId)).length
                     ) : true
                 )
                 && (!window.isCustomerLoggedIn && window.checkoutConfig.cccc.addressvalidation.endereco.email_check ? $(selectorEmail).length : true)
         }.bind(this);
 
         if (!window.amsInitialized && fieldsArrived()) {
-            window.amsInitialized = true;
             ccccSetupJsSdk();
+            window.amsInitialized = true;
         } else {
             var cb = function(e) {
                 if (!window.amsInitialized && fieldsArrived()) {
@@ -95,6 +97,7 @@ define([
             window.EnderecoIntegrator.config.showDebugInfo = false;
             window.EnderecoIntegrator.config.trigger.onblur = false;
             window.EnderecoIntegrator.config.trigger.onsubmit = true;
+            window.EnderecoIntegrator.config.ux.resumeSubmit = true;
             window.EnderecoIntegrator.config.useAutocomplete = window.checkoutConfig.cccc.addressvalidation.endereco.use_autocomplete;
 
             if (window.EnderecoIntegrator.config.useAutocomplete) {
@@ -106,17 +109,16 @@ define([
                 var selectorEmail = ccccGetAddressDataByFieldSelector('email', '.checkout-shipping-address #customer-email');
 
                 var cbBlur = function(e) {
-                    //debugger;
-                    console.log("blur => "+e.target.value);
                     $(e.target).change();
                 }
 
-                $("[name='shippingAddress."+selectorPostCode+"'] input[name]").on('endereco-blur', cbBlur);
-                $("[name='shippingAddress."+selectorCityName+"'] input[name]").on('endereco-blur', cbBlur);
-                $("[name='shippingAddress."+selectorStreet+"'] input[name]").on('endereco-blur', cbBlur);
-                $("[name='shippingAddress."+selectorHouseNumber+"'] input[name]").on('endereco-blur', cbBlur);
-                $("[name='shippingAddress."+selectorCountryId+"'] input[name]").on('endereco-blur', cbBlur);
-                $("[name='shippingAddress."+selectorEmail+"'] input[name]").on('endereco-blur', cbBlur);
+                var fieldTemplate = window.checkoutConfig.cccc.addressvalidation.endereco.mapping.template;
+                $(fieldTemplate.replace("##field##", selectorPostCode)).on('endereco-blur', cbBlur);
+                $(fieldTemplate.replace("##field##", selectorCityName)).on('endereco-blur', cbBlur);
+                $(fieldTemplate.replace("##field##", selectorStreet)).on('endereco-blur', cbBlur);
+                $(fieldTemplate.replace("##field##", selectorHouseNumber)).on('endereco-blur', cbBlur);
+                $(fieldTemplate.replace("##field##", selectorCountryId)).on('endereco-blur', cbBlur);
+                $(fieldTemplate.replace("##field##", selectorEmail)).on('endereco-blur', cbBlur);
             }
 
             window.EnderecoIntegrator.config.ux.smartFill = true;
@@ -206,7 +208,9 @@ define([
         }
     }
 
-    ccccSetupJsSdkCheck();
+    if (window.checkoutConfig) {
+        ccccSetupJsSdkCheck();
+    }
 
     return {
         startEmailServices: function(prefix, config)
@@ -237,14 +241,14 @@ define([
                 window.amsCallback = function() {
                     if (undefined !== window.EnderecoIntegrator.initAMS) {
                         window.EnderecoIntegrator.initAMS(prefix, config);
-                        window.EnderecoIntegrator.integratedObjects.shipping_address_ams._changed = true;
+                        window.EnderecoIntegrator.integratedObjects[config.name + "_ams"]._changed = true;
                     } else {
                         window.EnderecoIntegrator.onLoad.push(function () {
                             window.EnderecoIntegrator.initAMS(prefix, config);
-                            window.EnderecoIntegrator.integratedObjects.shipping_address_ams._changed = true;
+                            window.EnderecoIntegrator.integratedObjects[config.name + "_ams"]._changed = true;
                         });
                     }
-                    window.EnderecoIntegrator.integratedObjects.shipping_address_ams.waitForAllExtension().then(
+                    window.EnderecoIntegrator.integratedObjects[config.name + "_ams"].waitForAllExtension().then(
                         function(EAO) {
                             EAO.onEditAddress.push(function () {
                                 window.location = '#shipping';
@@ -266,15 +270,15 @@ define([
             }
             if (undefined !== window.EnderecoIntegrator.initAMS) {
                 window.EnderecoIntegrator.initAMS(prefix, config);
-                window.EnderecoIntegrator.integratedObjects.shipping_address_ams._changed = true;
+                window.EnderecoIntegrator.integratedObjects[config.name + "_ams"]._changed = true;
             } else {
                 window.EnderecoIntegrator.onLoad.push(function () {
                     window.EnderecoIntegrator.initAMS(prefix, config);
-                    window.EnderecoIntegrator.integratedObjects.shipping_address_ams._changed = true;
+                    window.EnderecoIntegrator.integratedObjects[config.name + "_ams"]._changed = true;
                 });
             }
 
-            window.EnderecoIntegrator.integratedObjects.shipping_address_ams.waitForAllExtension().then(
+            window.EnderecoIntegrator.integratedObjects[config.name + "_ams"].waitForAllExtension().then(
                 function(EAO) {
                     EAO.onEditAddress.push(function () {
                         window.location = '#shipping';
