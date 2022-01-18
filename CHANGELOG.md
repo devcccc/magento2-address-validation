@@ -1,4 +1,4 @@
-#### 1.3.20
+#### 1.3.20 && 1.3.21
 
 - Fixed type in jQuery selector template
 
