@@ -1,3 +1,7 @@
+#### 1.3.20
+
+- Fixed type in jQuery selector template
+
 #### 1.3.17 & 1.3.18
 
 - Fixed issue with address book entries created in checkout
