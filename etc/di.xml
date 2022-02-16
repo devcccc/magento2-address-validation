@@ -11,7 +11,7 @@
     </type>
     <type name="CCCC\Addressvalidation\Logger\RequestLogger">
         <arguments>
-            <argument name="name" xsi:type="string">CCCC_AddressValiddation_Request</argument>
+            <argument name="name" xsi:type="string">CCCC_AddressValidation_Request</argument>
             <argument name="handlers"  xsi:type="array">
                 <item name="system" xsi:type="object">CCCC\Addressvalidation\Logger\Handler\RequestResponseHandler</item>
             </argument>

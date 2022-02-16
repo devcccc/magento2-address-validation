@@ -135,6 +135,9 @@ class BaseOperation
                 sprintf('[%s ] Sending request to %s as POST, current request class: %s', $logHash, $url, get_class($this))
             );
             $this->requestLogger->notice(
+                sprintf('[%s ] Sending request to %s as POST, request data: %s', $logHash, $url, print_r($requestDataCompiled, true))
+            );
+            $this->requestLogger->notice(
                 sprintf('[%s ] Headers: %s', $logHash, implode(" | ", $headers))
             );
             $this->requestLogger->notice(

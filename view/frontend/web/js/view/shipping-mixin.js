@@ -288,6 +288,8 @@ define([
                 "shipping-mixin/validateShippingInformation: Starting validation of shipping information"
             );
 
+            debugger;
+
             var quoteAddress = quote.shippingAddress();
             if (this.ccccCheckAddress() && window.EnderecoIntegrator.integratedObjects.shipping_address_ams) {
                 if (!configurationHelper.useStreetFull() && window.EnderecoIntegrator.integratedObjects.shipping_address_ams.buildingNumber == "") {

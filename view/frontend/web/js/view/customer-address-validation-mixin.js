@@ -81,7 +81,6 @@ define([
         },
 
         _doSubmitAfterAddressValidation: function() {
-            debugger;
             var button = $(this.options.selectors.button, this.element);
             button.attr('disabled', false);
 
