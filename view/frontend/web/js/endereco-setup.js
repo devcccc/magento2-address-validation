@@ -29,46 +29,24 @@ define([
     }
 
     function ccccSetupJsSdkCheck() {
-        var selectorPostCode = ccccGetAddressDataByFieldSelector('postCode', 'postcode');
-        var selectorCityName = ccccGetAddressDataByFieldSelector('cityName', 'city');
-        var selectorStreet = ccccGetAddressDataByFieldSelector('street', 'street.0');
-        var selectorHouseNumber = ccccGetAddressDataByFieldSelector('street', 'street.1');
-        var selectorCountryId = ccccGetAddressDataByFieldSelector('country', 'country_id');
-        var selectorEmail = ccccGetAddressDataByFieldSelector('email', '.checkout-shipping-address #customer-email');
-
-        var fieldsArrived = function() {
-            var fieldTemplate = window.checkoutConfig.cccc.addressvalidation.endereco.mapping.template;
-
-            return (
-                window.checkoutConfig.cccc.addressvalidation.endereco.enabled ?
-                    (
-                        $(fieldTemplate.replace("##field##", selectorPostCode)).length
-                        && $(fieldTemplate.replace("##field##", selectorCityName)).length
-                        && $(fieldTemplate.replace("##field##", selectorStreet)).length
-                        && $(fieldTemplate.replace("##field##", selectorHouseNumber)).length
-                        && $(fieldTemplate.replace("##field##", selectorCountryId)).length
-                    ) : true
-                )
-                && (!window.isCustomerLoggedIn && window.checkoutConfig.cccc.addressvalidation.endereco.email_check ? $(selectorEmail).length : true)
-        }.bind(this);
-
-        if (!window.amsInitialized && fieldsArrived()) {
-            ccccSetupJsSdk();
-            window.amsInitialized = true;
-        } else {
-            var cb = function(e) {
-                if (!window.amsInitialized && fieldsArrived()) {
-                    observer.disconnect();
-                    ccccSetupJsSdk();
-                } else if(window.amsInitialized) {
-                    observer.disconnect();
+        var funcAllFieldsAreArrived = function() {
+            var allFieldsArrived = window.fieldsArrivedChecks && window.fieldsArrivedChecks.length > 0;
+            if (window.fieldsArrivedChecks) {
+                for (var i = 0; i < window.fieldsArrivedChecks.length; i++) {
+                    allFieldsArrived = allFieldsArrived && window.fieldsArrivedChecks[i]();
                 }
-            }.bind(this);
+                console.log("allFieldsArrived: "+allFieldsArrived);
+            }
+            return allFieldsArrived;
+        };
 
+        if (!window.amsInitialized && funcAllFieldsAreArrived()) {
+            ccccSetupJsSdk();
+        } else {
             var target = document.querySelector('body');
             var observer = new MutationObserver(function(mutations) {
                 mutations.forEach(function(mutation) {
-                    if (!window.amsInitialized && fieldsArrived()) {
+                    if (!window.amsInitialized && funcAllFieldsAreArrived()) {
                         observer.disconnect();
                         ccccSetupJsSdk();
                     }
@@ -129,6 +107,21 @@ define([
             window.EnderecoIntegrator.config.ux.changeFieldsOrder = true;
             window.EnderecoIntegrator.config.templates.primaryButtonClasses = 'button action continue primary';
             window.EnderecoIntegrator.config.templates.secondaryButtonClasses = 'button action continue';
+
+            window.EnderecoIntegrator.countryCodeToNameMapping = window.checkoutConfig.cccc.addressvalidation.endereco.countries;
+
+            // Country matching functions.
+            window.EnderecoIntegrator.resolvers.countryCodeWrite = function (value) {
+                return new Promise(function (resolve, reject) {
+                    resolve(value.toUpperCase());
+                });
+            }
+            window.EnderecoIntegrator.resolvers.countryCodeRead = function (value) {
+                return new Promise(function (resolve, reject) {
+                    resolve(value.toLowerCase());
+                });
+            }
+
             window.EnderecoIntegrator.config.texts = {
                 popUpHeadline: $.mage.__('Address validation'),
                 popUpSubline: $.mage.__('The address you entered seems to be incorrect or incomplete. Please select the correct address.'),
@@ -175,20 +168,6 @@ define([
                 }
             };
 
-            window.EnderecoIntegrator.countryCodeToNameMapping = window.checkoutConfig.cccc.addressvalidation.endereco.countries;
-
-            // Country matching functions.
-            window.EnderecoIntegrator.resolvers.countryCodeWrite = function (value) {
-                return new Promise(function (resolve, reject) {
-                    resolve(value.toUpperCase());
-                });
-            }
-            window.EnderecoIntegrator.resolvers.countryCodeRead = function (value) {
-                return new Promise(function (resolve, reject) {
-                    resolve(value.toLowerCase());
-                });
-            }
-
             window.EnderecoIntegrator.activeServices = {
                 ams: window.checkoutConfig.cccc.addressvalidation.endereco.enabled,
                 emailService: window.checkoutConfig.cccc.addressvalidation.endereco.enabled
@@ -199,7 +178,9 @@ define([
             window.EnderecoIntegrator.ready = true;
 
             if (window.amsCallback) {
-                window.amsCallback();
+                for (var i = 0; i < window.amsCallback.length; i++) {
+                    window.amsCallback[i]();
+                }
             }
 
             if(window.emailCallback) {
@@ -238,36 +219,69 @@ define([
 
         startAms: function(prefix, config) {
             if (!window.amsInitialized) {
-                window.amsCallback = function() {
-                    if (undefined !== window.EnderecoIntegrator.initAMS) {
-                        window.EnderecoIntegrator.initAMS(prefix, config);
-                        window.EnderecoIntegrator.integratedObjects[config.name + "_ams"]._changed = true;
-                    } else {
-                        window.EnderecoIntegrator.onLoad.push(function () {
+                if (!window.amsCallback) {
+                    window.amsCallback = [];
+                    window.fieldsArrivedChecks = [];
+                }
+
+                var selectorPostCode = ccccGetAddressDataByFieldSelector('postCode', 'postcode');
+                var selectorCityName = ccccGetAddressDataByFieldSelector('cityName', 'city');
+                var selectorStreet = ccccGetAddressDataByFieldSelector('street', 'street.0');
+                var selectorHouseNumber = ccccGetAddressDataByFieldSelector('street', 'street.1');
+                var selectorCountryId = ccccGetAddressDataByFieldSelector('country', 'country_id');
+                var selectorEmail = ccccGetAddressDataByFieldSelector('email', '.checkout-shipping-address #customer-email');
+
+                var fieldsArrived = function() {
+                    var fieldTemplate = window.checkoutConfig.cccc.addressvalidation.endereco.mapping.template
+                        .replace("shippingAddress.", config.name+".");
+
+                    return (
+                            window.checkoutConfig.cccc.addressvalidation.endereco.enabled ?
+                                (
+                                    $(fieldTemplate.replace("##field##", selectorPostCode)).length
+                                    && $(fieldTemplate.replace("##field##", selectorCityName)).length
+                                    && $(fieldTemplate.replace("##field##", selectorStreet)).length
+                                    && $(fieldTemplate.replace("##field##", selectorHouseNumber)).length
+                                    && $(fieldTemplate.replace("##field##", selectorCountryId)).length
+                                ) : true
+                        )
+                        && (!window.isCustomerLoggedIn && window.checkoutConfig.cccc.addressvalidation.endereco.email_check ? $(selectorEmail).length : true)
+                }.bind(this);
+
+                window.fieldsArrivedChecks.push(
+                    fieldsArrived
+                );
+
+                window.amsCallback.push(
+                    function() {
+                        if (undefined !== window.EnderecoIntegrator.initAMS) {
                             window.EnderecoIntegrator.initAMS(prefix, config);
                             window.EnderecoIntegrator.integratedObjects[config.name + "_ams"]._changed = true;
-                        });
-                    }
-                    window.EnderecoIntegrator.integratedObjects[config.name + "_ams"].waitForAllExtension().then(
-                        function(EAO) {
-                            EAO.onEditAddress.push(function () {
-                                window.location = '#shipping';
-                            });
-
-                            EAO.onAfterAddressCheckSelected.push( function(EAO) {
-                                EAO.waitForAllPopupsToClose().then(function () {
-                                    EAO.waitUntilReady().then(function () {
-                                        /*if (window.EnderecoIntegrator && window.EnderecoIntegrator.globalSpace.reloadPage && !window.checkoutConfig.isCustomerLoggedIn) {
-                                            window.EnderecoIntegrator.globalSpace.reloadPage();
-                                        }*/
-                                    }).catch()
-                                }).catch();
+                        } else {
+                            window.EnderecoIntegrator.onLoad.push(function () {
+                                window.EnderecoIntegrator.initAMS(prefix, config);
+                                window.EnderecoIntegrator.integratedObjects[config.name + "_ams"]._changed = true;
                             });
                         }
-                    );
-                }
+                        window.EnderecoIntegrator.integratedObjects[config.name + "_ams"].waitForAllExtension().then(
+                            function(EAO) {
+                                EAO.onEditAddress.push(function () {
+                                    window.location = '#shipping';
+                                });
+
+                                EAO.onAfterAddressCheckSelected.push( function(EAO) {
+                                    EAO.waitForAllPopupsToClose().then(function () {
+                                        EAO.waitUntilReady().then(function () {
+                                        }).catch()
+                                    }).catch();
+                                });
+                            }
+                        );
+                    }
+                );
                 return;
             }
+            // TODO - Check. Callback? Fields arrived?
             if (undefined !== window.EnderecoIntegrator.initAMS) {
                 window.EnderecoIntegrator.initAMS(prefix, config);
                 window.EnderecoIntegrator.integratedObjects[config.name + "_ams"]._changed = true;

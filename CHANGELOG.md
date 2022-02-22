@@ -1,3 +1,11 @@
+#### 1.3.23 
+
+- Added billing address validation
+
+#### 1.3.22
+
+- Fixed accounting issue on switch to payment
+
 #### 1.3.20 && 1.3.21
 
 - Fixed type in jQuery selector template

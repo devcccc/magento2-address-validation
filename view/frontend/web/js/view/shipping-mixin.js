@@ -25,6 +25,10 @@ define([
         initialize: function () {
             this._super();
 
+            if (!this.dataScopePrefix) {
+                this.dataScopePrefix = 'shippingAddress';
+            }
+
             var amsPrefix = {
                 countryCode: "[name='shippingAddress."+configurationHelper.ccccGetAddressDataByFieldSelector('country_id', 'country_id')+"'] select[name]",
                 postalCode: "[name='shippingAddress."+configurationHelper.ccccGetAddressDataByFieldSelector('postCode', 'postcode')+"'] input[name]",
@@ -50,13 +54,14 @@ define([
                 enderecosdk.startAms(
                     amsPrefix,
                     {
-                        name: 'shipping_address',
+                        name: this.dataScopePrefix,
                         addressType: 'general_address'
                     }
                 );
 
+                var that = this;
                 placeOrderHooks.requestModifiers.push(function (headers, payload) {
-                    if (!window.EnderecoIntegrator || !window.EnderecoIntegrator.integratedObjects || !window.EnderecoIntegrator.integratedObjects.shipping_address_ams) {
+                    if (!window.EnderecoIntegrator || !window.EnderecoIntegrator.integratedObjects || !window.EnderecoIntegrator.integratedObjects[that.dataScopePrefix+"_ams"]) {
                         return;
                     }
 
@@ -65,84 +70,87 @@ define([
                     }
 
                     payload.paymentMethod['extension_attributes']['cccc_validation_shipping_result'] =
-                        enderecosdk.getAddressStatusAsText(window.EnderecoIntegrator.integratedObjects.shipping_address_ams._addressStatus);
+                        enderecosdk.getAddressStatusAsText(window.EnderecoIntegrator.integratedObjects[that.dataScopePrefix+"_ams"]._addressStatus);
                 });
 
-                var that = this;
                 placeOrderHooks.afterRequestListeners.push(function() {
                     if (that.ccccCheckAddress()) {
                         logger.logData(
                             "shipping-mixin/ccccContinue: Start DoAccounting for AMS."
                         );
 
-                        window.EnderecoIntegrator.integratedObjects.shipping_address_ams && window.EnderecoIntegrator.integratedObjects.shipping_address_ams.waitForAllExtension().then(function() {
-
-                            if ((!that.lastAmsAddressCheckIndex || that.lastAmsAddressCheckIndex != window.EnderecoIntegrator.integratedObjects.shipping_address_ams._addressCheckRequestIndex) &&
-                                (!that.lastAmsSessionIdUsedForAccounting || that.lastAmsSessionIdUsedForAccounting != window.EnderecoIntegrator.integratedObjects.shipping_address_ams.sessionId)) {
-                                that.lastAmsSessionIdUsedForAccounting = window.EnderecoIntegrator.integratedObjects.shipping_address_ams.sessionId;
-                                $.post(
-                                    {
-                                        url: window.EnderecoIntegrator.integratedObjects.shipping_address_ams.config.apiUrl,
-                                        data: JSON.stringify({
-                                            id: ++window.EnderecoIntegrator.integratedObjects.shipping_address_ams._addressCheckRequestIndex,
-                                            jsonrpc: '2.0',
-                                            method: 'doAccounting',
-                                            params: {sessionId: window.EnderecoIntegrator.integratedObjects.shipping_address_ams.sessionId}
-                                        }),
-                                        processData: false,
-                                        headers: {
-                                            'X-Agent': window.EnderecoIntegrator.integratedObjects.shipping_address_ams.config.agentName,
-                                            'X-Auth-Key': window.EnderecoIntegrator.integratedObjects.shipping_address_ams.apiKey,
-                                            'X-Transaction-Id': window.EnderecoIntegrator.integratedObjects.shipping_address_ams.sessionId,
-                                        },
-                                        method: 'POST',
-                                        contentType: 'application/json'
+                        window.EnderecoIntegrator.waitUntilReady().then(function() {
+                            window.EnderecoIntegrator.integratedObjects[that.dataScopePrefix+"_ams"].waitForActive().then(function() {
+                                window.EnderecoIntegrator.integratedObjects[that.dataScopePrefix+"_ams"] && window.EnderecoIntegrator.integratedObjects[that.dataScopePrefix+"_ams"].waitForAllExtension().then(function() {
+                                    if ((!that.lastAmsAddressCheckIndex || that.lastAmsAddressCheckIndex != window.EnderecoIntegrator.integratedObjects[that.dataScopePrefix+"_ams"]._addressCheckRequestIndex) &&
+                                        (!that.lastAmsSessionIdUsedForAccounting || that.lastAmsSessionIdUsedForAccounting != window.EnderecoIntegrator.integratedObjects[that.dataScopePrefix+"_ams"].sessionId)) {
+                                        $.post(
+                                            {
+                                                url: window.EnderecoIntegrator.integratedObjects[that.dataScopePrefix+"_ams"].config.apiUrl,
+                                                data: JSON.stringify({
+                                                    id: ++window.EnderecoIntegrator.integratedObjects[that.dataScopePrefix+"_ams"]._addressCheckRequestIndex,
+                                                    jsonrpc: '2.0',
+                                                    method: 'doAccounting',
+                                                    params: {sessionId: window.EnderecoIntegrator.integratedObjects[that.dataScopePrefix+"_ams"].sessionId}
+                                                }),
+                                                processData: false,
+                                                headers: {
+                                                    'X-Agent': window.EnderecoIntegrator.integratedObjects[that.dataScopePrefix+"_ams"].config.agentName,
+                                                    'X-Auth-Key': window.EnderecoIntegrator.integratedObjects[that.dataScopePrefix+"_ams"].apiKey,
+                                                    'X-Transaction-Id': window.EnderecoIntegrator.integratedObjects[that.dataScopePrefix+"_ams"].sessionId,
+                                                },
+                                                method: 'POST',
+                                                contentType: 'application/json'
+                                            }
+                                        ).success(
+                                            function(data) {
+                                                that.lastAmsSessionIdUsedForAccounting = window.EnderecoIntegrator.integratedObjects[that.dataScopePrefix+"_ams"].sessionId;
+                                                that.lastAmsAddressCheckIndex = window.EnderecoIntegrator.integratedObjects[that.dataScopePrefix+"_ams"]._addressCheckRequestIndex;
+                                                window.EnderecoIntegrator.integratedObjects[that.dataScopePrefix+"_ams"].sessionId = window.EnderecoIntegrator.integratedObjects[that.dataScopePrefix+"_ams"].util.generateId();
+                                            }
+                                        );
                                     }
-                                );
-                                that.lastAmsAddressCheckIndex = window.EnderecoIntegrator.integratedObjects.shipping_address_ams._addressCheckRequestIndex;
-                                window.EnderecoIntegrator.integratedObjects.shipping_address_ams.sessionId = window.EnderecoIntegrator.integratedObjects.shipping_address_ams.util.generateId();
-                            }
 
+                                });
+                            });
+
+                            window.checkoutConfig.cccc.addressvalidation.endereco.email_check && window.EnderecoIntegrator.integratedObjects.customer_email_emailservices.waitForActive().then( function() {
+                                if (window.checkoutConfig.cccc.addressvalidation.endereco.email_check && window.EnderecoIntegrator.integratedObjects.customer_email_emailservices && window.EnderecoIntegrator.integratedObjects.customer_email_emailservices.sessionCounter > 1
+                                    && (!that.lastEmailSessionIdUsedForAccounting || that.lastEmailSessionIdUsedForAccounting != window.EnderecoIntegrator.integratedObjects.customer_email_emailservices.sessionId)) {
+                                    $.post(
+                                        {
+                                            url: window.EnderecoIntegrator.integratedObjects.customer_email_emailservices.config.apiUrl,
+                                            data: JSON.stringify({
+                                                id: ++window.EnderecoIntegrator.integratedObjects.customer_email_emailservices._addressCheckRequestIndex,
+                                                jsonrpc: '2.0',
+                                                method: 'doAccounting',
+                                                params: { sessionId: window.EnderecoIntegrator.integratedObjects.customer_email_emailservices.sessionId}
+                                            }),
+                                            processData: false,
+                                            headers: {
+                                                'X-Agent': window.EnderecoIntegrator.integratedObjects.customer_email_emailservices.config.agentName,
+                                                'X-Auth-Key': window.EnderecoIntegrator.integratedObjects.customer_email_emailservices.apiKey,
+                                                'X-Transaction-Id': window.EnderecoIntegrator.integratedObjects.customer_email_emailservices.sessionId,
+                                            },
+                                            method: 'POST',
+                                            contentType: 'application/json'
+                                        }
+                                    ).success(
+                                        function(data) {
+                                            that.lastEmailSessionIdUsedForAccounting = window.EnderecoIntegrator.integratedObjects.customer_email_emailservices.sessionId;
+                                            window.EnderecoIntegrator.integratedObjects.customer_email_emailservices.sessionId = window.EnderecoIntegrator.integratedObjects.customer_email_emailservices.util.generateId();
+                                        }
+                                    );
+                                }
+                            });
                         });
-
-                        window.checkoutConfig.cccc.addressvalidation.endereco.email_check && window.EnderecoIntegrator.integratedObjects.customer_email_emailservices.waitForAllExtension().then( function() {
-
-                            if (window.checkoutConfig.cccc.addressvalidation.endereco.email_check && window.EnderecoIntegrator.integratedObjects.customer_email_emailservices && window.EnderecoIntegrator.integratedObjects.customer_email_emailservices.sessionCounter > 1
-                                && (!that.lastEmailSessionIdUsedForAccounting || that.lastEmailSessionIdUsedForAccounting != window.EnderecoIntegrator.integratedObjects.customer_email_emailservices.sessionId)) {
-                                that.lastEmailSessionIdUsedForAccounting = window.EnderecoIntegrator.integratedObjects.customer_email_emailservices.sessionId;
-                                $.post(
-                                    {
-                                        url: window.EnderecoIntegrator.integratedObjects.customer_email_emailservices.config.apiUrl,
-                                        data: JSON.stringify({
-                                            id: ++window.EnderecoIntegrator.integratedObjects.customer_email_emailservices._addressCheckRequestIndex,
-                                            jsonrpc: '2.0',
-                                            method: 'doAccounting',
-                                            params: { sessionId: window.EnderecoIntegrator.integratedObjects.customer_email_emailservices.sessionId}
-                                        }),
-                                        processData: false,
-                                        headers: {
-                                            'X-Agent': window.EnderecoIntegrator.integratedObjects.customer_email_emailservices.config.agentName,
-                                            'X-Auth-Key': window.EnderecoIntegrator.integratedObjects.customer_email_emailservices.apiKey,
-                                            'X-Transaction-Id': window.EnderecoIntegrator.integratedObjects.customer_email_emailservices.sessionId,
-                                        },
-                                        method: 'POST',
-                                        contentType: 'application/json'
-                                    }
-                                );
-                                window.EnderecoIntegrator.integratedObjects.customer_email_emailservices.sessionId = window.EnderecoIntegrator.integratedObjects.customer_email_emailservices.util.generateId();
-                            }
-                        });
-
-
                     }
-
-
                 });
             }
             return this;
         },
 
-        ccccUpdateAddressFromEndereco: function(sType = 'setShippingInformation', amsKey = 'shipping_address_ams') {
+        ccccUpdateAddressFromEndereco: function(sType = 'setShippingInformation', amsKey = 'shippingAddress_ams') {
             if (typeof sType == "object") {
                 sType = "setShippingInformation";
 
@@ -187,7 +195,7 @@ define([
         },
         ccccUpdateAddress: function (addressData) {
             logger.logData(
-                "shipping-mixin/ccccUpdateAddress: Doing address update => "+JSON.stringify(addressData)
+                "shipping-mixin/ccccUpdateAddress: Doing address update => " + JSON.stringify(addressData)
             );
             if (this.isFormInline) {
                 logger.logData(
@@ -196,18 +204,18 @@ define([
                 addressHelper.ccccUpdateAddressSource(addressData, this.source, 'shippingAddress');
 
                 var quoteAddress = quote.shippingAddress();
-                if(configurationHelper.isFirstnameToUppercaseEnabled()) {
+                if (configurationHelper.isFirstnameToUppercaseEnabled()) {
                     var currentFirstname = quoteAddress["firstname"].toUpperCase();
                     logger.logData(
-                        "helper/address/ccccUpdateAddressRegistered: Setting field shippingAddress.firstname to upper case => "+" => "+currentFirstname
+                        "helper/address/ccccUpdateAddressRegistered: Setting field shippingAddress.firstname to upper case => " + " => " + currentFirstname
                     );
                     quoteAddress["firstname"] = currentFirstname;
                 }
 
-                if(configurationHelper.isLastnameToUppercaseEnabled()) {
+                if (configurationHelper.isLastnameToUppercaseEnabled()) {
                     var currentLastname = quoteAddress["lastname"].toUpperCase();
                     logger.logData(
-                        "helper/address/ccccUpdateAddressRegistered: Setting field shippingAddress.lastname to upper case => "+" => "+currentLastname
+                        "helper/address/ccccUpdateAddressRegistered: Setting field shippingAddress.lastname to upper case => " + " => " + currentLastname
                     );
                     quoteAddress["lastname"] = currentLastname;
                 }
@@ -229,31 +237,69 @@ define([
                 quote.shippingAddress().firstname = this.source.shippingAddress.firstname;
                 shippingSaveProcessor.saveShippingInformation();
 
-                var billingAddress = quote.billingAddress();
-                var shippingAddress = quote.shippingAddress();
+                var that = this;
+                window.EnderecoIntegrator.waitUntilReady().then(function () {
+                    window.EnderecoIntegrator.integratedObjects[that.dataScopePrefix + "_ams"].waitForActive().then(function () {
+                        window.EnderecoIntegrator.integratedObjects[that.dataScopePrefix + "_ams"] && window.EnderecoIntegrator.integratedObjects[that.dataScopePrefix + "_ams"].waitForAllExtension().then(function () {
+                            if ((!that.lastAmsAddressCheckIndex || that.lastAmsAddressCheckIndex != window.EnderecoIntegrator.integratedObjects[that.dataScopePrefix + "_ams"]._addressCheckRequestIndex) &&
+                                (!that.lastAmsSessionIdUsedForAccounting || that.lastAmsSessionIdUsedForAccounting != window.EnderecoIntegrator.integratedObjects[that.dataScopePrefix + "_ams"].sessionId)) {
+                                $.post(
+                                    {
+                                        url: window.EnderecoIntegrator.integratedObjects[that.dataScopePrefix + "_ams"].config.apiUrl,
+                                        data: JSON.stringify({
+                                            id: ++window.EnderecoIntegrator.integratedObjects[that.dataScopePrefix + "_ams"]._addressCheckRequestIndex,
+                                            jsonrpc: '2.0',
+                                            method: 'doAccounting',
+                                            params: {sessionId: window.EnderecoIntegrator.integratedObjects[that.dataScopePrefix + "_ams"].sessionId}
+                                        }),
+                                        processData: false,
+                                        headers: {
+                                            'X-Agent': window.EnderecoIntegrator.integratedObjects[that.dataScopePrefix + "_ams"].config.agentName,
+                                            'X-Auth-Key': window.EnderecoIntegrator.integratedObjects[that.dataScopePrefix + "_ams"].apiKey,
+                                            'X-Transaction-Id': window.EnderecoIntegrator.integratedObjects[that.dataScopePrefix + "_ams"].sessionId,
+                                        },
+                                        method: 'POST',
+                                        contentType: 'application/json'
+                                    }
+                                ).success(
+                                    function (data) {
+                                        that.lastAmsSessionIdUsedForAccounting = window.EnderecoIntegrator.integratedObjects[that.dataScopePrefix + "_ams"].sessionId;
+                                        that.lastAmsAddressCheckIndex = window.EnderecoIntegrator.integratedObjects[that.dataScopePrefix + "_ams"]._addressCheckRequestIndex;
+                                        window.EnderecoIntegrator.integratedObjects[that.dataScopePrefix + "_ams"].sessionId = window.EnderecoIntegrator.integratedObjects[that.dataScopePrefix + "_ams"].util.generateId();
+                                        setTimeout(function () {
+                                            window.EnderecoIntegrator.globalSpace.reloadPage();
+                                        }, 1000);
+                                    }
+                                ).error(
+                                    function (data) {
+                                        setTimeout(function () {
+                                            window.EnderecoIntegrator.globalSpace.reloadPage();
+                                        }, 1000);
+                                    }
+                                );
+                            } else {
+                                setTimeout(function () {
+                                    window.EnderecoIntegrator.globalSpace.reloadPage();
+                                }, 1000);
+                            }
 
-                if (billingAddress.getCacheKey() == shippingAddress.getCacheKey()) {
-                 //   selectBillingAddressAction(shippingAddress);
+                        });
+                    });
+                });
+                var checkbox = jQuery("input[name=billing-address-same-as-shipping][type=checkbox]");
+                if (checkbox.length) {
+                    checkbox.click();
+                    setTimeout(
+                        function () {
+                            checkbox.click();
+                        },
+                        500
+                    );
                 }
-
+            } else {
                 setTimeout(function () {
                     window.EnderecoIntegrator.globalSpace.reloadPage();
                 }, 1000);
-            } else {
-                logger.logData(
-                    "shipping-mixin/ccccUpdateAddress: Update address book entry"
-                );
-                this.ccccUpdateAddressRegistered(addressData, this.source, 'shippingAddress');
-            }
-            var checkbox = jQuery("input[name=billing-address-same-as-shipping][type=checkbox]");
-            if (checkbox.length) {
-                checkbox.click();
-                setTimeout(
-                    function () {
-                        checkbox.click();
-                    },
-                    500
-                );
             }
         },
 
@@ -288,34 +334,32 @@ define([
                 "shipping-mixin/validateShippingInformation: Starting validation of shipping information"
             );
 
-            debugger;
-
             var quoteAddress = quote.shippingAddress();
-            if (this.ccccCheckAddress() && window.EnderecoIntegrator.integratedObjects.shipping_address_ams) {
-                if (!configurationHelper.useStreetFull() && window.EnderecoIntegrator.integratedObjects.shipping_address_ams.buildingNumber == "") {
-                    window.EnderecoIntegrator.integratedObjects.shipping_address_ams.buildingNumber = quoteAddress['street'].length>1 ? quoteAddress['street'][1] : "";
-                    window.EnderecoIntegrator.integratedObjects.shipping_address_ams._buildingNumber = quoteAddress['street'].length>1 ? quoteAddress['street'][1] : "";
+            if (this.ccccCheckAddress() && window.EnderecoIntegrator.integratedObjects[this.dataScopePrefix+"_ams"]) {
+                if (!configurationHelper.useStreetFull() && window.EnderecoIntegrator.integratedObjects[this.dataScopePrefix+"_ams"].buildingNumber == "") {
+                    window.EnderecoIntegrator.integratedObjects[this.dataScopePrefix+"_ams"].buildingNumber = quoteAddress['street'].length>1 ? quoteAddress['street'][1] : "";
+                    window.EnderecoIntegrator.integratedObjects[this.dataScopePrefix+"_ams"]._buildingNumber = quoteAddress['street'].length>1 ? quoteAddress['street'][1] : "";
                 }
 
-                if (quoteAddress['city'] == "" && window.EnderecoIntegrator.integratedObjects.shipping_address_ams.locality != "") {
-                    quoteAddress['city'] = window.EnderecoIntegrator.integratedObjects.shipping_address_ams.locality;
-                    ko.dataFor(window.EnderecoIntegrator.integratedObjects.shipping_address_ams._subscribers.locality[0].object).value(
-                        window.EnderecoIntegrator.integratedObjects.shipping_address_ams.locality
+                if (quoteAddress['city'] == "" && window.EnderecoIntegrator.integratedObjects[this.dataScopePrefix+"_ams"].locality != "") {
+                    quoteAddress['city'] = window.EnderecoIntegrator.integratedObjects[this.dataScopePrefix+"_ams"].locality;
+                    ko.dataFor(window.EnderecoIntegrator.integratedObjects[this.dataScopePrefix+"_ams"]._subscribers.locality[0].object).value(
+                        window.EnderecoIntegrator.integratedObjects[this.dataScopePrefix+"_ams"].locality
                     );
                 }
 
-                if (((typeof quoteAddress['postcode'] === "object" && !quoteAddress['postcode']) || quoteAddress['postcode'] == "") && window.EnderecoIntegrator.integratedObjects.shipping_address_ams.postalCode != "") {
-                    quoteAddress['postcode'] = window.EnderecoIntegrator.integratedObjects.shipping_address_ams.postalCode;
-                    ko.dataFor(window.EnderecoIntegrator.integratedObjects.shipping_address_ams._subscribers.postalCode[0].object).value(
-                        window.EnderecoIntegrator.integratedObjects.shipping_address_ams.postalCode
+                if (((typeof quoteAddress['postcode'] === "object" && !quoteAddress['postcode']) || quoteAddress['postcode'] == "") && window.EnderecoIntegrator.integratedObjects[this.dataScopePrefix+"_ams"].postalCode != "") {
+                    quoteAddress['postcode'] = window.EnderecoIntegrator.integratedObjects[this.dataScopePrefix+"_ams"].postalCode;
+                    ko.dataFor(window.EnderecoIntegrator.integratedObjects[this.dataScopePrefix+"_ams"]._subscribers.postalCode[0].object).value(
+                        window.EnderecoIntegrator.integratedObjects[this.dataScopePrefix+"_ams"].postalCode
                     );
                 }
 
-                if (window.EnderecoIntegrator.integratedObjects.shipping_address_ams.countryCode &&
-                    quoteAddress['countryId'] != window.EnderecoIntegrator.integratedObjects.shipping_address_ams.countryCode.toUpperCase()) {
-                    quoteAddress['countryId'] = window.EnderecoIntegrator.integratedObjects.shipping_address_ams.countryCode.toUpperCase()
-                    ko.dataFor(window.EnderecoIntegrator.integratedObjects.shipping_address_ams._subscribers.countryCode[0].object).value(
-                        window.EnderecoIntegrator.integratedObjects.shipping_address_ams.countryCode.toUpperCase()
+                if (window.EnderecoIntegrator.integratedObjects[this.dataScopePrefix+"_ams"].countryCode &&
+                    quoteAddress['countryId'] != window.EnderecoIntegrator.integratedObjects[this.dataScopePrefix+"_ams"].countryCode.toUpperCase()) {
+                    quoteAddress['countryId'] = window.EnderecoIntegrator.integratedObjects[this.dataScopePrefix+"_ams"].countryCode.toUpperCase()
+                    ko.dataFor(window.EnderecoIntegrator.integratedObjects[this.dataScopePrefix+"_ams"]._subscribers.countryCode[0].object).value(
+                        window.EnderecoIntegrator.integratedObjects[this.dataScopePrefix+"_ams"].countryCode.toUpperCase()
                     );
                 }
             }
@@ -340,25 +384,16 @@ define([
                 );
                 if (!this.isFormInline) {
 
-                    window.EnderecoIntegrator.integratedObjects.shipping_address_ams._countryCode = (quoteAddress['countryId']);
-                    window.EnderecoIntegrator.integratedObjects.shipping_address_ams._postalCode = (quoteAddress['postcode']);
-                    window.EnderecoIntegrator.integratedObjects.shipping_address_ams._locality = (quoteAddress['city']);
-/*                      $(this.fieldSelectors.countryCode).val(quoteAddress['countryId']).change();
-                    $(this.fieldSelectors.postalCode).val(quoteAddress['postcode']).change();
-                    $(this.fieldSelectors.locality).val(quoteAddress['city']).change();
-*/
+                    window.EnderecoIntegrator.integratedObjects[this.dataScopePrefix+"_ams"]._countryCode = (quoteAddress['countryId']);
+                    window.EnderecoIntegrator.integratedObjects[this.dataScopePrefix+"_ams"]._postalCode = (quoteAddress['postcode']);
+                    window.EnderecoIntegrator.integratedObjects[this.dataScopePrefix+"_ams"]._locality = (quoteAddress['city']);
+
                     if (configurationHelper.useStreetFull()) {
-                        window.EnderecoIntegrator.integratedObjects.shipping_address_ams._streetFull =quoteAddress['street'][0] + (quoteAddress['street'].length>1 ? " "+quoteAddress['street'][1]:"");
-                        //$(this.fieldSelectors.streetFull).val(quoteAddress['street'][0] + (quoteAddress['street'].length>1 ? " "+quoteAddress['street'][1]:"")).change();
-
-                        promise = window.EnderecoIntegrator.integratedObjects.shipping_address_ams.util.splitStreet();
-
-
+                        window.EnderecoIntegrator.integratedObjects[this.dataScopePrefix+"_ams"]._streetFull =quoteAddress['street'][0] + (quoteAddress['street'].length>1 ? " "+quoteAddress['street'][1]:"");
+                        promise = window.EnderecoIntegrator.integratedObjects[this.dataScopePrefix+"_ams"].util.splitStreet();
                     } else {
-                        window.EnderecoIntegrator.integratedObjects.shipping_address_ams._buildingNumber = (quoteAddress['street'].length>1 ? quoteAddress['street'][1]:"");
-                        window.EnderecoIntegrator.integratedObjects.shipping_address_ams._streetName = quoteAddress['street'][0];
-//                            $(this.fieldSelectors.streetName).val(quoteAddress['street'][0]).change();
-//                            $(this.fieldSelectors.buildingNumber).val((quoteAddress['street'].length>1 ? quoteAddress['street'][1]:"")).change();
+                        window.EnderecoIntegrator.integratedObjects[this.dataScopePrefix+"_ams"]._buildingNumber = (quoteAddress['street'].length>1 ? quoteAddress['street'][1]:"");
+                        window.EnderecoIntegrator.integratedObjects[this.dataScopePrefix+"_ams"]._streetName = quoteAddress['street'][0];
                     }
                     logger.logData(
                         "shipping-mixin/validateShippingInformation: Transferred data from address book to inline form: "
@@ -373,21 +408,21 @@ define([
                     "shipping-mixin/validateShippingInformation: setShippingInformation will called directly after address check"
                 );
 
-                window.EnderecoIntegrator.integratedObjects.shipping_address_ams._changed = true;
+                window.EnderecoIntegrator.integratedObjects[this.dataScopePrefix+"_ams"]._changed = true;
 
                 if (window.EnderecoIntegrator.submitResume==undefined) {
                     window.EnderecoIntegrator.submitResume = this.ccccUpdateAddressFromEndereco.bind(this);
                 }
-                if (window.EnderecoIntegrator.integratedObjects.shipping_address_ams.onConfirmAddress ==undefined) {
-                    window.EnderecoIntegrator.integratedObjects.shipping_address_ams.onConfirmAddress.push(this.ccccUpdateAddressFromEndereco.bind(this));
+                if (window.EnderecoIntegrator.integratedObjects[this.dataScopePrefix+"_ams"].onConfirmAddress ==undefined) {
+                    window.EnderecoIntegrator.integratedObjects[this.dataScopePrefix+"_ams"].onConfirmAddress.push(this.ccccUpdateAddressFromEndereco.bind(this));
                 }
-                if (window.EnderecoIntegrator.integratedObjects.shipping_address_ams.onAfterAddressCheckNoAction==undefined) {
-                    window.EnderecoIntegrator.integratedObjects.shipping_address_ams.onAfterAddressCheckNoAction.push(this.ccccUpdateAddressFromEndereco.bind(this));
+                if (window.EnderecoIntegrator.integratedObjects[this.dataScopePrefix+"_ams"].onAfterAddressCheckNoAction==undefined) {
+                    window.EnderecoIntegrator.integratedObjects[this.dataScopePrefix+"_ams"].onAfterAddressCheckNoAction.push(this.ccccUpdateAddressFromEndereco.bind(this));
                 }
 
                 var self = this;
                 if (!promise) {
-                    window.EnderecoIntegrator.integratedObjects.shipping_address_ams.cb.onFormSubmit(new Event('check'));
+                    window.EnderecoIntegrator.integratedObjects[this.dataScopePrefix+"_ams"].cb.onFormSubmit(new Event('check'));
 
                     this.checkInProgress = true;
                     setTimeout(
@@ -400,14 +435,14 @@ define([
                 } else {
                     promise.then(
                         function(data) {
-                            window.EnderecoIntegrator.integratedObjects.shipping_address_ams._buildingNumber = data.houseNumber;
-                            window.EnderecoIntegrator.integratedObjects.shipping_address_ams._streetName = data.streetName;
+                            window.EnderecoIntegrator.integratedObjects[self.dataScopePrefix+"_ams"]._buildingNumber = data.houseNumber;
+                            window.EnderecoIntegrator.integratedObjects[self.dataScopePrefix+"_ams"]._streetName = data.streetName;
                         }
                     ).finally(
                         function() {
                             setTimeout(
                                 function() {
-                                    window.EnderecoIntegrator.integratedObjects.shipping_address_ams.cb.onFormSubmit(new Event('check'));
+                                    window.EnderecoIntegrator.integratedObjects[self.dataScopePrefix+"_ams"].cb.onFormSubmit(new Event('check'));
                                     self.checkInProgress = true;
                                     setTimeout(
                                         function () {
