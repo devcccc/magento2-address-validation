@@ -221,6 +221,43 @@ define([
                 }
                 selectShippingAddressAction(quoteAddress);
 
+
+
+                const arrChanged = (a, b) => {
+                    for(let i = 0; i < a.length; i++) {
+                        if(a[i] !== b[i]) {
+                            return true;
+                        }
+                    }
+                    return false;
+                }
+
+                var reload = false;
+
+                var cityChanged, countryIdChanged, postCodeChanged, streetChanged;
+                //if address changed
+                if (
+                    (cityChanged = (quote.shippingAddress().city !== this.source.shippingAddress.city)) ||
+                    (countryIdChanged = (quote.shippingAddress().countryId !== this.source.shippingAddress.country_id)) ||
+                    (postCodeChanged = (quote.shippingAddress().postcode !== this.source.shippingAddress.postcode)) ||
+                    (streetChanged = arrChanged(quote.shippingAddress().street, this.source.shippingAddress.street))
+                ) {
+                    logger.logData('CCCC_Address_Validation: Address changed, reload necessary');
+                    reload = true;
+                } else {
+                    logger.logData('CCCC_Address_Validation: Address NOT changed, reload NOT necessary');
+                }
+
+
+                logger.logData(
+                    'City Changed: ' + cityChanged + "\n" +
+                    'Country ID Changed: ' + countryIdChanged + "\n" +
+                    'Post Code Changed: ' + postCodeChanged + "\n" +
+                    'Street Changed: ' + streetChanged + "\n"
+                );
+
+
+
                 quote.shippingAddress().city = this.source.shippingAddress.city;
                 quote.shippingAddress().countryId = this.source.shippingAddress.country_id;
                 quote.shippingAddress().postcode = this.source.shippingAddress.postcode;
@@ -266,9 +303,12 @@ define([
                                         that.lastAmsSessionIdUsedForAccounting = window.EnderecoIntegrator.integratedObjects[that.dataScopePrefix + "_ams"].sessionId;
                                         that.lastAmsAddressCheckIndex = window.EnderecoIntegrator.integratedObjects[that.dataScopePrefix + "_ams"]._addressCheckRequestIndex;
                                         window.EnderecoIntegrator.integratedObjects[that.dataScopePrefix + "_ams"].sessionId = window.EnderecoIntegrator.integratedObjects[that.dataScopePrefix + "_ams"].util.generateId();
-                                        setTimeout(function () {
-                                            window.EnderecoIntegrator.globalSpace.reloadPage();
-                                        }, 1000);
+                                        if(reload){
+                                            setTimeout(function () {
+                                                window.EnderecoIntegrator.globalSpace.reloadPage();
+                                            }, 1000);
+                                        }
+
                                     }
                                 ).error(
                                     function (data) {
@@ -278,9 +318,11 @@ define([
                                     }
                                 );
                             } else {
-                                setTimeout(function () {
-                                    window.EnderecoIntegrator.globalSpace.reloadPage();
-                                }, 1000);
+                                if(reload){
+                                    setTimeout(function () {
+                                        window.EnderecoIntegrator.globalSpace.reloadPage();
+                                    }, 1000);
+                                }
                             }
 
                         });
@@ -297,9 +339,11 @@ define([
                     );
                 }
             } else {
-                setTimeout(function () {
-                    window.EnderecoIntegrator.globalSpace.reloadPage();
-                }, 1000);
+
+                    setTimeout(function () {
+                        window.EnderecoIntegrator.globalSpace.reloadPage();
+                    }, 1000);
+
             }
         },
 
