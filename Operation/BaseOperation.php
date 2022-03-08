@@ -18,6 +18,7 @@ use Magento\Framework\Locale\Resolver;
 use Magento\Framework\App\ProductMetadataInterface;
 use Magento\Framework\View\DesignInterface;
 use Magento\Framework\Module\ModuleListInterface;
+use Magento\Store\Model\ScopeInterface;
 use Psr\Log\LoggerInterface;
 use Magento\Framework\Serialize\SerializerInterface;
 
@@ -96,7 +97,7 @@ class BaseOperation
     protected function getRequestHeaders() {
         $headers = [
             'Content-Type: application/json',
-            'X-Auth-Key: ' . $this->config->getValue($this->configPrefix . '/connection/authkey'),
+            'X-Auth-Key: ' . $this->config->getValue($this->configPrefix . '/connection/authkey',ScopeInterface::SCOPE_STORE),
             'X-Transaction-Referer: ' . $this->referer,
             'X-Transaction-Id: ' .  $this->request->getHeader('x-transaction-id'),
             'X-Agent: '. 'Magento:'.$this->magentoVersion.', Theme: '.$this->themeCode.', '.self::MODULE_NAME.': '.$this->moduleVersion
@@ -113,7 +114,7 @@ class BaseOperation
     }
 
     protected function doApiRequest(array $requestDataCompiled) {
-        $url = $this->config->getValue($this->configPrefix . '/connection/baseurl');
+        $url = $this->config->getValue($this->configPrefix . '/connection/baseurl', ScopeInterface::SCOPE_STORE);
         $ch = curl_init($url);
 
         $headers = $this->getRequestHeaders();
