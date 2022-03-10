@@ -36,7 +36,7 @@ define([
                 return;
             }
 
-            if (!this.amsInitialized && !configurationHelper.isAddressValidationEnabled()) {
+            if (!this.amsInitialized && !configurationHelper.isAddressValidationEnabledBilling()) {
                 this.amsInitialized = true;
                 return;
             }
@@ -62,7 +62,7 @@ define([
                 delete amsPrefix.streetFull;
             }
 
-            if (configurationHelper.isAddressValidationEnabled()) {
+            if (configurationHelper.isAddressValidationEnabledBilling()) {
                 enderecosdk.startAms(
                     amsPrefix,
                     {
@@ -146,7 +146,7 @@ define([
         },
 
         updateAddress: function () {
-            if (!configurationHelper.isAddressValidationEnabled() || !this.isAddressFormVisible()) {
+            if (!configurationHelper.isAddressValidationEnabledBilling() || !this.isAddressFormVisible()) {
                 return this._super();
             }
 
@@ -166,13 +166,44 @@ define([
                 );
                 window.EnderecoIntegrator.integratedObjects[this.dataScopePrefix+"_ams"]._changed = true;
 
-                window.EnderecoIntegrator.integratedObjects[this.dataScopePrefix+"_ams"].cb.onFormSubmit(new Event('check'));
-                setTimeout(
-                    function () {
-                        delete self.checkInProgress;
-                    },
-                    2000
-                );
+                var promise;
+                if (configurationHelper.useStreetFull()) {
+                    promise = window.EnderecoIntegrator.integratedObjects[this.dataScopePrefix+"_ams"].util.splitStreet();
+                }
+
+                if (!promise) {
+                    window.EnderecoIntegrator.integratedObjects[this.dataScopePrefix + "_ams"].cb.onFormSubmit(new Event('check'));
+                    setTimeout(
+                        function () {
+                            delete self.checkInProgress;
+                        },
+                        2000
+                    );
+                } else {
+                    var self = this;
+                    promise.then(
+                        function(data) {
+                            window.EnderecoIntegrator.integratedObjects[self.dataScopePrefix+"_ams"]._buildingNumber = data.houseNumber;
+                            window.EnderecoIntegrator.integratedObjects[self.dataScopePrefix+"_ams"]._streetName = data.streetName;
+                        }
+                    ).finally(
+                        function() {
+                            setTimeout(
+                                function() {
+                                    window.EnderecoIntegrator.integratedObjects[self.dataScopePrefix+"_ams"].cb.onFormSubmit(new Event('check'));
+
+                                    setTimeout(
+                                        function () {
+                                            delete self.checkInProgress;
+                                        },
+                                        2000
+                                    )
+                                },
+                                3000
+                            );
+                        }
+                    );
+                }
             }
         },
 

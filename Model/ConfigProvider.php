@@ -68,6 +68,7 @@ class ConfigProvider implements ConfigProviderInterface
                 'use_autocomplete' => $this->scopeConfig->getValue($this->configPrefix . '/development/use_autocomplete', 'store') == 1,
                 'check' => [
                     'shipping_enabled' => $this->scopeConfig->getValue($this->configPrefix . '/integration/frontend_checkout_shipping', 'store') == 1,
+                    'billing_enabled' => $this->scopeConfig->getValue($this->configPrefix . '/integration/frontend_checkout_billing', 'store') == 1,
                     'customer_addressbook_enabled' => $this->scopeConfig->getValue($this->configPrefix . '/integration/customer_addressbook', 'store') == 1
                 ],
                 'mapping' => [

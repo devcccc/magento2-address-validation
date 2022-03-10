@@ -14,6 +14,10 @@ define([
             return this.isModuleEnabled() && window.checkoutConfig.cccc.addressvalidation.endereco.check.shipping_enabled;
         },
 
+        isAddressValidationEnabledBilling: function() {
+            return this.isModuleEnabled() && window.checkoutConfig.cccc.addressvalidation.endereco.check.billing_enabled;
+        },
+
         getCountryId: function() {
             return window.checkoutConfig.cccc.addressvalidation.endereco.countryId;
         },
