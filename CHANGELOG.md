@@ -1,6 +1,6 @@
 #### 1.3.23 
 
-- Added billing address validation
+- Fixed issue when using shipping address as billing address: Billing address got empty sometimes due to an format error on street data
 
 #### 1.3.22
 
