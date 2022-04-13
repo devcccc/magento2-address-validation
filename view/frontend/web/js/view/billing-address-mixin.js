@@ -102,7 +102,6 @@ define([
                                             that.lastAmsSessionIdUsedForAccounting = window.EnderecoIntegrator.integratedObjects[that.dataScopePrefix+"_ams"].sessionId;
                                             that.lastAmsAddressCheckIndex = window.EnderecoIntegrator.integratedObjects[that.dataScopePrefix+"_ams"]._addressCheckRequestIndex;
                                             window.EnderecoIntegrator.integratedObjects[that.dataScopePrefix+"_ams"].sessionId = window.EnderecoIntegrator.integratedObjects[that.dataScopePrefix+"_ams"].util.generateId();
-                                            debugger;
                                         }
                                     );
                                 }
@@ -114,6 +113,23 @@ define([
                 // TODO: Accounting billing address
             }
             this.amsInitialized = true;
+
+            window.EnderecoIntegrator.integratedObjects[that.dataScopePrefix+"_ams"].addEventListener(
+                'change',
+                function(event) {
+                    if (event.fieldName == "postalCode") {
+                        var data = ko.dataFor(jQuery("[name='"+that.dataScopePrefix+"."+configurationHelper.ccccGetAddressDataByFieldSelector('postCode', 'postcode')+"'] input[name]").first()[0]);
+                        if (data.value() != event.newValue) {
+                            data.value(event.newValue);
+                        }
+                    } else if (event.fieldName == "locality") {
+                        var data = ko.dataFor(jQuery("[name='"+that.dataScopePrefix+"."+configurationHelper.ccccGetAddressDataByFieldSelector('cityName', 'city')+"'] input[name]").first()[0]);
+                        if (data.value() != event.newValue) {
+                            data.value(event.newValue);
+                        }
+                    }
+                }
+            );
         },
 
         initEvents: function() {
@@ -212,7 +228,6 @@ define([
 
             if (!this.source.get('params.invalid')) {
                 addressData = this.source.get(this.dataScopePrefix);
-                debugger;
 
                 var loggedIn = customer.isLoggedIn();
                 var hasAdress = this.customerHasAddresses;

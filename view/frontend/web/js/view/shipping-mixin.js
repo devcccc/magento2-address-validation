@@ -269,12 +269,12 @@ define([
                 }
 
 
-                quote.shippingAddress().street = this.source.shippingAddress.street;
+//                quote.shippingAddress().street = this.source.shippingAddress.street;
                 quote.shippingAddress().lastname = this.source.shippingAddress.lastname;
                 quote.shippingAddress().firstname = this.source.shippingAddress.firstname;
                 shippingSaveProcessor.saveShippingInformation();
 
-                var that = this;
+                /*var that = this;
                 window.EnderecoIntegrator.waitUntilReady().then(function () {
                     window.EnderecoIntegrator.integratedObjects[that.dataScopePrefix + "_ams"].waitForActive().then(function () {
                         window.EnderecoIntegrator.integratedObjects[that.dataScopePrefix + "_ams"] && window.EnderecoIntegrator.integratedObjects[that.dataScopePrefix + "_ams"].waitForAllExtension().then(function () {
@@ -327,17 +327,17 @@ define([
 
                         });
                     });
-                });
-                var checkbox = jQuery("input[name=billing-address-same-as-shipping][type=checkbox]");
+                });*/
+                /*var checkbox = jQuery("input[name=billing-address-same-as-shipping][type=checkbox]");
                 if (checkbox.length) {
                     checkbox.click();
                     setTimeout(
                         function () {
                             checkbox.click();
                         },
-                        500
+                        1000
                     );
-                }
+                }*/
             } else {
 
                     setTimeout(function () {
@@ -379,7 +379,7 @@ define([
             );
 
             var quoteAddress = quote.shippingAddress();
-            if (this.ccccCheckAddress() && window.EnderecoIntegrator.integratedObjects[this.dataScopePrefix+"_ams"]) {
+            if (this.isFormInline && this.ccccCheckAddress() && window.EnderecoIntegrator.integratedObjects[this.dataScopePrefix+"_ams"]) {
                 if (!configurationHelper.useStreetFull() && window.EnderecoIntegrator.integratedObjects[this.dataScopePrefix+"_ams"].buildingNumber == "") {
                     window.EnderecoIntegrator.integratedObjects[this.dataScopePrefix+"_ams"].buildingNumber = quoteAddress['street'].length>1 ? quoteAddress['street'][1] : "";
                     window.EnderecoIntegrator.integratedObjects[this.dataScopePrefix+"_ams"]._buildingNumber = quoteAddress['street'].length>1 ? quoteAddress['street'][1] : "";
@@ -396,14 +396,6 @@ define([
                     quoteAddress['postcode'] = window.EnderecoIntegrator.integratedObjects[this.dataScopePrefix+"_ams"].postalCode;
                     ko.dataFor(window.EnderecoIntegrator.integratedObjects[this.dataScopePrefix+"_ams"]._subscribers.postalCode[0].object).value(
                         window.EnderecoIntegrator.integratedObjects[this.dataScopePrefix+"_ams"].postalCode
-                    );
-                }
-
-                if (window.EnderecoIntegrator.integratedObjects[this.dataScopePrefix+"_ams"].countryCode &&
-                    quoteAddress['countryId'] != window.EnderecoIntegrator.integratedObjects[this.dataScopePrefix+"_ams"].countryCode.toUpperCase()) {
-                    quoteAddress['countryId'] = window.EnderecoIntegrator.integratedObjects[this.dataScopePrefix+"_ams"].countryCode.toUpperCase()
-                    ko.dataFor(window.EnderecoIntegrator.integratedObjects[this.dataScopePrefix+"_ams"]._subscribers.countryCode[0].object).value(
-                        window.EnderecoIntegrator.integratedObjects[this.dataScopePrefix+"_ams"].countryCode.toUpperCase()
                     );
                 }
             }
