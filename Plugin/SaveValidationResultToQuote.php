@@ -33,7 +33,7 @@ class SaveValidationResultToQuote
         \Magento\Quote\Api\Data\AddressInterface $billingAddress = null) {
 
         if (!$this->configProvider->isEnabled()) {
-            return;
+            return $result;
         }
 
         /** @var Order $order */
@@ -46,6 +46,7 @@ class SaveValidationResultToQuote
             );
             $this->orderRepository->save($order);
         }
+        return $result;
     }
 
 

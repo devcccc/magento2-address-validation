@@ -1,3 +1,7 @@
+#### 1.3.24
+
+- Fixed issue when saving quote and validation is not enabled for current store view
+
 #### 1.3.23 
 
 - Fixed issue when using shipping address as billing address: Billing address got empty sometimes due to an format error on street data
