@@ -70,8 +70,16 @@ define([
             window.EnderecoIntegrator.defaultCountry = window.checkoutConfig.cccc.addressvalidation.endereco.countryId;
             window.EnderecoIntegrator.defaultCountrySelect = true;
             window.EnderecoIntegrator.themeName = 'm2-addressvalidation';
-            window.EnderecoIntegrator.config.agentName = "Magento 2 Address Validation";
-            window.EnderecoIntegrator.config.apiUrl = window.checkoutConfig.cccc.addressvalidation.endereco.baseUrl;
+            window.EnderecoIntegrator.config.agentName = window.checkoutConfig.cccc.addressvalidation.endereco.agentName;
+            window.EnderecoIntegrator.config.apiUrl =  window.checkoutConfig.cccc.addressvalidation.endereco.directRequests
+                ? window.checkoutConfig.cccc.addressvalidation.endereco.apiUrl.direct
+                : window.checkoutConfig.cccc.addressvalidation.endereco.apiUrl.proxy;
+            window.EnderecoIntegrator.config.remoteApiUrl = window.checkoutConfig.cccc.addressvalidation.endereco.directRequests
+                ? window.checkoutConfig.cccc.addressvalidation.endereco.serverApiUrl
+                : null;
+            window.EnderecoIntegrator.config.apiKey = window.checkoutConfig.cccc.addressvalidation.endereco.directRequests
+                ? window.checkoutConfig.cccc.addressvalidation.endereco.apiKey
+                : null;
             window.EnderecoIntegrator.config.showDebugInfo = false;
             window.EnderecoIntegrator.config.trigger.onblur = false;
             window.EnderecoIntegrator.config.trigger.onsubmit = true;

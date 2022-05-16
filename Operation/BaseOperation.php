@@ -81,19 +81,6 @@ class BaseOperation
         $this->request = $request;
     }
 
-    protected function getBaseRequestData(string $methodName, bool $paramsRequired = false) : array {
-        $data = [
-            'jsonrpc' => '2.0',
-            'method' => $methodName,
-        ];
-
-        if ($paramsRequired) {
-            $data['params'] = [];
-        }
-
-        return $data;
-    }
-
     protected function getRequestHeaders() {
         $headers = [
             'Content-Type: application/json',
@@ -121,6 +108,7 @@ class BaseOperation
         curl_setopt_array(
             $ch,
             [
+                CURLOPT_TCP_FASTOPEN => true,
                 CURLOPT_SSL_VERIFYHOST => 0,
                 CURLOPT_RETURNTRANSFER => true,
                 CURLOPT_POST => true,

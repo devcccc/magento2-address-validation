@@ -29,6 +29,13 @@
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                 </field>
 
+                <field id="directrequests" translate="label" type="select" sortOrder="15" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <label>Use direct requests</label>
+                    <comment>Use pass-through-requests between Browser and Shop-Backend, do not use the Magento-routing. Extended Webserver
+                    configuration is required.</comment>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                </field>
+
                 <field id="baseurl" translate="label comment" type="text" sortOrder="20" showInDefault="1" showInWebsite="1"
                        showInStore="0">
                     <label>API Endpoint</label>
