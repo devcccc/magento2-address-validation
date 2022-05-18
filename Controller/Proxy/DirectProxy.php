@@ -5,8 +5,10 @@ $apiUrl = $requestHeaders['X-Remote-Api-Url'];
 $content = file_get_contents('php://input');
 
 $keysToRemove = [
+    'X-Auth-Key',
     'x-auth-key',
     'x-remote-api-url',
+    'X-Remote-Api-Url',
     'Content-Type',
     'Content-Length',
 ];

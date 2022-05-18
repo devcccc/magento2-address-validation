@@ -287,6 +287,12 @@ define([
                         );
                     }
                 );
+
+                if (config.callbacks) {
+                    config.callbacks.forEach(function(callback) {
+                        window.amsCallback.push(callback);
+                    });
+                }
                 return;
             }
             // TODO - Check. Callback? Fields arrived?

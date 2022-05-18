@@ -214,7 +214,6 @@ define([
         },
 
         ccccReplaceInSelectedAddress: function (sReplace, sReplaceWith, selectedItemSelector) {
-            var oElem = $('.shipping-address-item.selected-item');
             var oElem = $(selectedItemSelector);
             logger.logData(
                 "shipping-mixin/ccccReplaceInSelectedAddress: Replacing "+sReplace+" => "+sReplaceWith
