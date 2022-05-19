@@ -62,6 +62,7 @@ define([
                                         window.EnderecoIntegrator.submitResume = this.ccccUpdateAddressFromEndereco.bind(this);
                                         EAO.onConfirmAddress.push(this.ccccUpdateAddressFromEndereco.bind(this));
                                         EAO.onAfterAddressCheckNoAction.push(this.ccccUpdateAddressFromEndereco.bind(this));
+                                        EAO.onAfterAddressCheckSelected.push(this.ccccUpdateAddressFromEndereco.bind(this));
                                     }.bind(this)
                                 );
 
