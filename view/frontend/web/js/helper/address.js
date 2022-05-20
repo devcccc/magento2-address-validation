@@ -60,6 +60,9 @@ define([
 
             var firstnameConversion = configurationHelper.getFirstnameConversion();
             var currentFirstname = addressData.firstname;
+            if (!currentFirstname) {
+                currentFirstname = source.get('shippingAddress.firstname');
+            }
             if (configurationHelper.isUpperCaseConversion(firstnameConversion)) {
                 currentFirstname = currentFirstname.toUpperCase();
                 logger.logData(
@@ -80,6 +83,9 @@ define([
 
             var lastnameConversion = configurationHelper.getLastnameConversion();
             var currentLastname = addressData.lastname;
+            if (!currentLastname) {
+                currentLastname = source.get('shippingAddress.lastname');
+            }
             if (configurationHelper.isUpperCaseConversion(lastnameConversion)) {
                 currentLastname = currentLastname.toUpperCase();
                 logger.logData(

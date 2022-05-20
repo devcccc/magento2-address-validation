@@ -1,3 +1,7 @@
+#### 2.0.7 
+
+- Firstname and lastname got removed on guest checkout after validation
+
 #### 2.0.6 
 
 - Several smaller bug fixes
