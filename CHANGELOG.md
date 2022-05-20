@@ -1,3 +1,11 @@
+#### 2.0.6 
+
+- Several smaller bug fixes
+
+#### 2.0.0
+
+- Implemented direct requests to bypass Magento Routing for requests to the Endereco backend, this speeds up the requests. To use direct requests you must enable the "Direct requests" in the settings AND further webserver configuration is required - see README.md
+
 #### 1.3.24
 
 - Fixed issue when saving quote and validation is not enabled for current store view
