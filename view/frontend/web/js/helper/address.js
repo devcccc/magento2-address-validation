@@ -5,7 +5,8 @@ define([
     'CCCC_Addressvalidation/js/helper/logger',
     'CCCC_Addressvalidation/js/helper/configuration',
     'CCCC_Addressvalidation/js/operation/edit-address',
-], function ($, logger, configurationHelper, editAddress) {
+    'Magento_Checkout/js/action/create-shipping-address'
+], function ($, logger, configurationHelper, editAddress, createShippingAddress) {
     'use strict';
 
     return {
@@ -15,6 +16,7 @@ define([
                 +configurationHelper.ccccGetAddressDataByFieldSelector('postCode', 'postcode')+" => "
                 +addressData.postCode
             );
+
             source.set(contextPrefix +"."+ configurationHelper.ccccGetAddressDataByFieldSelector('postCode', 'postcode'), addressData.postCode);
             logger.logData(
                 "helper/address/ccccUpdateAddressSource: Setting field "+source+"."
@@ -106,11 +108,40 @@ define([
         },
 
         ccccUpdateAddressRegistered: function (addressData, quoteAddress, selectedItemSelector, source, context) {
+
+            var transformedData = {
+                city: addressData.city,
+                country_id: addressData.countryId,
+                firstname: quoteAddress.firstname,
+                lastname: quoteAddress.lastname,
+                postcode: addressData.postCode,
+                prefix: null, //quoteAddress.prefix,
+                region: quoteAddress.region,
+                region_id: quoteAddress.regionId,
+                save_in_address_book: quoteAddress.saveInAddressBook,
+                street: {}
+            };
+
+            if (configurationHelper.useStreetFull) {
+                transformedData.street = {
+                    0: (addressData.street + ' ' + addressData.houseNumber).trim(),
+                    1: ''
+                }
+            } else {
+                transformedData.street = {
+                    0: addressData.street,
+                    1: addressData.houseNumber
+                }
+            }
+
+            createShippingAddress(transformedData);
+
             logger.logData(
                 "helper/address/ccccUpdateAddressRegistered: Setting field "
                 +configurationHelper.ccccGetAddressDataByFieldSelector('postCode', 'postcode')+" => "
                 +addressData.postCode
             );
+
             quoteAddress = this.ccccUpdateField(quoteAddress, addressData.postCode, configurationHelper.ccccGetAddressDataByFieldSelector('postCode', 'postcode'), selectedItemSelector);
             logger.logData(
                 "helper/address/ccccUpdateAddressRegistered: Setting field "
@@ -139,13 +170,8 @@ define([
                 );
                 quoteAddress = this.ccccUpdateField(quoteAddress, addressData.street + " " + addressData.houseNumber, configurationHelper.ccccGetAddressDataByFieldSelector('street', 'street[0]'), selectedItemSelector);
             }
-            logger.logData(
-                "helper/address/ccccUpdateAddressRegistered: Setting field region_id => (null)"
-            );
+
             quoteAddress = this.ccccUpdateField(quoteAddress, null, "region_id", selectedItemSelector);
-            logger.logData(
-                "helper/address/ccccUpdateAddressRegistered: Setting field region => (null)"
-            );
             quoteAddress = this.ccccUpdateField(quoteAddress, null, "region", selectedItemSelector);
 
             logger.logData(
@@ -177,6 +203,7 @@ define([
             logger.logData(
                 "helper/address/ccccUpdateAddressRegistered: Set new selected shipping address "+JSON.stringify(quoteAddress)
             );
+
             editAddress(quoteAddress);
             return quoteAddress;
         },
@@ -196,7 +223,6 @@ define([
                     logger.logData(
                         "helper/address/ccccUpdateField: Multidimensional field, data changed "+oSourceAddress[matches[1]][matches[2]]+"  => "+oResponseData
                     );
-                    this.ccccReplaceInSelectedAddress(oSourceAddress[matches[1]][matches[2]], oResponseData, selectedItemSelector);
                     logger.logData(
                         "helper/address/ccccUpdateField: Multidimensional field => new value: "+oResponseData
                     );
@@ -211,28 +237,10 @@ define([
                         "helper/address/ccccUpdateField: Simple field, data changed "+oSourceAddress[sField]+"  => "+oResponseData
                         +" - set new value"
                     );
-                    this.ccccReplaceInSelectedAddress(oSourceAddress[sField], oResponseData, selectedItemSelector);
                     oSourceAddress[sField] = oResponseData;
                 }
             }
             return oSourceAddress;
-        },
-
-        ccccReplaceInSelectedAddress: function (sReplace, sReplaceWith, selectedItemSelector) {
-            var oElem = $(selectedItemSelector);
-            logger.logData(
-                "shipping-mixin/ccccReplaceInSelectedAddress: Replacing "+sReplace+" => "+sReplaceWith
-            );
-            if (oElem.length > 0) {
-                logger.logData(
-                    "shipping-mixin/ccccReplaceInSelectedAddress: Replacing "+sReplace+" => "+sReplaceWith+" within element-html "+oElem.html()
-                );
-                oElem.html(oElem.html().replace(sReplace, sReplaceWith));
-            } else {
-                logger.logData(
-                    "shipping-mixin/ccccReplaceInSelectedAddress: No selected shipping address item found, skipping "
-                );
-            }
-        },
+        }
     };
 });

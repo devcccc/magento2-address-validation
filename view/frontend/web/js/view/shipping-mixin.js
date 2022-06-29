@@ -214,13 +214,14 @@ define([
 
         ccccUpdateAddressRegistered: function (addressData, source, context) {
             var newShippingAddress = addressHelper.ccccUpdateAddressRegistered(addressData, quote.shippingAddress(), '.shipping-address-item.selected-item', source, context);
+            return;
 
-            selectShippingAddressAction(newShippingAddress);
-            checkoutData.setSelectedShippingAddress(newShippingAddress.getKey());
+            //selectShippingAddressAction(newShippingAddress);
+            //checkoutData.setSelectedShippingAddress(newShippingAddress.getKey());
             if (quote.shippingAddress().getCacheKey() === quote.billingAddress().getCacheKey()) {
                 quote.billingAddress(newShippingAddress);
             }
-            shippingSaveProcessor.saveShippingInformation();
+            //shippingSaveProcessor.saveShippingInformation();
             logger.logData(
                 "shipping-mixin/ccccUpdateAddressRegistered: Select shipping  alithin checkout by key  "+newShippingAddress.getKey()
             );

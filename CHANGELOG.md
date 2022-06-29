@@ -1,3 +1,7 @@
+#### 2.0.8
+
+- An new address book could not be edited after a address correction was made within checkout (the "Edit"-button doesn't work)
+
 #### 2.0.7 
 
 - Firstname and lastname got removed on guest checkout after validation
