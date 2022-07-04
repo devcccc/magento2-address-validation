@@ -273,9 +273,11 @@ define([
                         }
                         window.EnderecoIntegrator.integratedObjects[config.name + "_ams"].waitForAllExtension().then(
                             function(EAO) {
-                                EAO.onEditAddress.push(function () {
-                                    window.location = '#shipping';
-                                });
+                                if (!EAO.fullName.startsWith("billingAddress")) {
+                                    EAO.onEditAddress.push(function () {
+                                        window.location = '#shipping';
+                                    });
+                                }
 
                                 EAO.onAfterAddressCheckSelected.push( function(EAO) {
                                     EAO.waitForAllPopupsToClose().then(function () {
@@ -308,9 +310,11 @@ define([
 
             window.EnderecoIntegrator.integratedObjects[config.name + "_ams"].waitForAllExtension().then(
                 function(EAO) {
-                    EAO.onEditAddress.push(function () {
-                        window.location = '#shipping';
-                    });
+                    if (!EAO.fullName.startsWith("billingAddress")) {
+                        EAO.onEditAddress.push(function () {
+                            window.location = '#shipping';
+                        });
+                    }
                 }
             );
         },

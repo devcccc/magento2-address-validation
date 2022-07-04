@@ -232,6 +232,8 @@ define([
 
         },
         ccccContinue: function (sType) {
+            var ctx = ko.contextFor(jQuery('.new-address-popup button')[0]);
+
             if (sType == 'saveNewAddress') {
                 logger.logData(
                     "shipping-mixin/ccccContinue: Setting address as checked and save it as new address"
@@ -239,6 +241,7 @@ define([
                 this.source.set('cccc_address_checked', true);
                 this.saveNewAddress();
             } else if (sType == 'setShippingInformation') {
+                ctx.$data.isNewAddressAdded(true);
                 logger.logData(
                     "shipping-mixin/ccccContinue: Setting address as checked and set it in the shipping information"
                 );
