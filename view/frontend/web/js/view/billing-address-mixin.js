@@ -153,6 +153,12 @@ define([
                     }.bind(this)
                 );
 
+                window.EnderecoIntegrator.integratedObjects[this.dataScopePrefix+"_ams"].onConfirmAddress.push(
+                    function() {
+                        this.ccccAddressUpdate(null);
+                    }.bind(this)
+                );
+
                 window.EnderecoIntegrator.integratedObjects[this.dataScopePrefix+"_ams"].onAfterAddressCheckSelected.push(
                     function() {
                         var amsData = window.EnderecoIntegrator.integratedObjects[this.dataScopePrefix+"_ams"];

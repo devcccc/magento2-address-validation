@@ -209,6 +209,10 @@ define([
                 selectShippingAddressAction(quoteAddress);
             } else {
                 this.ccccUpdateAddressRegistered(addressData, this.source, 'shippingAddress');
+
+                if (quote.shippingAddress().getCacheKey() === quote.billingAddress().getCacheKey()) {
+                    quote.billingAddress(quote.shippingAddress());
+                }
             }
         },
 

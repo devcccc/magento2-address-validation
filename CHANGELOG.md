@@ -1,3 +1,8 @@
+#### 2.0.9
+
+- Billing address: User was not able to safe a confirmed address if the address was not valid.
+- Billing address: Update billing address if shipping address was changed and both addresses are equal.
+
 #### 2.0.8
 
 - An new address book could not be edited after a address correction was made within checkout (the "Edit"-button doesn't work)
