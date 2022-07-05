@@ -63,6 +63,7 @@ define([
                                         EAO.onConfirmAddress.push(this.ccccUpdateAddressFromEndereco.bind(this));
                                         EAO.onAfterAddressCheckNoAction.push(this.ccccUpdateAddressFromEndereco.bind(this));
                                         EAO.onAfterAddressCheckSelected.push(this.ccccUpdateAddressFromEndereco.bind(this));
+                                        EAO.config.splitStreet = !configurationHelper.useStreetFull();
                                     }.bind(this)
                                 );
 

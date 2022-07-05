@@ -147,6 +147,9 @@ define([
         initEvents: function() {
             if (!this.eventsInitialized) {
                 this.eventsInitialized = true;
+
+                window.EnderecoIntegrator.integratedObjects[this.dataScopePrefix+"_ams"].config.splitStreet = !configurationHelper.useStreetFull();
+
                 window.EnderecoIntegrator.integratedObjects[this.dataScopePrefix+"_ams"].onAfterAddressCheckNoAction.push(
                     function() {
                         this.ccccAddressUpdate(null);

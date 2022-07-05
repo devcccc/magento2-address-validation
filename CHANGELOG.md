@@ -1,3 +1,12 @@
+#### 2.0.11
+
+- Do not split street if full street should be used
+
+#### 2.0.10
+
+- Fixed "new address" button issue
+- When you click "edit address" in the modal for the billing address you won't be redirected to the shipping address any longer
+
 #### 2.0.9
 
 - Billing address: User was not able to safe a confirmed address if the address was not valid.
