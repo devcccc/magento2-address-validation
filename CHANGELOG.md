@@ -1,3 +1,7 @@
+#### 2.0.12
+
+- Fixed isse in handling eMail-check
+
 #### 2.0.11
 
 - Do not split street if full street should be used

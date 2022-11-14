@@ -103,8 +103,8 @@ define([
                         accountingConfig.forEach(
                             function(config) {
                                     window.EnderecoIntegrator.integratedObjects[config.scopeName] && window.EnderecoIntegrator.integratedObjects[config.scopeName].waitForAllExtension().then(function() {
-                                        if ((config.lastAddressCheckIndexVarName && (!that[config.lastAddressCheckIndexVarName] || that[config.lastAddressCheckIndexVarName] != window.EnderecoIntegrator.integratedObjects[config.scopeName]._addressCheckRequestIndex)) &&
-                                            (!that[config.lastSessionIdUsedForAccountVarName] || [config.lastSessionIdUsedForAccountVarName] != window.EnderecoIntegrator.integratedObjects[config.scopeName].sessionId)) {
+                                        if (((config.lastAddressCheckIndexVarName && (!that[config.lastAddressCheckIndexVarName] || that[config.lastAddressCheckIndexVarName] != window.EnderecoIntegrator.integratedObjects[config.scopeName]._addressCheckRequestIndex))) ||
+                                            (!config.lastAddressCheckIndexVarName && (!that[config.lastSessionIdUsedForAccountVarName] || that[config.lastSessionIdUsedForAccountVarName] != window.EnderecoIntegrator.integratedObjects[config.scopeName].sessionId))) {
                                             $.post(
                                                 {
                                                     url: window.EnderecoIntegrator.integratedObjects[config.scopeName].config.apiUrl,

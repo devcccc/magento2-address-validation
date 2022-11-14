@@ -45,7 +45,7 @@ After installation/update copy the DirectProxy-File to the pub-directory:
 
 ```
 cd {{YOUR MAGENTO MAIN DIRECTORY}}
-cp vendor/devcccc/magento2-address-validation/Controller/Proxy/DirectProxy.php pub/
+cp vendor/endereco/magento2-address-validation/Controller/Proxy/DirectProxy.php pub/
 ```
 
 Edit the .htaccess in the pub-folder. Add a rewrite for the DirectProxy.php. Its required 
