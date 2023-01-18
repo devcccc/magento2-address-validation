@@ -1,6 +1,10 @@
+#### 2.0.13
+
+- Fixed infinite loop with shipping address validation
+
 #### 2.0.12
 
-- Fixed isse in handling eMail-check
+- Fixed issue in handling eMail-check
 
 #### 2.0.11
 
