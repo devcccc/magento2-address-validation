@@ -1,3 +1,7 @@
+#### 2.0.14
+
+- Keep checkInProgress flag longer as 1000 ms - required if other shipping-mixins are involved 
+
 #### 2.0.13
 
 - Fixed infinite loop with shipping address validation

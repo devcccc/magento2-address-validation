@@ -329,7 +329,7 @@ define([
                         function () {
                             delete self.checkInProgress;
                         },
-                        1000
+                        5000
                     )
                     self.setShippingInformation();
                 }
