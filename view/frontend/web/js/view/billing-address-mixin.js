@@ -12,8 +12,9 @@ define([
     'CCCC_Addressvalidation/js/helper/logger',
     'CCCC_Addressvalidation/js/helper/configuration',
     'CCCC_Addressvalidation/js/helper/address',
-    'CCCC_Addressvalidation/js/endereco-setup'
-], function ($, ko, quote, checkoutData, customer, createBillingAddress, selectBillingAddress, placeOrderHooks, logger, configurationHelper, addressHelper, enderecosdk) {
+    'CCCC_Addressvalidation/js/endereco-setup',
+    'Magento_Checkout/js/model/shipping-save-processor'
+], function ($, ko, quote, checkoutData, customer, createBillingAddress, selectBillingAddress, placeOrderHooks, logger, configurationHelper, addressHelper, enderecosdk, shippingSaveProcessor) {
     'use strict';
 
     var mixin = {
@@ -73,44 +74,55 @@ define([
 
                 var that = this;
                 placeOrderHooks.afterRequestListeners.push(function() {
-                    window.EnderecoIntegrator.waitUntilReady().then(function() {
-                        window.EnderecoIntegrator.integratedObjects[that.dataScopePrefix+"_ams"].waitForActive().then(function() {
-                            window.EnderecoIntegrator.integratedObjects[that.dataScopePrefix+"_ams"] && window.EnderecoIntegrator.integratedObjects[that.dataScopePrefix+"_ams"].waitForAllExtension().then(function() {
-                                if ((!that.lastAmsAddressCheckIndex || that.lastAmsAddressCheckIndex != window.EnderecoIntegrator.integratedObjects[that.dataScopePrefix+"_ams"]._addressCheckRequestIndex) &&
-                                    (!that.lastAmsSessionIdUsedForAccounting || that.lastAmsSessionIdUsedForAccounting != window.EnderecoIntegrator.integratedObjects[that.dataScopePrefix+"_ams"].sessionId)) {
+                    var accountingConfig = [
+                        {
+                            enabled: true,
+                            scopeName: that.dataScopePrefix + "_ams",
+                            lastAddressCheckIndexVarName: 'lastAmsAddressCheckIndex',
+                            lastSessionIdUsedForAccountVarName: 'lastAmsSessionIdUsedForAccounting'
+                        }
+                    ];
+
+                    accountingConfig.forEach(
+                        function(config) {
+                            window.EnderecoIntegrator.integratedObjects[config.scopeName] && window.EnderecoIntegrator.integratedObjects[config.scopeName].waitForAllExtension().then(function() {
+                                if ((config.lastAddressCheckIndexVarName && (!that[config.lastAddressCheckIndexVarName] || that[config.lastAddressCheckIndexVarName] != window.EnderecoIntegrator.integratedObjects[config.scopeName]._addressCheckRequestIndex)) &&
+                                    (!that[config.lastSessionIdUsedForAccountVarName] || [config.lastSessionIdUsedForAccountVarName] != window.EnderecoIntegrator.integratedObjects[config.scopeName].sessionId)) {
                                     $.post(
                                         {
-                                            async: false,
-                                            url: window.EnderecoIntegrator.integratedObjects[that.dataScopePrefix+"_ams"].config.apiUrl,
+                                            url: window.EnderecoIntegrator.integratedObjects[config.scopeName].config.apiUrl,
                                             data: JSON.stringify({
-                                                id: ++window.EnderecoIntegrator.integratedObjects[that.dataScopePrefix+"_ams"]._addressCheckRequestIndex,
+                                                id: ++window.EnderecoIntegrator.integratedObjects[config.scopeName]._addressCheckRequestIndex,
                                                 jsonrpc: '2.0',
                                                 method: 'doAccounting',
-                                                params: {sessionId: window.EnderecoIntegrator.integratedObjects[that.dataScopePrefix+"_ams"].sessionId}
+                                                params: {sessionId: window.EnderecoIntegrator.integratedObjects[config.scopeName].sessionId}
                                             }),
                                             processData: false,
                                             headers: {
-                                                'X-Agent': window.EnderecoIntegrator.integratedObjects[that.dataScopePrefix+"_ams"].config.agentName,
-                                                'X-Auth-Key': window.EnderecoIntegrator.integratedObjects[that.dataScopePrefix+"_ams"].apiKey,
-                                                'X-Transaction-Id': window.EnderecoIntegrator.integratedObjects[that.dataScopePrefix+"_ams"].sessionId,
+                                                'X-Agent': window.EnderecoIntegrator.integratedObjects[config.scopeName].config.agentName,
+                                                'X-Auth-Key': window.EnderecoIntegrator.integratedObjects[config.scopeName].config.apiKey,
+                                                'X-Transaction-Id': window.EnderecoIntegrator.integratedObjects[config.scopeName].sessionId,
+                                                'X-Remote-Api-Url': window.checkoutConfig.cccc.addressvalidation.endereco.directRequests
+                                                    ? window.checkoutConfig.cccc.addressvalidation.endereco.serverApiUrl
+                                                    : null
                                             },
                                             method: 'POST',
                                             contentType: 'application/json'
                                         }
                                     ).success(
                                         function(data) {
-                                            that.lastAmsSessionIdUsedForAccounting = window.EnderecoIntegrator.integratedObjects[that.dataScopePrefix+"_ams"].sessionId;
-                                            that.lastAmsAddressCheckIndex = window.EnderecoIntegrator.integratedObjects[that.dataScopePrefix+"_ams"]._addressCheckRequestIndex;
-                                            window.EnderecoIntegrator.integratedObjects[that.dataScopePrefix+"_ams"].sessionId = window.EnderecoIntegrator.integratedObjects[that.dataScopePrefix+"_ams"].util.generateId();
+                                            that[config.lastSessionIdUsedForAccountVarName] = window.EnderecoIntegrator.integratedObjects[config.scopeName].sessionId;
+                                            if (config.lastAddressCheckIndexVarName) {
+                                                that[config.lastAddressCheckIndexVarName] = window.EnderecoIntegrator.integratedObjects[config.scopeName]._addressCheckRequestIndex;
+                                            }
+                                            window.EnderecoIntegrator.integratedObjects[config.scopeName].sessionId = window.EnderecoIntegrator.integratedObjects[config.scopeName].util.generateId();
                                         }
                                     );
                                 }
-
                             });
-                        });
-                    });
+                        }
+                    );
                 });
-                // TODO: Accounting billing address
             }
             this.amsInitialized = true;
 
@@ -135,7 +147,16 @@ define([
         initEvents: function() {
             if (!this.eventsInitialized) {
                 this.eventsInitialized = true;
+
+                window.EnderecoIntegrator.integratedObjects[this.dataScopePrefix+"_ams"].config.splitStreet = !configurationHelper.useStreetFull();
+
                 window.EnderecoIntegrator.integratedObjects[this.dataScopePrefix+"_ams"].onAfterAddressCheckNoAction.push(
+                    function() {
+                        this.ccccAddressUpdate(null);
+                    }.bind(this)
+                );
+
+                window.EnderecoIntegrator.integratedObjects[this.dataScopePrefix+"_ams"].onConfirmAddress.push(
                     function() {
                         this.ccccAddressUpdate(null);
                     }.bind(this)
@@ -152,9 +173,6 @@ define([
                                 [amsData._streetName, amsData._buildingNumber!="&nbsp;" ? amsData._buildingNumber : ""]
                                 : [amsData._streetName+amsData._buildingNumber!="&nbsp;" ? amsData._streetName+" "+amsData._buildingNumber : ""]
                         };
-
-
-
                         this.ccccAddressUpdate(addressData);
                     }.bind(this)
                 );
@@ -182,44 +200,36 @@ define([
                 );
                 window.EnderecoIntegrator.integratedObjects[this.dataScopePrefix+"_ams"]._changed = true;
 
-                var promise;
+                var promise = new Promise(
+                    function (resolve, reject) {
+                        resolve(false);
+                    }
+                );
                 if (configurationHelper.useStreetFull()) {
                     promise = window.EnderecoIntegrator.integratedObjects[this.dataScopePrefix+"_ams"].util.splitStreet();
                 }
 
-                if (!promise) {
-                    window.EnderecoIntegrator.integratedObjects[this.dataScopePrefix + "_ams"].cb.onFormSubmit(new Event('check'));
-                    setTimeout(
-                        function () {
-                            delete self.checkInProgress;
-                        },
-                        2000
-                    );
-                } else {
-                    var self = this;
-                    promise.then(
-                        function(data) {
-                            window.EnderecoIntegrator.integratedObjects[self.dataScopePrefix+"_ams"]._buildingNumber = data.houseNumber;
-                            window.EnderecoIntegrator.integratedObjects[self.dataScopePrefix+"_ams"]._streetName = data.streetName;
+                var self = this;
+                promise.then(
+                    function(data) {
+                        if (data) {
+                            window.EnderecoIntegrator.integratedObjects[self.dataScopePrefix + "_ams"]._buildingNumber = data.houseNumber;
+                            window.EnderecoIntegrator.integratedObjects[self.dataScopePrefix + "_ams"]._streetName = data.streetName;
                         }
-                    ).finally(
-                        function() {
-                            setTimeout(
-                                function() {
-                                    window.EnderecoIntegrator.integratedObjects[self.dataScopePrefix+"_ams"].cb.onFormSubmit(new Event('check'));
+                    }
+                ).finally(
+                    function() {
+                        window.EnderecoIntegrator.integratedObjects[self.dataScopePrefix+"_ams"].cb.onFormSubmit(new Event('check'));
 
-                                    setTimeout(
-                                        function () {
-                                            delete self.checkInProgress;
-                                        },
-                                        2000
-                                    )
-                                },
-                                3000
-                            );
-                        }
-                    );
-                }
+                        setTimeout(
+                            function () {
+                                delete self.checkInProgress;
+                            },
+                            1000
+                        );
+                    }
+                );
+
             }
         },
 
@@ -248,6 +258,7 @@ define([
                 selectBillingAddress(newBillingAddress);
                 checkoutData.setSelectedBillingAddress(newBillingAddress.getKey());
                 checkoutData.setNewCustomerBillingAddress(addressData);
+                shippingSaveProcessor.saveShippingInformation();
             }
 
             this.updateAddresses();

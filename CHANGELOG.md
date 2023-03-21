@@ -1,3 +1,49 @@
+### 2.0.15
+
+- Changed integration in nginx - use DirectProxy.php in pub-folder
+
+#### 2.0.14
+
+- Keep checkInProgress flag longer as 1000 ms - required if other shipping-mixins are involved 
+
+#### 2.0.13
+
+- Fixed infinite loop with shipping address validation
+
+#### 2.0.12
+
+- Fixed issue in handling eMail-check
+
+#### 2.0.11
+
+- Do not split street if full street should be used
+
+#### 2.0.10
+
+- Fixed "new address" button issue
+- When you click "edit address" in the modal for the billing address you won't be redirected to the shipping address any longer
+
+#### 2.0.9
+
+- Billing address: User was not able to safe a confirmed address if the address was not valid.
+- Billing address: Update billing address if shipping address was changed and both addresses are equal.
+
+#### 2.0.8
+
+- An new address book could not be edited after a address correction was made within checkout (the "Edit"-button doesn't work)
+
+#### 2.0.7 
+
+- Firstname and lastname got removed on guest checkout after validation
+
+#### 2.0.6 
+
+- Several smaller bug fixes
+
+#### 2.0.0
+
+- Implemented direct requests to bypass Magento Routing for requests to the Endereco backend, this speeds up the requests. To use direct requests you must enable the "Direct requests" in the settings AND further webserver configuration is required - see README.md
+
 #### 1.3.24
 
 - Fixed issue when saving quote and validation is not enabled for current store view

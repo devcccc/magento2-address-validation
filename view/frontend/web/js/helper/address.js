@@ -5,7 +5,8 @@ define([
     'CCCC_Addressvalidation/js/helper/logger',
     'CCCC_Addressvalidation/js/helper/configuration',
     'CCCC_Addressvalidation/js/operation/edit-address',
-], function ($, logger, configurationHelper, editAddress) {
+    'Magento_Checkout/js/action/create-shipping-address'
+], function ($, logger, configurationHelper, editAddress, createShippingAddress) {
     'use strict';
 
     return {
@@ -15,6 +16,7 @@ define([
                 +configurationHelper.ccccGetAddressDataByFieldSelector('postCode', 'postcode')+" => "
                 +addressData.postCode
             );
+
             source.set(contextPrefix +"."+ configurationHelper.ccccGetAddressDataByFieldSelector('postCode', 'postcode'), addressData.postCode);
             logger.logData(
                 "helper/address/ccccUpdateAddressSource: Setting field "+source+"."
@@ -59,56 +61,87 @@ define([
             source.set(contextPrefix+"."+configurationHelper.ccccGetAddressDataByFieldSelector('country', 'country_id'), addressData.countryId);
 
             var firstnameConversion = configurationHelper.getFirstnameConversion();
-            var currentFirstname = source.get('shippingAddress.firstname');
+            var currentFirstname = addressData.firstname;
+            if (!currentFirstname) {
+                currentFirstname = source.get('shippingAddress.firstname');
+            }
             if (configurationHelper.isUpperCaseConversion(firstnameConversion)) {
                 currentFirstname = currentFirstname.toUpperCase();
                 logger.logData(
                     "helper/address/ccccUpdateAddressSource: Setting field shippingAddress.firstname to upper case => "+" => "+currentFirstname
                 );
-                source.set(contextPrefix +'.firstname', currentFirstname)
             } else if (configurationHelper.isLowerCaseConversion(firstnameConversion)) {
                 currentFirstname = currentFirstname.toLowerCase();
                 logger.logData(
                     "helper/address/ccccUpdateAddressSource: Setting field shippingAddress.firstname to lower case => "+" => "+currentFirstname
                 );
-                source.set(contextPrefix +'.firstname', currentFirstname)
             } else if (configurationHelper.isUcFirstConversion(firstnameConversion)) {
                 currentFirstname = currentFirstname.charAt(0).toUpperCase() + currentFirstname.slice(1);
                 logger.logData(
                     "helper/address/ccccUpdateAddressSource: Setting field shippingAddress.firstname to uc first => "+" => "+currentFirstname
                 );
-                source.set(contextPrefix +'.firstname', currentFirstname)
             }
+            source.set(contextPrefix +'.firstname', currentFirstname);
 
             var lastnameConversion = configurationHelper.getLastnameConversion();
-            var currentLastname = source.get('shippingAddress.lastname');
+            var currentLastname = addressData.lastname;
+            if (!currentLastname) {
+                currentLastname = source.get('shippingAddress.lastname');
+            }
             if (configurationHelper.isUpperCaseConversion(lastnameConversion)) {
                 currentLastname = currentLastname.toUpperCase();
                 logger.logData(
                     "helper/address/ccccUpdateAddressSource: Setting field shippingAddress.lastname to upper case => "+" => "+currentLastname
                 );
-                source.set(contextPrefix +'.lastname', currentLastname)
             } else if (configurationHelper.isLowerCaseConversion(lastnameConversion)) {
                 currentLastname = currentLastname.toLowerCase();
                 logger.logData(
                     "helper/address/ccccUpdateAddressSource: Setting field shippingAddress.lastname to lower case => "+" => "+currentLastname
                 );
-                source.set(contextPrefix +'.lastname', currentLastname)
             } else if (configurationHelper.isUcFirstConversion(lastnameConversion)) {
                 currentLastname = currentLastname.charAt(0).toUpperCase() + currentLastname.slice(1);
                 logger.logData(
                     "helper/address/ccccUpdateAddressSource: Setting field shippingAddress.lastname to uc first => "+" => "+currentLastname
                 );
-                source.set(contextPrefix +'.lastname', currentLastname)
             }
+            source.set(contextPrefix +'.lastname', currentLastname);
         },
 
         ccccUpdateAddressRegistered: function (addressData, quoteAddress, selectedItemSelector, source, context) {
+
+            var transformedData = {
+                city: addressData.city,
+                country_id: addressData.countryId,
+                firstname: quoteAddress.firstname,
+                lastname: quoteAddress.lastname,
+                postcode: addressData.postCode,
+                prefix: null, //quoteAddress.prefix,
+                region: quoteAddress.region,
+                region_id: quoteAddress.regionId,
+                save_in_address_book: quoteAddress.saveInAddressBook,
+                street: {}
+            };
+
+            if (configurationHelper.useStreetFull) {
+                transformedData.street = {
+                    0: (addressData.street + ' ' + addressData.houseNumber).trim(),
+                    1: ''
+                }
+            } else {
+                transformedData.street = {
+                    0: addressData.street,
+                    1: addressData.houseNumber
+                }
+            }
+
+            createShippingAddress(transformedData);
+
             logger.logData(
                 "helper/address/ccccUpdateAddressRegistered: Setting field "
                 +configurationHelper.ccccGetAddressDataByFieldSelector('postCode', 'postcode')+" => "
                 +addressData.postCode
             );
+
             quoteAddress = this.ccccUpdateField(quoteAddress, addressData.postCode, configurationHelper.ccccGetAddressDataByFieldSelector('postCode', 'postcode'), selectedItemSelector);
             logger.logData(
                 "helper/address/ccccUpdateAddressRegistered: Setting field "
@@ -137,13 +170,8 @@ define([
                 );
                 quoteAddress = this.ccccUpdateField(quoteAddress, addressData.street + " " + addressData.houseNumber, configurationHelper.ccccGetAddressDataByFieldSelector('street', 'street[0]'), selectedItemSelector);
             }
-            logger.logData(
-                "helper/address/ccccUpdateAddressRegistered: Setting field region_id => (null)"
-            );
+
             quoteAddress = this.ccccUpdateField(quoteAddress, null, "region_id", selectedItemSelector);
-            logger.logData(
-                "helper/address/ccccUpdateAddressRegistered: Setting field region => (null)"
-            );
             quoteAddress = this.ccccUpdateField(quoteAddress, null, "region", selectedItemSelector);
 
             logger.logData(
@@ -167,11 +195,15 @@ define([
                 quoteAddress = this.ccccUpdateField(quoteAddress, currentLastname, "lastname", selectedItemSelector);
             }
 
+            addressData.firstname = quoteAddress["firstname"];
+            addressData.lastname = quoteAddress["lastname"];
+
             this.ccccUpdateAddressSource(addressData, source, context);
 
             logger.logData(
                 "helper/address/ccccUpdateAddressRegistered: Set new selected shipping address "+JSON.stringify(quoteAddress)
             );
+
             editAddress(quoteAddress);
             return quoteAddress;
         },
@@ -191,7 +223,6 @@ define([
                     logger.logData(
                         "helper/address/ccccUpdateField: Multidimensional field, data changed "+oSourceAddress[matches[1]][matches[2]]+"  => "+oResponseData
                     );
-                    this.ccccReplaceInSelectedAddress(oSourceAddress[matches[1]][matches[2]], oResponseData, selectedItemSelector);
                     logger.logData(
                         "helper/address/ccccUpdateField: Multidimensional field => new value: "+oResponseData
                     );
@@ -206,29 +237,10 @@ define([
                         "helper/address/ccccUpdateField: Simple field, data changed "+oSourceAddress[sField]+"  => "+oResponseData
                         +" - set new value"
                     );
-                    this.ccccReplaceInSelectedAddress(oSourceAddress[sField], oResponseData, selectedItemSelector);
                     oSourceAddress[sField] = oResponseData;
                 }
             }
             return oSourceAddress;
-        },
-
-        ccccReplaceInSelectedAddress: function (sReplace, sReplaceWith, selectedItemSelector) {
-            var oElem = $('.shipping-address-item.selected-item');
-            var oElem = $(selectedItemSelector);
-            logger.logData(
-                "shipping-mixin/ccccReplaceInSelectedAddress: Replacing "+sReplace+" => "+sReplaceWith
-            );
-            if (oElem.length > 0) {
-                logger.logData(
-                    "shipping-mixin/ccccReplaceInSelectedAddress: Replacing "+sReplace+" => "+sReplaceWith+" within element-html "+oElem.html()
-                );
-                oElem.html(oElem.html().replace(sReplace, sReplaceWith));
-            } else {
-                logger.logData(
-                    "shipping-mixin/ccccReplaceInSelectedAddress: No selected shipping address item found, skipping "
-                );
-            }
-        },
+        }
     };
 });

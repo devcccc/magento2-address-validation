@@ -12,11 +12,15 @@ namespace CCCC\Addressvalidation\Model;
 
 use Magento\Checkout\Model\ConfigProviderInterface;
 use Magento\Framework\App\Config\ScopeConfigInterface;
+use Magento\Framework\Module\ModuleListInterface;
 use Magento\Framework\UrlInterface;
+use Magento\Framework\View\DesignInterface;
 
 class ConfigProvider implements ConfigProviderInterface
 {
     protected $configPrefix = 'cccc_addressvalidation_endereco_section';
+
+    const MODULE_NAME = 'CCCC_Addressvalidation';
 
     /** @var ScopeConfigInterface  */
     protected $scopeConfig;
@@ -34,16 +38,25 @@ class ConfigProvider implements ConfigProviderInterface
     /** @var \Magento\Directory\Model\ResourceModel\Country\Collection  */
     protected $countryCollection;
 
+    protected $magentoVersion;
+
+    protected $themeCode;
+
     public function __construct(
         ScopeConfigInterface $scopeConfig,
         \Magento\Checkout\Model\Session $checkoutSession,
         UrlInterface $urlInterface,
-        \Magento\Directory\Model\ResourceModel\Country\Collection $countryCollection
+        \Magento\Directory\Model\ResourceModel\Country\Collection $countryCollection,
+        DesignInterface $design,
+        ModuleListInterface $moduleList
     ) {
         $this->scopeConfig = $scopeConfig;
         $this->checkoutSession = $checkoutSession;
         $this->urlInterface = $urlInterface;
         $this->countryCollection = $countryCollection;
+
+        $this->themeCode = $design->getDesignTheme()->getCode();
+        $this->moduleVersion = $moduleList->getOne(self::MODULE_NAME)['setup_version'];
     }
 
     /**
@@ -90,8 +103,15 @@ class ConfigProvider implements ConfigProviderInterface
                     'javascript_debug' => $this->scopeConfig->getValue($this->configPrefix . '/development/javascript_debugging', 'store') == 1
                 ],
                 'countryId' => $this->scopeConfig->getValue('general/country/default', 'store'),
-                'baseUrl' => $this->urlInterface->getUrl('4cAddress/proxy/proxy'),
-                'countries' => $countries
+                'countries' => $countries,
+                'apiKey' => $this->scopeConfig->getValue($this->configPrefix . '/connection/authkey', 'store'),
+                'directRequests' => $this->scopeConfig->getValue($this->configPrefix . '/connection/directrequests', 'store') == 1,
+                'serverApiUrl' => $this->scopeConfig->getValue($this->configPrefix . '/connection/baseurl', 'store'),
+                'agentName' => 'Magento:'.$this->magentoVersion.', Theme: '.$this->themeCode.', '.self::MODULE_NAME.': '.$this->moduleVersion,
+                'apiUrl' => [
+                    'proxy' => $this->urlInterface->getUrl('4cAddress/proxy/proxy'),
+                    'direct' => $this->urlInterface->getDirectUrl('cccc_adressvalidation/direct')
+                ]
             ],
         ];
     }

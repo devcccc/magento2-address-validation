@@ -7,6 +7,7 @@
                 <enabled>0</enabled>
                 <baseurl>https://endereco-service.de/rpc/v1</baseurl>
                 <referer_mode>currentpage</referer_mode>
+                <directrequests>1</directrequests>
             </connection>
             <integration>
                 <frontend_checkout_shipping>1</frontend_checkout_shipping>
