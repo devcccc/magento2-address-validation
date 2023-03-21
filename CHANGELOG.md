@@ -1,3 +1,7 @@
+### 2.0.15
+
+- Changed integration in nginx - use DirectProxy.php in pub-folder
+
 #### 2.0.14
 
 - Keep checkInProgress flag longer as 1000 ms - required if other shipping-mixins are involved 

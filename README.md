@@ -81,17 +81,25 @@ For nginx a new location-Block within your nginx-site-configuration is required.
 
 ```
 location /cccc_adressvalidation/direct {
-    root $MAGE_ROOT/app/code/CCCC/Addressvalidation/Controller/Proxy;
-    index DirectProxy.php;
-    fastcgi_pass   fastcgi_backend;
-    fastcgi_index  DirectProxy.php;
-    fastcgi_param  SCRIPT_FILENAME  $document_root/DirectProxy.php;
-    include        fastcgi_params;
+    proxy_pass https://<your domain>>/DirectProxy.php;
 }
 ```
 
 This location-Block should be placed directly in the server-block for the Magento-shop.
 
-Now enable the direct requests in the settings of the extension within the Magento Admin-Backend.
+In the existing nginx-configuration we have to extend the script-whitelist of the "PHP entry point for main application". 
+Normally it will look like:
+
+```
+location ~ /(index|get|static|errors/report|errors/404|errors/503|health_check)\.php$ {
+```
+
+You must add DirectProxy here:
+
+```
+location ~ /(DirectProxy|index|get|static|errors/report|errors/404|errors/503|health_check)\.php$ {
+```
+
+Now restart the nginx and then enable the direct requests in the settings of the extension within the Magento Admin-Backend.
 
 Menu: Stores => Configuration. Select "CCCC Config" => Address validation with Endereco => "Use direct requests" => Yes
